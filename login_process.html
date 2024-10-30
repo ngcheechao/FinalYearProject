@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/2.1.1/tesseract.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding-top: 20px;
+        }
+
+        .user-dashboard-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 300px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        video,
+        canvas {
+            width: 300px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #recognized-text {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #333;
+        }
+
+        #recipe-list {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #333;
+            text-align: left;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="user-dashboard-container">
+        <h2>User Dashboard</h2>
+
+        <!-- OCR and Scanned Items Section -->
+        <video id="camera-stream" autoplay></video>
+        <button onclick="takePhoto()">Take Photo</button>
+        <canvas id="photo-canvas" style="display: none;"></canvas>
+        <div id="recognized-text"></div>
+
+        <!-- Recipe Display Section -->
+        <h3>Available Recipes</h3>
+        <div id="recipe-list">Loading recipes...</div>
+    </div>
+
+    <script>
+        // Array to store parsed items
+        let scannedItems = [];
+
+        // Set up the camera stream
+        const video = document.getElementById('camera-stream');
+        const canvas = document.getElementById('photo-canvas');
+        const context = canvas.getContext('2d');
+
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function (stream) {
+                    video.srcObject = stream;
+                    video.play();
+                })
+                .catch(function (error) {
+                    console.error("Error accessing the camera:", error);
+                });
+        } else {
+            alert("Camera not supported on this device.");
+        }
+
+        // Function to take a photo and perform OCR
+        function takePhoto() {
+            // Set canvas size to the video frame
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            // Draw the current frame from the video onto the canvas
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Convert the canvas image to a data URL
+            const imageDataUrl = canvas.toDataURL('image/png');
+
+            // Perform OCR using Tesseract.js
+            Tesseract.recognize(
+                imageDataUrl,
+                'eng',
+                { logger: m => console.log(m) }
+            ).then(({ data: { text } }) => {
+                document.getElementById('recognized-text').innerText = `Recognized Text: ${text}`;
+
+                // Parse the recognized text to identify items, quantities, and prices
+                const lines = text.split('\n');
+                scannedItems = [];  // Reset scannedItems array
+
+                lines.forEach(line => {
+                    // Regex pattern to capture "ItemName Quantity Price"
+                    const itemPattern = /([A-Za-z\s]+)\s+(\d+)\s+([\d.]+)/;
+                    const match = line.match(itemPattern);
+
+                    if (match) {
+                        const item = {
+                            name: match[1].trim(),
+                            quantity: parseInt(match[2]),
+                            price: parseFloat(match[3])
+                        };
+                        scannedItems.push(item);
+                    }
+                });
+
+                // Display the parsed items in a structured format
+                displayScannedItems();
+            }).catch(error => {
+                console.error("Error performing OCR:", error);
+            });
+        }
+
+        // Function to display scanned items
+        function displayScannedItems() {
+            let itemsHtml = "<h3>Scanned Items</h3><ul>";
+            scannedItems.forEach(item => {
+                itemsHtml += `<li>${item.name} - Quantity: ${item.quantity}, Price: $${item.price.toFixed(2)}</li>`;
+            });
+            itemsHtml += "</ul>";
+            document.getElementById('recognized-text').innerHTML = itemsHtml;
+        }
+
+        // Function to display recipes from local storage
+        function displayRecipes() {
+            const recipes = JSON.parse(localStorage.getItem("recipes")) || [];
+            const recipeList = document.getElementById("recipe-list");
+
+            if (recipes.length === 0) {
+                recipeList.innerHTML = "<p>No recipes available.</p>";
+                return;
+            }
+
+            let recipesHtml = "<ul>";
+            recipes.forEach(recipe => {
+                recipesHtml += `<li><strong>${recipe.name}</strong><br>
+                    Ingredients: ${recipe.ingredients.join(", ")}<br>
+                    Instructions: ${recipe.instructions}</li><br>`;
+            });
+            recipesHtml += "</ul>";
+            recipeList.innerHTML = recipesHtml;
+        }
+
+        // Load recipes on page load
+        window.onload = displayRecipes;
+    </script>
+</body>
+
+</html>
