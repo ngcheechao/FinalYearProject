@@ -8,7 +8,7 @@
 /* Body styling */
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f7f6;
+    background-color: #f0f2f5;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -24,8 +24,9 @@ form {
     width: 300px;
 }
 
-/* Title styling */
-h2 {
+/* Title styling for forms and containers */
+h2,
+.dashboard-container h1 {
     text-align: center;
     color: #333;
     margin-bottom: 20px;
@@ -42,7 +43,8 @@ label {
 /* Input field styling */
 input[type="text"],
 input[type="email"],
-input[type="password"] {
+input[type="password"],
+input[type="number"] {
     width: 100%;
     padding: 10px;
     margin-bottom: 15px;
@@ -50,7 +52,7 @@ input[type="password"] {
     border-radius: 4px;
 }
 
-/* Button styling */
+/* Submit button styling */
 button[type="submit"] {
     width: 100%;
     padding: 10px;
@@ -63,26 +65,8 @@ button[type="submit"] {
     transition: background-color 0.3s ease;
 }
 
-/* Button hover effect */
 button[type="submit"]:hover {
     background-color: #218838;
-}
-
-/* Basic reset for margin and padding */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-/* Body styling */
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f7f6;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
 }
 
 /* Dashboard container styling */
@@ -97,18 +81,11 @@ body {
     transition: transform 0.3s ease;
 }
 
-/* Hover effect on the container */
 .dashboard-container:hover {
     transform: translateY(-5px);
 }
 
-/* Title styling */
-.dashboard-container h1 {
-    color: #333;
-    font-size: 2em;
-    margin-bottom: 10px;
-}
-
+/* Paragraph styling in dashboard */
 .dashboard-container p {
     color: #666;
     font-size: 1em;
@@ -136,8 +113,67 @@ body {
     transition: background-color 0.3s ease, transform 0.2s;
 }
 
-/* Dashboard button hover effect */
 .dashboard-button:hover {
     background-color: #218838;
     transform: scale(1.05);
+}
+
+/* Shopping list container styling */
+.shopping-list-container {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    width: 80%;
+    max-width: 600px;
+    text-align: center;
+}
+
+.shopping-list-container h2 {
+    color: #054A24;
+}
+
+/* Table styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+table th,
+table td {
+    padding: 12px;
+    border: 1px solid #9CBDAC;
+    text-align: left;
+    font-size: 1em;
+}
+
+table th {
+    background-color: #56A575;
+    color: #fff;
+    font-weight: bold;
+}
+
+table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+table tbody tr:hover {
+    background-color: #e1f5e1;
+}
+
+/* Link styling */
+a {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #D3993E;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+a:hover {
+    background-color: #C28431;
 }
