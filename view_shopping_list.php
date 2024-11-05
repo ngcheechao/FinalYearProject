@@ -14,7 +14,7 @@ if ($conn->connect_error) {
 }
 
 // Retrieve all items from the groceries table
-$sql = "SELECT id, item_name, quantity, price FROM groceries";
+$sql = "SELECT id, item_name, quantity, price, unit FROM groceries"; // Include unit in the query
 $result = $conn->query($sql);
 ?>
 
@@ -37,7 +37,7 @@ $result = $conn->query($sql);
                         <th>Item Name</th>
                         <th>Quantity</th>
                         <th>Price</th>
-                        <th>Total Cost</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -45,9 +45,23 @@ $result = $conn->query($sql);
                         <tr>
                             <td><?php echo $row["id"]; ?></td>
                             <td><?php echo htmlspecialchars($row["item_name"]); ?></td>
-                            <td><?php echo htmlspecialchars($row["quantity"]); ?></td>
+                            <td>
+                                <?php 
+                                // Display quantity with unit if it's not "pieces"
+                                if (strtolower($row["unit"]) != "pieces") {
+                                    echo htmlspecialchars($row["quantity"]) . " " . htmlspecialchars($row["unit"]);
+                                } else {
+                                    echo htmlspecialchars($row["quantity"]);
+                                }
+                                ?>
+                            </td>
                             <td><?php echo htmlspecialchars(number_format($row["price"], 2)); ?></td>
-                            <td><?php echo htmlspecialchars(number_format($row["quantity"] * $row["price"], 2)); ?></td>
+                            <td>
+                                <a href="edit_item.php?id=<?php echo $row['id']; ?>" class="edit-button">Edit</a>
+                            </td>
+                            <td>
+                                <a href="delete_item.php?id=<?php echo $row['id']; ?>" class="delete-button">Delete</a>
+                            </td>
                         </tr>
                     <?php endwhile; ?>
                 </tbody>
@@ -56,7 +70,7 @@ $result = $conn->query($sql);
             <p>No items in your shopping list yet.</p>
         <?php endif; ?>
 
-        <a href="dashboard.php">Back to Dashboard</a>
+        <a href="user_dashboard.html" class="back-button">Back to Dashboard</a>
     </div>
 
     <?php $conn->close(); ?>
