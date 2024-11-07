@@ -43,7 +43,8 @@ $result = $conn->query($sql);
             <table>
                 <thead>
                     <tr>
-                        <th>ID</th>
+                        
+                        <!-- <th>ID</th> -->
                         <th>Item Name</th>
                         <th>Quantity</th>
                         <th>Price</th>
@@ -53,7 +54,7 @@ $result = $conn->query($sql);
                 <tbody>
                     <?php while ($row = $result->fetch_assoc()): ?>
                         <tr>
-                            <td><?php echo $row["id"]; ?></td>
+                            <!-- <td><?php echo $row["id"]; ?></td> -->
                             <td><?php echo htmlspecialchars($row["item_name"]); ?></td>
                             <td>
                                 <?php 
