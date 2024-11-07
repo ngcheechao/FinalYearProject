@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculate Wastage</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .wastage-container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            width: 400px;
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #054A24;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #9CBDAC;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #56A575;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wastage-container">
+        <h2>Calculate Food Wastage</h2>
+        <form id="wastageForm">
+            <div class="form-group">
+                <label for="foodType">Type of Food:</label>
+                <select id="foodType" required>
+                    <option value="">Select type</option>
+                    <option value="meat">Meat</option>
+                    <option value="vegetable">Vegetable</option>
+                    <option value="dairy">Dairy</option>
+                    <option value="fruit">Fruit</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="foodName">Name of Food:</label>
+                <input type="text" id="foodName" required>
+            </div>
+            <div class="form-group">
+                <label for="quantity">Quantity (kg or g):</label>
+                <input type="text" id="quantity" required>
+            </div>
+            <div class="form-group">
+                <label for="cost">Cost (in dollars):</label>
+                <input type="number" id="cost" required>
+            </div>
+            <button type="submit">Submit Wastage</button>
+        </form>
+    </div>
+
+    <script>
+        // Function to handle wastage submission
+        document.getElementById("wastageForm").addEventListener("submit", function (event) {
+            event.preventDefault(); // Prevents the form from refreshing the page
+
+            const wastage = {
+                foodType: document.getElementById("foodType").value,
+                foodName: document.getElementById("foodName").value,
+                quantity: document.getElementById("quantity").value,
+                cost: parseFloat(document.getElementById("cost").value)
+            };
+
+            // Save to local storage (or database in production)
+            let wastageData = JSON.parse(localStorage.getItem("wastageData")) || [];
+            wastageData.push(wastage);
+            localStorage.setItem("wastageData", JSON.stringify(wastageData));
+
+            alert("Wastage data submitted successfully!");
+            this.reset(); // Resets the form fields
+        });
+    </script>
+</body>
+
+</html>
