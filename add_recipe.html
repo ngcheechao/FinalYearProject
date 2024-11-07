@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .dashboard-container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            width: 400px;
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #054A24;
+        }
+
+        p {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #9CBDAC;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            height: 80px;
+        }
+
+        button {
+            background-color: #56A575;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .logout-button {
+            background-color: #D3993E;
+            margin-top: 20px;
+        }
+
+        .logout-button:hover {
+            background-color: #C28431;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <h2>Admin Dashboard</h2>
+        <p>Welcome, Admin! You have successfully logged in.</p>
+
+        <!-- Recipe Form -->
+        <h3>Add a Recipe</h3>
+        <form id="recipeForm">
+            <div class="form-group">
+                <label for="recipeName">Recipe Name:</label>
+                <input type="text" id="recipeName" required>
+            </div>
+            <div class="form-group">
+                <label for="ingredients">Ingredients (comma-separated):</label>
+                <textarea id="ingredients" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="instructions">Instructions:</label>
+                <textarea id="instructions" required></textarea>
+            </div>
+            <button type="submit">Add Recipe</button>
+            
+        </form>
+        
+
+        <button class="logout-button" onclick="logout()">Logout</button>
+    </div>
+
+    <script>
+        // Logout function
+        function logout() {
+            window.location.href = "login.html";
+        }
+
+        // Function to handle recipe submission
+        document.getElementById("recipeForm").addEventListener("submit", function (event) {
+            event.preventDefault(); // Prevents the form from refreshing the page
+
+            const recipe = {
+                name: document.getElementById("recipeName").value,
+                ingredients: document.getElementById("ingredients").value.split(","),
+                instructions: document.getElementById("instructions").value
+            };
+
+            // Save to local storage (or database in production)
+            let recipes = JSON.parse(localStorage.getItem("recipes")) || [];
+            recipes.push(recipe);
+            localStorage.setItem("recipes", JSON.stringify(recipes));
+
+            alert("Recipe added successfully!");
+            this.reset(); // Resets the form fields
+        });
+    </script>
+</body>
+
+</html>
