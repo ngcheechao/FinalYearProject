@@ -1,4 +1,13 @@
 <?php
+// Start session
+session_start();
+
+// Check if the user is logged in
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.html");
+    exit();
+}
+
 // Database connection details
 $servername = "localhost";
 $username = "root"; // Default for XAMPP
@@ -18,11 +27,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
     $item_name = $_POST['item_name'];
     $quantity = $_POST['quantity'];
     $price = $_POST['price'];
+    $user_id = $_SESSION['user_id']; // Get the user ID from the session
 
-    // Insert data into database
-    $sql = "INSERT INTO groceries (item_name, quantity, price) VALUES (?, ?, ?)";
+    // Insert data into database, including user_id
+    $sql = "INSERT INTO groceries (item_name, quantity, price, user_id) VALUES (?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sid", $item_name, $quantity, $price); // "sid" -> s: string, i: integer, d: double
+    $stmt->bind_param("sidi", $item_name, $quantity, $price, $user_id); // "sidi" -> s: string, i: integer, d: double, i: integer
 
     if ($stmt->execute()) {
         echo "<p>Item added successfully!</p>";

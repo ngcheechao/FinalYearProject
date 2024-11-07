@@ -1,4 +1,13 @@
 <?php
+// Start session
+session_start();
+
+// Check if the user is logged in
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.html");
+    exit();
+}
+
 // Database connection details
 $servername = "localhost";
 $username = "root"; // Default username for XAMPP
@@ -13,8 +22,9 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Retrieve all items from the groceries table
-$sql = "SELECT id, item_name, quantity, price, unit FROM groceries"; // Include unit in the query
+// Retrieve user-specific items from the groceries table
+$user_id = $_SESSION['user_id'];
+$sql = "SELECT id, item_name, quantity, price, unit FROM groceries WHERE user_id = '$user_id'";
 $result = $conn->query($sql);
 ?>
 

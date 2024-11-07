@@ -11,6 +11,9 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+// Start session
+session_start();
+
 // Get login form data
 $email = $_POST['email'];
 $pass = $_POST['password']; // Plain text comparison
@@ -23,14 +26,16 @@ if ($result->num_rows > 0) {
     $row = $result->fetch_assoc();
     // Directly compare plain text passwords
     if ($pass === $row['password']) {  // Remove password_verify and use direct comparison
+        // Store user ID in session
+        $_SESSION['user_id'] = $row['id'];
+
         // Check if the user is an admin
         if ($row['is_admin'] == 1) {
             header("Location: admin_dashboard.html");
-            exit();
         } else {
             header("Location: user_dashboard.html");
-            exit();
         }
+        exit();
     } else {
         echo "Invalid password. Please try again.";
     }
