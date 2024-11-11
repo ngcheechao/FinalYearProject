@@ -33,7 +33,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
     // Insert data into database
     $sql = "INSERT INTO recipe (recipe_name, ingredients, instructions) VALUES (?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssi", $recipe_name, $ingredients, $instructions);
+    $stmt->bind_param("sss", $recipe_name, $ingredients, $instructions);
     
     
 
@@ -49,4 +49,3 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
 // Close the database connection
 $conn->close();
 ?>
-

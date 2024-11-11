@@ -25,9 +25,8 @@ if ($conn->connect_error) {
 // Retrieve user-specific items from the groceries table
 $user_id = $_SESSION['user_id'];
 $sql = "SELECT id, item_name, quantity, price, unit FROM groceries WHERE user_id = '$user_id'";
-$result = $conn->query($sql);
+$result = $conn->query(query: $sql);
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -87,4 +86,3 @@ $result = $conn->query($sql);
     <?php $conn->close(); ?>
 </body>
 </html>
-?>
