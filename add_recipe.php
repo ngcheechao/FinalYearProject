@@ -26,14 +26,14 @@ if ($conn->connect_error) {
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
     
     $recipe_name = $_POST['recipe_name'];
-    $quantity = $_POST['quantity'];
-    $price = $_POST['price'];
+    $ingredients = $_POST['ingredients'];
+    $instructions = $_POST['instructions'];
     
 
-    // Insert data into database, including user_id
-    $sql = "INSERT INTO groceries (item_name, quantity, price, user_id) VALUES (?, ?, ?, ?)";
+    // Insert data into database
+    $sql = "INSERT INTO recipe (recipe_name, ingredients, instructions) VALUES (?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sidi", $item_name, $quantity, $price, $user_id); // "sidi" -> s: string, i: integer, d: double, i: integer
+    $stmt->bind_param("sssi", $recipe_name, $ingredients, $instructions);
     
     
 
