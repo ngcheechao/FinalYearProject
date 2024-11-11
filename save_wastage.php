@@ -26,14 +26,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $units = $_POST['unit'];
     $costs = $_POST['cost'];
 
-    // Prepare the SQL insert statement with the new unit field
     $sql = "INSERT INTO food_wastage (user_id, food_type, food_name, quantity, unit, cost) VALUES (?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
 
     for ($i = 0; $i < count($foodTypes); $i++) {
         $foodType = $conn->real_escape_string($foodTypes[$i]);
         $foodName = $conn->real_escape_string($foodNames[$i]);
-        $quantity = floatval($quantities[$i]); // Convert quantity to float
+        $quantity = floatval($quantities[$i]);
         $unit = $conn->real_escape_string($units[$i]);
         $cost = floatval($costs[$i]);
 
@@ -45,12 +44,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     $stmt->close();
-    echo "Wastage data added successfully.";
 } else {
     echo "Invalid request.";
 }
 
 $conn->close();
+
 header("Location: calculate_wastage.html");
 exit();
 ?>

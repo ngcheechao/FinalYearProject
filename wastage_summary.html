@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Wastage Summary</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .summary-container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            width: 400px;
+            text-align: center;
+        }
+        h2 {
+            color: #054A24;
+        }
+        p {
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        .back-button {
+            background-color: #56A575;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        .back-button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="summary-container">
+        <h2>Food Wastage Summary</h2>
+        <div id="summaryContent">
+            <!-- Summary data will be populated here -->
+        </div>
+        <button class="back-button" onclick="window.location.href='user_dashboard.html'">Back to Dashboard</button>
+    </div>
+
+    <script>
+        fetch('wastage_summary.php')
+            .then(response => response.json())
+            .then(data => {
+                const summaryContent = document.getElementById('summaryContent');
+                summaryContent.innerHTML = `
+                    <p><strong>Total Food Wasted:</strong> ${data.total_food_wasted} kg</p>
+                    <p><strong>Total Cost of Wasted Food:</strong> $${data.total_cost}</p>
+                    <p><strong>Meals for Children:</strong> Could have fed ${data.children_fed} children</p>
+                    <p><strong>Environmental Impact:</strong> ${data.environmental_impact} kg CO2 equivalent</p>
+                `;
+            })
+            .catch(error => {
+                console.error('Error fetching summary:', error);
+                document.getElementById('summaryContent').innerHTML = "<p>Failed to load summary data.</p>";
+            });
+    </script>
+</body>
+</html>

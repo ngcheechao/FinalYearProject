@@ -1,11 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculate Wastage</title>
-    <link rel="stylesheet" href="styles.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -16,7 +14,6 @@
             height: 100vh;
             margin: 0;
         }
-
         .wastage-container {
             background-color: #fff;
             padding: 30px;
@@ -25,103 +22,92 @@
             width: 400px;
             text-align: center;
         }
-
         h2 {
-            margin-bottom: 20px;
             color: #054A24;
         }
-
         .form-group {
             margin-bottom: 15px;
             text-align: left;
         }
-
         .form-group label {
             display: block;
-            color: #333;
             font-weight: bold;
-            margin-bottom: 5px;
+            color: #333;
         }
-
-        .form-group input,
-        .form-group select {
+        .form-group input, .form-group select {
             width: 100%;
             padding: 10px;
-            border: 1px solid #9CBDAC;
             border-radius: 5px;
-            box-sizing: border-box;
+            border: 1px solid #9CBDAC;
         }
-
-        button {
+        .quantity-group {
+            display: flex;
+            gap: 10px;
+        }
+        .add-entry, .view-summary, button {
             background-color: #56A575;
             color: white;
             border: none;
             border-radius: 5px;
-            padding: 12px 20px;
+            padding: 10px;
             cursor: pointer;
             font-size: 16px;
-            margin-top: 10px;
             width: 100%;
-            transition: background-color 0.3s ease;
+            margin-top: 10px;
         }
-
-        button:hover {
+        .add-entry:hover, .view-summary:hover, button:hover {
             background-color: #45a049;
         }
     </style>
 </head>
-
 <body>
     <div class="wastage-container">
         <h2>Calculate Food Wastage</h2>
-        <form id="wastageForm">
-            <div class="form-group">
-                <label for="foodType">Type of Food:</label>
-                <select id="foodType" required>
-                    <option value="">Select type</option>
-                    <option value="meat">Meat</option>
-                    <option value="vegetable">Vegetable</option>
-                    <option value="dairy">Dairy</option>
-                    <option value="fruit">Fruit</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="foodName">Name of Food:</label>
-                <input type="text" id="foodName" required>
-            </div>
-            <div class="form-group">
-                <label for="quantity">Quantity (kg or g):</label>
-                <input type="text" id="quantity" required>
-            </div>
-            <div class="form-group">
-                <label for="cost">Cost (in dollars):</label>
-                <input type="number" id="cost" required>
+        <form id="wastageForm" method="POST" action="save_wastage.php">
+            <div id="foodEntries">
+                <div class="food-entry">
+                    <div class="form-group">
+                        <label for="foodType">Type of Food:</label>
+                        <select name="foodType[]" required>
+                            <option value="">Select type</option>
+                            <option value="meat">Meat</option>
+                            <option value="vegetable">Vegetable</option>
+                            <option value="dairy">Dairy</option>
+                            <option value="fruit">Fruit</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="foodName">Name of Food:</label>
+                        <input type="text" name="foodName[]" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="quantity">Quantity:</label>
+                        <div class="quantity-group">
+                            <input type="number" name="quantity[]" required placeholder="Enter quantity">
+                            <select name="unit[]" required>
+                                <option value="kg">kg</option>
+                                <option value="g">g</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="cost">Cost (in dollars):</label>
+                        <input type="number" name="cost[]" required>
+                    </div>
+                </div>
             </div>
             <button type="submit">Submit Wastage</button>
         </form>
+        <button class="view-summary" onclick="window.location.href='wastage_summary.html'">View Summary</button>
     </div>
 
     <script>
-        // Function to handle wastage submission
-        document.getElementById("wastageForm").addEventListener("submit", function (event) {
-            event.preventDefault(); // Prevents the form from refreshing the page
-
-            const wastage = {
-                foodType: document.getElementById("foodType").value,
-                foodName: document.getElementById("foodName").value,
-                quantity: document.getElementById("quantity").value,
-                cost: parseFloat(document.getElementById("cost").value)
-            };
-
-            // Save to local storage (or database in production)
-            let wastageData = JSON.parse(localStorage.getItem("wastageData")) || [];
-            wastageData.push(wastage);
-            localStorage.setItem("wastageData", JSON.stringify(wastageData));
-
-            alert("Wastage data submitted successfully!");
-            this.reset(); // Resets the form fields
-        });
+        function addFoodEntry() {
+            const foodEntries = document.getElementById("foodEntries");
+            const newEntry = document.querySelector(".food-entry").cloneNode(true);
+            newEntry.querySelectorAll("input, select").forEach(input => input.value = "");
+            foodEntries.appendChild(newEntry);
+        }
     </script>
 </body>
-
 </html>
