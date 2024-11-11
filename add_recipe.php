@@ -1,5 +1,4 @@
 <?php
-// Start session
 session_start();
 
 // Check if the user is logged in
@@ -10,40 +9,41 @@ if (!isset($_SESSION['user_id'])) {
 
 // Database connection details
 $servername = "localhost";
-$username = "root"; // Default for XAMPP
-$password = ""; // Default for XAMPP
-$dbname = "fyp"; // Your database name
+$username = "root";
+$password = "";
+$dbname = "fyp";
 
-// Create connection
+// Create a connection
 $conn = new mysqli($servername, $username, $password, $dbname);
 
 // Check connection
 if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);   
-
+    die("Connection failed: " . $conn->connect_error);
 }
 
 // Handle form submission
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit']))   
- {
-    $recipe_name = $_POST['recipe_name'];
-    $ingredients = $_POST['ingredients'];
-    $instructions = $_POST['instructions'];
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Retrieve and sanitize form inputs
+    $recipe_name = $conn->real_escape_string($_POST['recipe_name']);
+    $ingredients = $conn->real_escape_string($_POST['ingredients']);
+    $instructions = $conn->real_escape_string($_POST['instructions']);
 
-    // Insert data into database
+    // Prepare the SQL statement
     $sql = "INSERT INTO recipes (recipe_name, ingredients, instructions) VALUES (?, ?, ?)";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("sss", $recipe_name, $ingredients, $instructions);
 
+    // Execute the statement and check for success
     if ($stmt->execute()) {
-        echo "<p>Item added successfully!</p>";
+        echo "<p>Recipe added successfully!</p>";
     } else {
-        echo "<p>Error: " . $stmt->error . "</p>";
+        echo "<p>Error adding recipe: " . $stmt->error . "</p>";
     }
 
+    // Close the statement
     $stmt->close();
 }
 
-// Close the database connection
+// Close the connection
 $conn->close();
 ?>
