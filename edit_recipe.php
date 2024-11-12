@@ -88,68 +88,32 @@ if (isset($_GET['recipe_id'])) {
 <head>
     <meta charset="UTF-8">
     <title>Edit Recipe</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f8f9fa;
-        }
-        h1 {
-            text-align: center;
-            margin-top: 20px;
-            color: #333;
-        }
-        .recipe-table {
-            width: 90%;
-            margin: 20px auto;
-            border-collapse: collapse;
-            background-color: #fff;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        .recipe-table th, .recipe-table td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            text-align: left;
-        }
-        .recipe-table th {
-            background-color: #007bff;
-            color: #fff;
-            font-weight: bold;
-        }
-        .recipe-table tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-        .delete-button {
-            display: inline-block;
-            padding: 8px 12px;
-            color: #fff;
-            background-color: #dc3545;
-            border-radius: 5px;
-            text-decoration: none;
-        }
-        .delete-button:hover {
-            background-color: #c82333;
-        }
-    </style>
-</head>
+    <link rel="stylesheet" href="style.css"> </head>
 <body>
     <?php if (isset($recipe)): ?>
-    <div class="form-container">
-        <h1>Edit Recipe</h1>
-        <form method="post" action="edit_recipe.php">
-            <input type="hidden" name="recipe_id" value="<?php echo htmlspecialchars($recipe_id); ?>">
-            
-            <label for="recipe_name">Recipe Name:</label><br>
-            <input type="text" id="recipe_name" name="recipe_name" value="<?php echo htmlspecialchars($recipe['recipe_name']); ?>" required><br><br>
-            
-            <label for="ingredients">Ingredients:</label><br>
-            <textarea id="ingredients" name="ingredients" required><?php echo htmlspecialchars($recipe['ingredients']); ?></textarea><br><br>
-            
-            <label for="instructions">Instructions:</label><br>
-            <textarea id="instructions" name="instructions" required><?php echo htmlspecialchars($recipe['instructions']); ?></textarea><br><br>
-            
-            <input type="submit" value="Update Recipe" class="edit-button">
-        </form>
-    </div>
+        <div class="container">
+            <h1>Edit Recipe</h1>
+            <form method="post" action="edit_recipe.php">
+                <input type="hidden" name="recipe_id" value="<?php echo htmlspecialchars($recipe_id); ?>">
+
+                <table class="recipe-table">
+                    <tr>
+                        <th>Recipe Name</th>
+                        <td><input type="text" name="recipe_name" value="<?php echo htmlspecialchars($recipe['recipe_name']); ?>" required></td>
+                    </tr>
+                    <tr>
+                        <th>Ingredients</th>
+                        <td><textarea name="ingredients" required><?php echo htmlspecialchars($recipe['ingredients']); ?></textarea></td>
+                    </tr>
+                    <tr>
+                        <th>Instructions</th>
+                        <td><textarea name="instructions" required><?php echo htmlspecialchars($recipe['instructions']); ?></textarea></td>
+                    </tr>
+                </table>
+
+                <input type="submit" value="Update Recipe" class="btn">
+            </form>
+        </div>
     <?php endif; ?>
 </body>
 </html>
