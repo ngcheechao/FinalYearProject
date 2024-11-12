@@ -21,7 +21,7 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Check if a recipe ID is provided in the URL
+// Check if a recipe ID is provided in the URL to edit
 if (isset($_GET['recipe_id'])) {
     $recipe_id = $_GET['recipe_id'];
 
@@ -40,14 +40,9 @@ if (isset($_GET['recipe_id'])) {
         exit();
     }
     $stmt->close();
-} else {
-    echo "<p>No recipe ID provided.</p>";
-    exit();
-}
-
-// Handle form submission to update the recipe
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Retrieve and sanitize form inputs
+} else if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['recipe_id'])) {
+    // Handle form submission to update the recipe
+    $recipe_id = $_POST['recipe_id'];
     $recipe_name = $conn->real_escape_string($_POST['recipe_name']);
     $ingredients = $conn->real_escape_string($_POST['ingredients']);
     $instructions = $conn->real_escape_string($_POST['instructions']);
@@ -66,6 +61,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt->close();
     $conn->close();
     exit();
+} else {
+    // Display all recipes if no specific recipe is being edited
+    $sql = "SELECT id, recipe_name FROM recipes";
+    $result = $conn->query($sql);
+    if ($result->num_rows > 0) {
+        echo "<h1>All Recipes</h1>";
+        echo "<ul>";
+        while ($row = $result->fetch_assoc()) {
+            echo "<li>" . htmlspecialchars($row['recipe_name']) . " - <a href='edit_recipe.php?recipe_id=" . $row['id'] . "'>Edit</a></li>";
+        }
+        echo "</ul>";
+    } else {
+        echo "<p>No recipes found.</p>";
+    }
+    $conn->close();
+    exit();
 }
 
 ?>
@@ -79,7 +90,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body>
     <h1>Edit Recipe</h1>
-    <form method="post" action="">
+    <form method="post" action="edit_recipe.php">
+        <input type="hidden" name="recipe_id" value="<?php echo htmlspecialchars($recipe_id); ?>">
+        
         <label for="recipe_name">Recipe Name:</label><br>
         <input type="text" id="recipe_name" name="recipe_name" value="<?php echo htmlspecialchars($recipe['recipe_name']); ?>" required><br><br>
         
