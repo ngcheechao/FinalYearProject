@@ -88,7 +88,80 @@ if (isset($_GET['recipe_id'])) {
 <head>
     <meta charset="UTF-8">
     <title>Edit Recipe</title>
-    <link rel="stylesheet" href="style.css"> </head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #343a40;
+        }
+        .recipe-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .recipe-table th,
+        .recipe-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .recipe-table th {
+            background-color: #007bff;
+            color: #fff;
+        }
+        .recipe-table td {
+            background-color: #f8f9fa;
+            color: #343a40;
+        }
+        .btn {
+            display: block;
+            width: 100%;
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 4px;
+            margin-top: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .edit-button {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+        .edit-button:hover {
+            color: #0056b3;
+        }
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
+    </style>
+</head>
 <body>
     <?php if (isset($recipe)): ?>
         <div class="container">
@@ -103,11 +176,11 @@ if (isset($_GET['recipe_id'])) {
                     </tr>
                     <tr>
                         <th>Ingredients</th>
-                        <td><textarea name="ingredients" required><?php echo htmlspecialchars($recipe['ingredients']); ?></textarea></td>
+                        <td><textarea name="ingredients" rows="5" required><?php echo htmlspecialchars($recipe['ingredients']); ?></textarea></td>
                     </tr>
                     <tr>
                         <th>Instructions</th>
-                        <td><textarea name="instructions" required><?php echo htmlspecialchars($recipe['instructions']); ?></textarea></td>
+                        <td><textarea name="instructions" rows="5" required><?php echo htmlspecialchars($recipe['instructions']); ?></textarea></td>
                     </tr>
                 </table>
 
