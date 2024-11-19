@@ -56,6 +56,7 @@ $html_report = "
 <head>
     <meta charset='UTF-8'>
     <title>Food Wastage Report</title>
+    <link rel='stylesheet' href='styles.css'>
     <style>
         body { font-family: Arial, sans-serif; }
         .report-container { margin: 20px; padding: 20px; border: 1px solid #ddd; }
