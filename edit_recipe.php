@@ -21,16 +21,73 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Display all recipes
-$sql = "SELECT id, recipe_name, ingredients, instructions FROM recipes";
-$result = $conn->query($sql);
+// Check if a recipe ID is provided in the URL to edit
+if (isset($_GET['recipe_id'])) {
+    $recipe_id = $_GET['recipe_id'];
+
+    // Retrieve the current recipe details
+    $sql = "SELECT recipe_name, ingredients, instructions FROM recipes WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $recipe_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows == 1) {
+        $recipe = $result->fetch_assoc();
+    } else {
+        echo "<p>Recipe not found.</p>";
+        exit();
+    }
+    $stmt->close();
+} elseif ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['recipe_id'])) {
+    $recipe_id = $_POST['recipe_id'];
+    $recipe_name = $conn->real_escape_string($_POST['recipe_name']);
+    $ingredients = $conn->real_escape_string($_POST['ingredients']);
+    $instructions = $conn->real_escape_string($_POST['instructions']);
+
+    // Update the recipe in the database
+    $sql = "UPDATE recipes SET recipe_name = ?, ingredients = ?, instructions = ? WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("sssi", $recipe_name, $ingredients, $instructions, $recipe_id);
+
+    if ($stmt->execute()) {
+        echo "<p>Recipe updated successfully!</p>";
+    } else {
+        echo "<p>Error updating recipe: " . $stmt->error . "</p>";
+    }
+
+    $stmt->close();
+    $conn->close();
+    exit();
+} else {
+    $sql = "SELECT id, recipe_name, ingredients, instructions FROM recipes";
+    $result = $conn->query($sql);
+    if ($result->num_rows > 0) {
+        echo "<h1>All Recipes</h1>";
+        echo "<table class='recipe-table'>";
+        echo "<tr><th>Recipe Name</th><th>Ingredients</th><th>Instructions</th><th>Action</th></tr>";
+        while ($row = $result->fetch_assoc()) {
+            echo "<tr>";
+            echo "<td>" . htmlspecialchars($row['recipe_name']) . "</td>";
+            echo "<td>" . nl2br(htmlspecialchars($row['ingredients'])) . "</td>";
+            echo "<td>" . nl2br(htmlspecialchars($row['instructions'])) . "</td>";
+            echo "<td><a href='edit_recipe.php?recipe_id=" . $row['id'] . "' class='edit-button'>Edit</a></td>";
+            echo "</tr>";
+        }
+        echo "</table>";
+    } else {
+        echo "<p>No recipes found.</p>";
+    }
+    $conn->close();
+    exit();
+}
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>All Recipes</title>
+    <title>Edit Recipe</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -40,7 +97,7 @@ $result = $conn->query($sql);
             padding: 20px;
         }
         .container {
-            max-width: 900px;
+            max-width: 700px;
             margin: auto;
             background-color: #ffffff;
             border-radius: 10px;
@@ -50,82 +107,93 @@ $result = $conn->query($sql);
         h1 {
             text-align: center;
             color: #007bff;
-            font-size: 26px;
+            font-size: 24px;
             margin-bottom: 20px;
         }
         .recipe-table {
             width: 100%;
             border-collapse: collapse;
-            margin: 20px 0;
+            margin: 10px 0;
             font-size: 16px;
             color: #495057;
         }
         .recipe-table th {
             background-color: #007bff;
             color: #ffffff;
-            padding: 12px;
-            text-align: left;
+            padding: 10px;
             font-size: 18px;
         }
         .recipe-table td {
-            background-color: #f9fafb;
+            background-color: #f8f9fa;
             padding: 15px;
             border-bottom: 1px solid #dee2e6;
         }
-        .recipe-table tr:hover {
-            background-color: #e9ecef;
+        .btn {
+            display: block;
+            width: 100%;
+            background-color: #007bff;
+            color: #fff;
+            padding: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            margin-top: 15px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #0056b3;
         }
         .edit-button {
-            display: inline-block;
-            color: #ffffff;
-            background-color: #007bff;
+            color: #007bff;
             text-decoration: none;
             font-weight: bold;
-            padding: 8px 12px;
+            padding: 5px 10px;
             border-radius: 5px;
             transition: background-color 0.3s;
         }
         .edit-button:hover {
-            background-color: #0056b3;
+            color: #ffffff;
+            background-color: #007bff;
         }
-        /* Responsive styling */
-        @media (max-width: 768px) {
-            .recipe-table th, .recipe-table td {
-                padding: 10px;
-            }
-            h1 {
-                font-size: 22px;
-            }
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-size: 16px;
+            background-color: #f8f9fa;
+        }
+        .section-title {
+            font-weight: bold;
+            font-size: 20px;
+            color: #343a40;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>All Recipes</h1>
-        <?php if ($result->num_rows > 0): ?>
-            <table class="recipe-table">
-                <tr>
-                    <th>Recipe Name</th>
-                    <th>Ingredients</th>
-                    <th>Instructions</th>
-                    <th>Action</th>
-                </tr>
-                <?php while ($row = $result->fetch_assoc()): ?>
-                    <tr>
-                        <td><?php echo htmlspecialchars($row['recipe_name']); ?></td>
-                        <td><?php echo nl2br(htmlspecialchars($row['ingredients'])); ?></td>
-                        <td><?php echo nl2br(htmlspecialchars($row['instructions'])); ?></td>
-                        <td><a href="edit_recipe.php?recipe_id=<?php echo $row['id']; ?>" class="edit-button">Edit</a></td>
-                    </tr>
-                <?php endwhile; ?>
-            </table>
-        <?php else: ?>
-            <p>No recipes found.</p>
-        <?php endif; ?>
-    </div>
+    <?php if (isset($recipe)): ?>
+        <div class="container">
+            <h1>Edit Recipe</h1>
+            <form method="post" action="edit_recipe.php">
+                <input type="hidden" name="recipe_id" value="<?php echo htmlspecialchars($recipe_id); ?>">
+
+                <div class="section-title">Recipe Name</div>
+                <input type="text" name="recipe_name" value="<?php echo htmlspecialchars($recipe['recipe_name']); ?>" required>
+
+                <div class="section-title">Ingredients</div>
+                <textarea name="ingredients" rows="5" required><?php echo htmlspecialchars($recipe['ingredients']); ?></textarea>
+
+                <div class="section-title">Instructions</div>
+                <textarea name="instructions" rows="5" required><?php echo htmlspecialchars($recipe['instructions']); ?></textarea>
+
+                <input type="submit" value="Update Recipe" class="btn">
+            </form>
+        </div>
+    <?php endif; ?>
 </body>
 </html>
-
-<?php
-$conn->close();
-?>
