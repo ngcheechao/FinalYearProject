@@ -9,20 +9,20 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-
-
     <style>
         .custom-heading {
             font-family: 'Poppins', sans-serif;
             font-size: 24px;
             color: #222;
         }
+
         body {
             height: 100vh;
             background-color: #f0f2f5;
             display: flex;
             justify-content: center;
             align-items: center;
+            flex-direction: column;
         }
 
         .card {
@@ -60,13 +60,21 @@
         .create-account a:hover {
             background-color: #C28431;
         }
+
+        .quote {
+            margin-top: 20px;
+            font-style: italic;
+            font-size: 16px;
+            color: #555;
+            text-align: center;
+        }
     </style>
 </head>
 
 <body>
     <div class="card p-4">
         <h2 class="text-center mb-4 custom-heading">
-        Get Started! Login to your account 🔏
+            Get Started! Login to your account 🔏
         </h2>
 
         <form action="login.php" method="post">
@@ -78,15 +86,33 @@
                 <label for="password" class="form-label">🗝️ Password:</label>
                 <input type="password" class="form-control" id="password" name="password" required>
             </div>
-            <button type="submit" class="btn btn-custom w-100">Login ✅</button>
+            <button type="submit" class="btn btn-custom w-100">Login</button>
         </form>
         <div class="create-account">
-            <p>New user? <a href="#" onclick="toggleForms()">Create an account</a></p>
+            <p>New user? <a href="createUser.html" onclick="toggleForms()">Create an account</a></p>
         </div>
+    </div>
+
+    <div class="quote" id="quote">
+        <!-- Random Quote Will Appear Here -->
     </div>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Load a random quote from the local JSON file
+        fetch('quotes.json')
+            .then(response => response.json())
+            .then(quotes => {
+                const randomIndex = Math.floor(Math.random() * quotes.length);
+                const randomQuote = quotes[randomIndex];
+                document.getElementById('quote').textContent = randomQuote;
+            })
+            .catch(error => {
+                document.getElementById('quote').textContent = "Oops! Could not load a quote.";
+                console.error("Error loading quotes:", error);
+            });
+    </script>
 </body>
 
 </html>
