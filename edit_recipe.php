@@ -35,7 +35,7 @@ if (isset($_GET['recipe_id'])) {
     if ($result->num_rows == 1) {
         $recipe = $result->fetch_assoc();
     } else {
-        echo "<p class='error'>Recipe not found.</p>";
+        echo "<p>Recipe not found.</p>";
         exit();
     }
     $stmt->close();
@@ -51,9 +51,9 @@ if (isset($_GET['recipe_id'])) {
     $stmt->bind_param("sssi", $recipe_name, $ingredients, $instructions, $recipe_id);
 
     if ($stmt->execute()) {
-        echo "<p class='success'>Recipe updated successfully!</p>";
+        echo "<p>Recipe updated successfully!</p>";
     } else {
-        echo "<p class='error'>Error updating recipe: " . $stmt->error . "</p>";
+        echo "<p>Error updating recipe: " . $stmt->error . "</p>";
     }
 
     $stmt->close();
@@ -63,7 +63,6 @@ if (isset($_GET['recipe_id'])) {
     $sql = "SELECT id, recipe_name, ingredients, instructions FROM recipes";
     $result = $conn->query($sql);
     if ($result->num_rows > 0) {
-        echo "<div class='container'>";
         echo "<h1>All Recipes</h1>";
         echo "<table class='recipe-table'>";
         echo "<tr><th>Recipe Name</th><th>Ingredients</th><th>Instructions</th><th>Action</th></tr>";
@@ -72,19 +71,17 @@ if (isset($_GET['recipe_id'])) {
             echo "<td>" . htmlspecialchars($row['recipe_name']) . "</td>";
             echo "<td>" . nl2br(htmlspecialchars($row['ingredients'])) . "</td>";
             echo "<td>" . nl2br(htmlspecialchars($row['instructions'])) . "</td>";
-            echo "<td><a href='edit_recipe.php?recipe_id=" . $row['id'] . "' class='btn edit-button'>Edit</a></td>";
+            echo "<td><a href='edit_recipe.php?recipe_id=" . $row['id'] . "' class='edit-button'>Edit</a></td>";
             echo "</tr>";
         }
         echo "</table>";
-        echo "</div>";
     } else {
-        echo "<p class='error'>No recipes found.</p>";
+        echo "<p>No recipes found.</p>";
     }
     $conn->close();
     exit();
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -95,7 +92,7 @@ if (isset($_GET['recipe_id'])) {
 <body>
     <?php if (isset($recipe)): ?>
         <div class="container">
-            <h1>Edit Recipe</h1>
+            <h1 class="title">Edit Recipe</h1>
             <form method="post" action="edit_recipe.php">
                 <input type="hidden" name="recipe_id" value="<?php echo htmlspecialchars($recipe_id); ?>">
 
@@ -114,7 +111,9 @@ if (isset($_GET['recipe_id'])) {
                     </tr>
                 </table>
 
-                <input type="submit" value="Update Recipe" class="btn">
+                <div class="button-container">
+                    <input type="submit" value="Update Recipe" class="btn">
+                </div>
             </form>
         </div>
     <?php endif; ?>

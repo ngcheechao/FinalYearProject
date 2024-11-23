@@ -1,79 +1,164 @@
+/* General Styles */
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f9f9f9;
+    font-family: 'Roboto', sans-serif;
     margin: 0;
     padding: 0;
+    background: linear-gradient(120deg, #f5f7fa, #c3dfe8);
+    color: #333333;
 }
 
+/* Container */
 .container {
-    max-width: 800px;
+    max-width: 900px;
     margin: 50px auto;
+    padding: 30px;
     background: #ffffff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 1s ease-in-out;
 }
 
-h1 {
-    color: #333;
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Typography */
+h1.title {
+    font-size: 2.5rem;
+    color: #0077b6; /* Deep ocean blue */
     text-align: center;
+    margin-bottom: 30px;
+    font-weight: bold;
 }
 
+p.success, p.error {
+    font-size: 1.2rem;
+    text-align: center;
+    margin-top: 20px;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+p.success {
+    background-color: #eafaf1; /* Soft green background */
+    color: #1b5e20; /* Forest green text */
+    border: 1px solid #c8e6c9;
+}
+
+p.error {
+    background-color: #ffe5e5; /* Soft red background */
+    color: #b71c1c; /* Dark red text */
+    border: 1px solid #ffcdd2;
+}
+
+/* Table Styles */
 .recipe-table, .recipe-edit-table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px;
-}
-
-.recipe-table th, .recipe-table td,
-.recipe-edit-table th, .recipe-edit-table td {
-    border: 1px solid #ddd;
-    padding: 12px;
-    text-align: left;
+    margin: 20px 0;
 }
 
 .recipe-table th, .recipe-edit-table th {
-    background-color: #f4f4f4;
-    color: #333;
+    background: linear-gradient(90deg, #00b4d8, #90e0ef); /* Light ocean gradient */
+    color: white;
+    padding: 15px;
+    text-align: left;
+    font-weight: bold;
+    text-transform: uppercase;
+    border-radius: 6px;
+}
+
+.recipe-table td, .recipe-edit-table td {
+    border: 1px solid #dddddd;
+    padding: 12px;
+    font-size: 1rem;
+    background: #fefefe;
 }
 
 .recipe-table tr:nth-child(even) {
-    background-color: #f9f9f9;
+    background: #f7fbfc; /* Light blueish-gray for alternation */
 }
 
 .recipe-table tr:hover {
-    background-color: #f1f1f1;
+    background: #e6f7ff; /* Subtle hover highlight */
+    transition: background-color 0.3s ease-in-out;
 }
 
+/* Input and Textarea */
+textarea, input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    font-size: 1rem;
+    border: 1px solid #cccccc;
+    border-radius: 6px;
+    background-color: #fcfcfc;
+    transition: border-color 0.3s ease;
+}
+
+textarea:focus, input[type="text"]:focus {
+    outline: none;
+    border-color: #00b4d8; /* Ocean blue focus */
+    box-shadow: 0 0 5px rgba(0, 180, 216, 0.5);
+}
+
+/* Buttons */
 .btn {
-    background-color: #4CAF50;
+    display: inline-block;
+    padding: 12px 20px;
+    background: linear-gradient(90deg, #52b788, #74c69d); /* Fresh green gradient */
     color: white;
-    padding: 10px 20px;
-    text-decoration: none;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: bold;
     cursor: pointer;
     text-align: center;
+    text-decoration: none;
+    transition: background 0.3s ease, transform 0.2s;
 }
 
 .btn:hover {
-    background-color: #45a049;
+    background: linear-gradient(90deg, #40916c, #52b788); /* Darker green on hover */
+    transform: scale(1.05); /* Slight pop-out effect */
 }
 
+/* Edit Button */
 .edit-button {
-    background-color: #2196F3;
+    padding: 8px 12px;
+    color: white;
+    background: #ff6f3c; /* Soft orange */
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background 0.3s ease, transform 0.2s;
 }
 
 .edit-button:hover {
-    background-color: #1976D2;
+    background: #d65a2b; /* Darker orange on hover */
+    transform: scale(1.1); /* Slight pop-out effect */
 }
 
-.success {
-    color: green;
+/* Form Container */
+.button-container {
     text-align: center;
+    margin-top: 20px;
 }
 
-.error {
-    color: red;
-    text-align: center;
+/* Responsive Design */
+@media screen and (max-width: 600px) {
+    h1.title {
+        font-size: 2rem;
+    }
+
+    textarea, input[type="text"], .btn {
+        font-size: 0.9rem;
+    }
 }
