@@ -79,7 +79,6 @@ $result = $conn->query(query: $sql);
         <?php else: ?>
             <p>No items in your shopping list yet.</p>
         <?php endif; ?>
-
         <a href="user_dashboard.html" class="back-button">Back to Dashboard</a>
     </div>
 
