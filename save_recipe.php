@@ -37,7 +37,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $user_check_result = $user_check_stmt->get_result();
 
     if ($user_check_result->num_rows == 0) {
-        echo "<p>Error: Invalid user ID. Please log in again.</p>";
+        echo "<script>
+            alert('Error: Invalid user ID. Please log in again.');
+            window.location.href = 'login.html';
+        </script>";
     } else {
         // Prepare the SQL statement to insert the recipe data
         $sql = "INSERT INTO recipes (recipe_name, ingredients, instructions, user_id) VALUES (?, ?, ?, ?)";
@@ -46,9 +49,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Execute the statement and check if successful
         if ($stmt->execute()) {
-            echo "<p>Recipe added successfully!</p>";
+            echo "<script>
+                alert('Recipe added successfully!');
+                window.location.href = 'admin_dashboard.html';
+            </script>";
         } else {
-            echo "<p>Error adding recipe: " . $stmt->error . "</p>";
+            echo "<script>
+                alert('Error adding recipe: " . addslashes($stmt->error) . "');
+                window.history.back();
+            </script>";
         }
 
         // Close the statement
