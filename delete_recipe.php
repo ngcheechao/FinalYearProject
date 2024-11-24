@@ -31,7 +31,11 @@ if (isset($_GET['delete_id'])) {
     $stmt->bind_param("i", $delete_id);
 
     if ($stmt->execute()) {
-        echo "<p>Recipe deleted successfully!</p>";
+        // Redirect with a success message using JavaScript
+        echo "<script>
+                alert('Recipe deleted successfully!');
+                window.location.href = 'admin_dashboard.html';
+              </script>";
     } else {
         echo "<p>Error deleting recipe: " . $stmt->error . "</p>";
     }
@@ -54,18 +58,18 @@ $result = $conn->query($sql);
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f8f9fa;
+            background-color: #e8f5e9;
         }
         h1 {
             text-align: center;
             margin-top: 20px;
-            color: #333;
+            color: #2e7d32;
         }
         .recipe-table {
             width: 90%;
             margin: 20px auto;
             border-collapse: collapse;
-            background-color: #fff;
+            background-color: #ffffff;
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
         }
         .recipe-table th, .recipe-table td {
@@ -74,30 +78,25 @@ $result = $conn->query($sql);
             text-align: left;
         }
         .recipe-table th {
-            background-color: #007bff;
-            color: #fff;
+            background-color: #66bb6a;
+            color: #ffffff;
             font-weight: bold;
         }
         .recipe-table tr:nth-child(even) {
-            background-color: #f2f2f2;
+            background-color: #f1f8e9;
         }
         .delete-button {
             display: inline-block;
             padding: 8px 12px;
-            color: #fff;
-            background-color: #dc3545;
+            color: #ffffff;
+            background-color: #43a047;
             border-radius: 5px;
             text-decoration: none;
         }
         .delete-button:hover {
-            background-color: #c82333;
+            background-color: #388e3c;
         }
     </style>
-    <script>
-        function confirmDelete() {
-            return confirm("Are you sure you want to delete this recipe?");
-        }
-    </script>
 </head>
 <body>
     <h1>All Recipes</h1>
@@ -118,13 +117,13 @@ $result = $conn->query($sql);
                     <td>
                         <a href="delete_recipe.php?delete_id=<?php echo $row['id']; ?>" 
                            class="delete-button" 
-                           onclick="return confirmDelete()">Delete</a>
+                           onclick="return confirm('Are you sure you want to delete this recipe?')">Delete</a>
                     </td>
                 </tr>
             <?php endwhile; ?>
         </table>
     <?php else: ?>
-        <p style="text-align: center;">No recipes found.</p>
+        <p style="text-align: center; color: #2e7d32;">No recipes found.</p>
     <?php endif; ?>
 
     <?php $conn->close(); ?>

@@ -3,8 +3,8 @@ body {
     font-family: 'Roboto', sans-serif;
     margin: 0;
     padding: 0;
-    background: linear-gradient(120deg, #f5f7fa, #c3dfe8);
-    color: #333333;
+    background: linear-gradient(120deg, #e8f5e9, #a5d6a7); /* Stronger green gradient */
+    color: #2e7d32; /* Deep forest green */
 }
 
 /* Container */
@@ -12,7 +12,7 @@ body {
     max-width: 900px;
     margin: 50px auto;
     padding: 30px;
-    background: #ffffff;
+    background: #f1f8e9; /* Light green */
     border-radius: 12px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     animation: fadeIn 1s ease-in-out;
@@ -33,13 +33,16 @@ body {
 /* Typography */
 h1.title {
     font-size: 2.5rem;
-    color: #0077b6; /* Deep ocean blue */
+    color: #1b5e20; /* Dark forest green */
     text-align: center;
     margin-bottom: 30px;
     font-weight: bold;
 }
 
-p.success, p.error {
+p.success {
+    background-color: #d0f2d0; /* Softer light green */
+    color: #1b5e20; /* Dark forest green */
+    border: 1px solid #66bb6a; /* Vibrant green */
     font-size: 1.2rem;
     text-align: center;
     margin-top: 20px;
@@ -47,16 +50,10 @@ p.success, p.error {
     border-radius: 5px;
 }
 
-p.success {
-    background-color: #eafaf1; /* Soft green background */
-    color: #1b5e20; /* Forest green text */
-    border: 1px solid #c8e6c9;
-}
-
 p.error {
-    background-color: #ffe5e5; /* Soft red background */
-    color: #b71c1c; /* Dark red text */
-    border: 1px solid #ffcdd2;
+    background-color: #ffebee; /* Soft red */
+    color: #b71c1c; /* Dark red */
+    border: 1px solid #ef9a9a; /* Lighter red border */
 }
 
 /* Table Styles */
@@ -67,7 +64,7 @@ p.error {
 }
 
 .recipe-table th, .recipe-edit-table th {
-    background: linear-gradient(90deg, #00b4d8, #90e0ef); /* Light ocean gradient */
+    background: linear-gradient(90deg, #43a047, #66bb6a); /* Vibrant green gradient */
     color: white;
     padding: 15px;
     text-align: left;
@@ -77,18 +74,18 @@ p.error {
 }
 
 .recipe-table td, .recipe-edit-table td {
-    border: 1px solid #dddddd;
+    border: 1px solid #c5e1a5;
     padding: 12px;
     font-size: 1rem;
-    background: #fefefe;
+    background: #e8f5e9; /* Soft greenish-white */
 }
 
 .recipe-table tr:nth-child(even) {
-    background: #f7fbfc; /* Light blueish-gray for alternation */
+    background: #f1f8e9; /* Slightly darker green */
 }
 
 .recipe-table tr:hover {
-    background: #e6f7ff; /* Subtle hover highlight */
+    background: #c8e6c9; /* Subtle green highlight */
     transition: background-color 0.3s ease-in-out;
 }
 
@@ -98,23 +95,23 @@ textarea, input[type="text"] {
     padding: 12px;
     margin: 10px 0;
     font-size: 1rem;
-    border: 1px solid #cccccc;
+    border: 1px solid #81c784; /* Green border */
     border-radius: 6px;
-    background-color: #fcfcfc;
+    background-color: #f8fff6; /* Very light green */
     transition: border-color 0.3s ease;
 }
 
 textarea:focus, input[type="text"]:focus {
     outline: none;
-    border-color: #00b4d8; /* Ocean blue focus */
-    box-shadow: 0 0 5px rgba(0, 180, 216, 0.5);
+    border-color: #66bb6a; /* Bright green */
+    box-shadow: 0 0 5px rgba(102, 187, 106, 0.5);
 }
 
 /* Buttons */
 .btn {
     display: inline-block;
     padding: 12px 20px;
-    background: linear-gradient(90deg, #52b788, #74c69d); /* Fresh green gradient */
+    background: linear-gradient(90deg, #2e7d32, #43a047); /* Strong green gradient */
     color: white;
     border: none;
     border-radius: 6px;
@@ -127,7 +124,7 @@ textarea:focus, input[type="text"]:focus {
 }
 
 .btn:hover {
-    background: linear-gradient(90deg, #40916c, #52b788); /* Darker green on hover */
+    background: linear-gradient(90deg, #1b5e20, #2e7d32); /* Darker green on hover */
     transform: scale(1.05); /* Slight pop-out effect */
 }
 
@@ -135,14 +132,14 @@ textarea:focus, input[type="text"]:focus {
 .edit-button {
     padding: 8px 12px;
     color: white;
-    background: #ff6f3c; /* Soft orange */
+    background: #66bb6a; /* Vibrant green */
     border-radius: 6px;
     text-decoration: none;
     transition: background 0.3s ease, transform 0.2s;
 }
 
 .edit-button:hover {
-    background: #d65a2b; /* Darker orange on hover */
+    background: #43a047; /* Stronger green */
     transform: scale(1.1); /* Slight pop-out effect */
 }
 

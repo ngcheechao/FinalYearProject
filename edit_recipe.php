@@ -51,7 +51,11 @@ if (isset($_GET['recipe_id'])) {
     $stmt->bind_param("sssi", $recipe_name, $ingredients, $instructions, $recipe_id);
 
     if ($stmt->execute()) {
-        echo "<p>Recipe updated successfully!</p>";
+        // Use JavaScript to show an alert and redirect
+        echo "<script>
+                alert('Recipe updated successfully!');
+                window.location.href = 'admin_dashboard.html';
+              </script>";
     } else {
         echo "<p>Error updating recipe: " . $stmt->error . "</p>";
     }
@@ -60,28 +64,105 @@ if (isset($_GET['recipe_id'])) {
     $conn->close();
     exit();
 } else {
+    // Display all recipes in a table (same as before)
     $sql = "SELECT id, recipe_name, ingredients, instructions FROM recipes";
     $result = $conn->query($sql);
-    if ($result->num_rows > 0) {
-        echo "<h1>All Recipes</h1>";
-        echo "<table class='recipe-table'>";
-        echo "<tr><th>Recipe Name</th><th>Ingredients</th><th>Instructions</th><th>Action</th></tr>";
-        while ($row = $result->fetch_assoc()) {
-            echo "<tr>";
-            echo "<td>" . htmlspecialchars($row['recipe_name']) . "</td>";
-            echo "<td>" . nl2br(htmlspecialchars($row['ingredients'])) . "</td>";
-            echo "<td>" . nl2br(htmlspecialchars($row['instructions'])) . "</td>";
-            echo "<td><a href='edit_recipe.php?recipe_id=" . $row['id'] . "' class='edit-button'>Edit</a></td>";
-            echo "</tr>";
+
+    echo "<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>All Recipes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 20px;
+            padding: 0;
+            text-align: center;
         }
-        echo "</table>";
+
+        h1 {
+            color: #333;
+        }
+
+        table {
+            width: 90%;
+            max-width: 800px;
+            margin: 20px auto;
+            border-collapse: collapse;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        thead {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        a.edit-button {
+            color: #007BFF;
+            text-decoration: none;
+        }
+
+        a.edit-button:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>All Recipes</h1>";
+
+    if ($result->num_rows > 0) {
+        echo "<table>
+            <thead>
+                <tr>
+                    <th>Recipe Name</th>
+                    <th>Ingredients</th>
+                    <th>Instructions</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>";
+        while ($row = $result->fetch_assoc()) {
+            echo "<tr>
+                    <td>" . htmlspecialchars($row['recipe_name']) . "</td>
+                    <td>" . nl2br(htmlspecialchars($row['ingredients'])) . "</td>
+                    <td>" . nl2br(htmlspecialchars($row['instructions'])) . "</td>
+                    <td><a href='edit_recipe.php?recipe_id=" . $row['id'] . "' class='edit-button'>Edit</a></td>
+                  </tr>";
+        }
+        echo "</tbody>
+        </table>";
     } else {
         echo "<p>No recipes found.</p>";
     }
+
+    echo "</body>
+</html>";
+
     $conn->close();
     exit();
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
