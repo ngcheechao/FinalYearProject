@@ -58,15 +58,19 @@ $html_report = "
     <title>Food Wastage Report</title>
     <link rel='stylesheet' href='styles.css'>
     <style>
-        body { font-family: Arial, sans-serif; }
+        body { font-family: Arial, sans-serif;
+        background: url('food_5.jpg') no-repeat center center fixed;
+        background-size: cover;
+        color: #ffffff; }
         .report-container { margin: 20px; padding: 20px; border: 1px solid #ddd; }
         h1 { color: #333; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         table, th, td { border: 1px solid #ddd; }
-        th, td { padding: 10px; text-align: left; }
-        .summary { margin-top: 20px; font-size: 18px; }
+        th, td { padding: 10px; text-align: left;color: black }
+        .summary { margin-top: 20px; font-size: 18px; color: black }
     </style>
 </head>
+
 <body>
     <div class='report-container'>
         <h1>Food Wastage Detailed Report</h1>
@@ -98,10 +102,12 @@ $html_report .= "
         
         <h2>Food Wastage Summary</h2>
         <div class='summary'>
+        
             <p><strong>Total Food Wasted:</strong> " . number_format($total_food_wasted, 2) . " kg</p>
             <p><strong>Total Cost of Wasted Food:</strong> $" . number_format($total_cost, 2) . "</p>
             <p><strong>Meals for Children:</strong> Could have fed {$children_fed} children</p>
             <p><strong>Environmental Impact:</strong> " . number_format($environmental_impact, 2) . " kg CO2 equivalent</p>
+            <a href='user_dashboard.html' style='display: inline-block; background-color: #28a745; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-size: 16px; margin-top: 10px;'>Go back to Dashboard</a>
         </div>
     </div>
 </body>

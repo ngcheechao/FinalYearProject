@@ -35,10 +35,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit'])) {
     $stmt->bind_param("sidi", $item_name, $quantity, $price, $user_id); // "sidi" -> s: string, i: integer, d: double, i: integer
 
     if ($stmt->execute()) {
-        echo "<p>Item added successfully!</p>";
+        echo "<div style='background: url(\"food_4.jpg\") no-repeat center center; background-size: cover; color: #155724; font-weight: bold; font-size: 18px; padding: 20px; border-radius: 10px; margin-top: 15px; text-align: center;'>
+                Item added successfully!
+                <br><br>
+                <a href='add_items.html' style='display: inline-block; background-color: #28a745; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-size: 16px; margin-top: 10px;'>Add more items</a>
+              </div>";
     } else {
-        echo "<p>Error: " . $stmt->error . "</p>";
+        echo "<div style='background: url(\"food_4.jpg\") no-repeat center center; background-size: cover; color: #721c24; font-weight: bold; font-size: 18px; padding: 20px; border-radius: 10px; margin-top: 15px; text-align: center;'>
+                Error: " . $stmt->error . "
+                <br><br>
+                <a href='add_items.html' style='display: inline-block; background-color: #dc3545; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-size: 16px; margin-top: 10px;'>Add more items</a>
+              </div>";
     }
+    
+    
 
     $stmt->close();
 }
