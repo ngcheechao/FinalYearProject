@@ -1,44 +1,47 @@
 <?php
-// Database connection details
-$servername = "localhost";
-$username = "root"; // Default username for XAMPP
-$password = ""; // Default password for XAMPP
-$dbname = "fyp"; // Your database name
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
+// Connect to the database
+$host = 'localhost';
+$username = 'root';
+$password = '';
+$database = 'fyp';
+
+$conn = new mysqli($host, $username, $password, $database);
 
 // Check connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Check if an ID is provided in the URL
-if (isset($_GET['id'])) {
-    // Get the ID from the URL and sanitize it
-    $id = intval($_GET['id']); // Convert to integer to prevent SQL injection
+// Check if the form was submitted
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Retrieve the item ID from the POST data
+    $id = $_POST['id'];
 
-    // Prepare the SQL delete statement
-    $sql = "DELETE FROM groceries WHERE id = ?";
-    $stmt = $conn->prepare($sql);
+    // Validate the ID
+    if (!is_numeric($id)) {
+        die("Invalid ID.");
+    }
+
+    // Prepare the DELETE query
+    $stmt = $conn->prepare("DELETE FROM groceries WHERE id = ?");
     $stmt->bind_param("i", $id);
 
-    // Execute the statement and check if it was successful
+    // Execute the statement
     if ($stmt->execute()) {
-        echo "Item deleted successfully.";
+        // Redirect on successful deletion
+        header("Location: view_shopping_list.php?message=deleted");
+        exit;
     } else {
-        echo "Error deleting item: " . $conn->error;
+        // Show error message
+        echo "Error deleting item: " . $stmt->error;
     }
 
     $stmt->close();
-} else {
-    echo "Invalid item ID.";
 }
 
-// Close the connection
 $conn->close();
-
-// Redirect back to the shopping list page
-header("Location: view_shopping_list.php");
-exit();
 ?>
