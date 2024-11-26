@@ -48,6 +48,26 @@
                 opacity: 1;
             }
         }
+
+        .custom-button {
+            background-color: #56A575;
+            color: #fff;
+            padding: 10px 20px;
+            font-size: 1.25rem;
+            font-weight: bold;
+            border-radius: 5px;
+            text-decoration: none;
+            text-align: center;
+            display: block;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .custom-button:hover {
+            background-color: #09d84e;
+            /* Slightly darker green on hover */
+            transform: scale(1.05);
+            /* Slight zoom effect on hover */
+        }
     </style>
 </head>
 
@@ -69,18 +89,10 @@
 
             <!-- Buttons for each functionality -->
             <div class="d-grid gap-3">
-                <a href="calculate_wastage.php"
-                    style="background-color: #56A575; color: #fff; padding: 10px 20px; font-size: 1.25rem; font-weight: bold; border-radius: 5px; text-decoration: none; text-align: center; display: block;">Calculate
-                    Waste Impact ♻️</a>
-                <a href="generate_report.php"
-                    style="background-color: #56A575; color: #fff; padding: 10px 20px; font-size: 1.25rem; font-weight: bold; border-radius: 5px; text-decoration: none; text-align: center; display: block;">View
-                    Usage Report 📊</a>
-                <a href="view_shopping_list.php"
-                    style="background-color: #56A575; color: #fff; padding: 10px 20px; font-size: 1.25rem; font-weight: bold; border-radius: 5px; text-decoration: none; text-align: center; display: block;">Manage
-                    Your Shopping 🛍️</a>
-                <a href="add_items.html"
-                    style="background-color: #56A575; color: #fff; padding: 10px 20px; font-size: 1.25rem; font-weight: bold; border-radius: 5px; text-decoration: none; text-align: center; display: block;">Add
-                    Purchased Items 🛒</a>
+                <a href="calculate_wastage.php" class="custom-button">Calculate Waste Impact ♻️</a>
+                <a href="generate_report.php" class="custom-button">View Usage Report 📊</a>
+                <a href="view_shopping_list.php" class="custom-button">Manage Your Shopping 🛍️</a>
+                <a href="add_items.html" class="custom-button">Add Purchased Items 🛒</a>
             </div>
 
             <!-- Back to Login link -->

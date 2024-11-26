@@ -7,22 +7,16 @@
     <title>Login</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        .custom-heading {
-            font-family: 'Poppins', sans-serif;
-            font-size: 24px;
-            color: #222;
-        }
-
         body {
             height: 100vh;
             background-color: #f0f2f5;
             display: flex;
             justify-content: center;
             align-items: center;
-            flex-direction: column;
+            background: url('food_4.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #ffffff;
         }
 
         .card {
@@ -31,10 +25,55 @@
             border: none;
             border-radius: 12px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .switch-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .switch-btn {
+            width: 50%;
+            text-align: center;
+            padding: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: bold;
+            z-index: 1;
+        }
+
+        .switch-btn.active {
+            color: #ffffff;
+        }
+
+        .switch-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 50%;
+            background-color: #333333;
+            border-radius: 12px;
+            transition: 0.3s;
+        }
+
+        .switch-bg.sign-up {
+            left: 50%;
+        }
+
+        .form-container {
+            display: none;
+        }
+
+        .form-container.active {
+            display: block;
         }
 
         .btn-custom {
-            background-color: #28a745;
+            background-color: #333333;
             color: #fff;
             font-size: 1rem;
             font-weight: bold;
@@ -43,75 +82,83 @@
         .btn-custom:hover {
             background-color: #218838;
         }
-
-        .create-account {
-            text-align: center;
-            margin-top: 15px;
-        }
-
-        .create-account a {
-            text-decoration: none;
-            color: #ffffff;
-            background-color: #D3993E;
-            padding: 10px 20px;
-            border-radius: 5px;
-        }
-
-        .create-account a:hover {
-            background-color: #C28431;
-        }
-
-        .quote {
-            margin-top: 20px;
-            font-style: italic;
-            font-size: 16px;
-            color: #555;
-            text-align: center;
-        }
     </style>
 </head>
 
 <body>
     <div class="card p-4">
-        <h2 class="text-center mb-4 custom-heading">
-            Get Started! Login to your account 🔏
-        </h2>
-
-        <form action="login.php" method="post">
-            <div class="mb-3">
-                <label for="email" class="form-label">📧 Email:</label>
-                <input type="email" class="form-control" id="email" name="email" required>
-            </div>
-            <div class="mb-3">
-                <label for="password" class="form-label">🗝️ Password:</label>
-                <input type="password" class="form-control" id="password" name="password" required>
-            </div>
-            <button type="submit" class="btn btn-custom w-100">Login</button>
-        </form>
-        <div class="create-account">
-            <p>New user? <a href="createUser.html" onclick="toggleForms()">Create an account</a></p>
+        <div class="text-center mb-3">
+            <img src="Logo.png" alt="Login Icon" width="100">
         </div>
-    </div>
+        <!-- Switch Container -->
+        <div class="switch-container">
+            <div class="switch-btn active" id="login-switch">Login</div>
+            <div class="switch-btn" id="signup-switch">Sign Up</div>
+            <div class="switch-bg" id="switch-bg"></div>
+        </div>
 
-    <div class="quote" id="quote">
-        <!-- Random Quote Will Appear Here -->
+        <!-- Login Form -->
+        <div class="form-container active" id="login-form">
+            <!--<h2 class="text-center mb-4">Login</h2> -->
+            <form action="login.php" method="post">
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email:</label>
+                    <input type="email" class="form-control" id="email" name="email" required>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password:</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn btn-custom w-100">Login</button>
+            </form>
+        </div>
+
+        <!-- Sign Up Form -->
+        <div class="form-container" id="signup-form">
+            <!--<h2 class="text-center mb-4">Sign Up</h2> -->
+            <form action="createUser.php" method="post">
+
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username:</label>
+                    <input type="text" class="form-control" id="username" name="username" required>
+                </div>
+                <div class="mb-3">
+                    <label for="signup-email" class="form-label"> Email:</label>
+                    <input type="email" class="form-control" id="signup-email" name="email" required>
+                </div>
+                <div class="mb-3">
+                    <label for="signup-password" class="form-label"> Password:</label>
+                    <input type="password" class="form-control" id="signup-password" name="password" required>
+                </div>
+                <button type="submit" class="btn btn-custom w-100">Sign Up</button>
+            </form>
+        </div>
     </div>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Load a random quote from the local JSON file
-        fetch('quotes.json')
-            .then(response => response.json())
-            .then(quotes => {
-                const randomIndex = Math.floor(Math.random() * quotes.length);
-                const randomQuote = quotes[randomIndex];
-                document.getElementById('quote').textContent = randomQuote;
-            })
-            .catch(error => {
-                document.getElementById('quote').textContent = "Oops! Could not load a quote.";
-                console.error("Error loading quotes:", error);
-            });
+        const loginSwitch = document.getElementById("login-switch");
+        const signupSwitch = document.getElementById("signup-switch");
+        const switchBg = document.getElementById("switch-bg");
+        const loginForm = document.getElementById("login-form");
+        const signupForm = document.getElementById("signup-form");
+
+        loginSwitch.addEventListener("click", () => {
+            switchBg.style.left = "0";
+            loginSwitch.classList.add("active");
+            signupSwitch.classList.remove("active");
+            loginForm.classList.add("active");
+            signupForm.classList.remove("active");
+        });
+
+        signupSwitch.addEventListener("click", () => {
+            switchBg.style.left = "50%";
+            signupSwitch.classList.add("active");
+            loginSwitch.classList.remove("active");
+            signupForm.classList.add("active");
+            loginForm.classList.remove("active");
+        });
     </script>
 </body>
 
