@@ -4,10 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculate Wastage</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f0f2f5;
+            background: url('https://img.freepik.com/free-photo/arrangement-compost-made-rotten-food-with-copy-space_23-2149073776.jpg') no-repeat center center fixed;
+            background-size: cover;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -15,92 +18,74 @@
             margin: 0;
         }
         .wastage-container {
-            background-color: #fff;
+            background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white background */
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-            width: 400px;
-            text-align: center;
+            width: 100%;
+            max-width: 500px;
         }
         h2 {
             color: #054A24;
         }
         .form-group {
             margin-bottom: 15px;
-            text-align: left;
         }
-        .form-group label {
-            display: block;
-            font-weight: bold;
-            color: #333;
-        }
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #9CBDAC;
-        }
-        .quantity-group {
-            display: flex;
-            gap: 10px;
-        }
-        .add-entry, .view-summary, button {
+        .btn-custom {
             background-color: #56A575;
             color: white;
-            border: none;
-            border-radius: 5px;
-            padding: 10px;
-            cursor: pointer;
-            font-size: 16px;
-            width: 100%;
-            margin-top: 10px;
         }
-        .add-entry:hover, .view-summary:hover, button:hover {
+        .btn-custom:hover {
             background-color: #45a049;
         }
     </style>
 </head>
 <body>
-    <div class="wastage-container">
-        <h2>Calculate Food Wastage</h2>
-        <form id="wastageForm" method="POST" action="save_wastage.php">
-            <div id="foodEntries">
-                <div class="food-entry">
-                    <div class="form-group">
-                        <label for="foodType">Type of Food:</label>
-                        <select name="foodType[]" required>
-                            <option value="">Select type</option>
-                            <option value="meat">Meat</option>
-                            <option value="vegetable">Vegetable</option>
-                            <option value="dairy">Dairy</option>
-                            <option value="fruit">Fruit</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="foodName">Name of Food:</label>
-                        <input type="text" name="foodName[]" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="quantity">Quantity:</label>
-                        <div class="quantity-group">
-                            <input type="number" name="quantity[]" required placeholder="Enter quantity">
-                            <select name="unit[]" required>
-                                <option value="kg">kg</option>
-                                <option value="g">g</option>
+    <div class="container">
+        <div class="wastage-container">
+            <h2 class="text-center mb-4">Calculate Food Wastage</h2>
+            <form id="wastageForm" method="POST" action="save_wastage.php">
+                <div id="foodEntries">
+                    <div class="food-entry">
+                        <div class="mb-3">
+                            <label for="foodType" class="form-label">Type of Food:</label>
+                            <select name="foodType[]" class="form-select" required>
+                                <option value="">Select type</option>
+                                <option value="meat">Meat</option>
+                                <option value="vegetable">Vegetable</option>
+                                <option value="dairy">Dairy</option>
+                                <option value="fruit">Fruit</option>
                             </select>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="cost">Cost (in dollars):</label>
-                        <input type="number" name="cost[]" required>
+                        <div class="mb-3">
+                            <label for="foodName" class="form-label">Name of Food:</label>
+                            <input type="text" name="foodName[]" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="quantity" class="form-label">Quantity:</label>
+                            <div class="input-group">
+                                <input type="number" name="quantity[]" class="form-control" placeholder="Enter quantity" required>
+                                <select name="unit[]" class="form-select" required>
+                                    <option value="kg">kg</option>
+                                    <option value="g">g</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="cost" class="form-label">Cost (in dollars):</label>
+                            <input type="number" name="cost[]" class="form-control" required>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <button type="submit">Submit Wastage</button>
-        </form>
-        <button class="view-summary" onclick="window.location.href='wastage_summary.html'">View Summary</button>
+                <button type="button" class="btn btn-custom w-100 mb-2" onclick="addFoodEntry()">Add Another Entry</button>
+                <button type="submit" class="btn btn-custom w-100">Submit Wastage</button>
+            </form>
+            <button class="btn btn-secondary w-100 mt-3" onclick="window.location.href='wastage_summary.html'">View Summary</button>
+        </div>
     </div>
 
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function addFoodEntry() {
             const foodEntries = document.getElementById("foodEntries");
