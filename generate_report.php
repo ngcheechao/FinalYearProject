@@ -29,6 +29,8 @@ $item_stmt->bind_param("i", $user_id);
 $item_stmt->execute();
 $item_result = $item_stmt->get_result();
 
+
+
 // Fetch food wastage summary
 $wastage_sql = "SELECT SUM(quantity * (CASE WHEN unit = 'g' THEN 0.001 ELSE 1 END)) AS total_food_wasted,
                        SUM(cost) AS total_cost
