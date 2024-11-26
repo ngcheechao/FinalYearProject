@@ -18,14 +18,19 @@ $message = "";
 // Handle delete request
 if (isset($_GET['delete'])) {
     $id = $_GET['delete'];
-    $sql = "DELETE FROM users WHERE id = $id";
 
+    // First, delete related records in the food_wastage table
+    $conn->query("DELETE FROM food_wastage WHERE user_id = $id");
+
+    // Then, delete the user
+    $sql = "DELETE FROM users WHERE id = $id";
     if ($conn->query($sql) === TRUE) {
         $message = "User with ID $id has been deleted successfully.";
     } else {
         $message = "Error deleting user: " . $conn->error;
     }
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -99,7 +104,15 @@ if (isset($_GET['delete'])) {
                     ?>
                 </tbody>
             </table>
+            <div class="text-center mt-4">
+                <a href="createUser.html" class="btn btn-outline-primary">Add User</a>
+            </div>
+            <div class="text-center mt-4">
+                <a href="admin_dashboard.html" class="btn btn-outline-primary">Back to Admin Dashboard</a>
+            </div>
+            
         </div>
+        
     </div>
 
     <!-- Bootstrap JS -->
