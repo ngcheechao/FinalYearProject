@@ -28,8 +28,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $item_name = $_POST['item_name'];
     $quantity = $_POST['quantity'];
     $price = $_POST['price'];
+    $expiry_date = $_POST['expiry_date']; // Retrieve expiry date from form
 
-    $sql = "UPDATE groceries SET item_name='$item_name', quantity=$quantity, price=$price WHERE id=$id";
+    $sql = "UPDATE groceries 
+            SET item_name='$item_name', quantity=$quantity, price=$price, expiry_date='$expiry_date' 
+            WHERE id=$id";
 
     if ($conn->query($sql) === TRUE) {
         header("Location: view_shopping_list.php");
@@ -123,6 +126,9 @@ $conn->close();
 
             <label for="price">Price:</label>
             <input type="number" step="0.01" name="price" value="<?php echo htmlspecialchars($row['price']); ?>" required>
+
+            <label for="expiry_date">Expiry Date:</label>
+            <input type="date" name="expiry_date" value="<?php echo htmlspecialchars($row['expiry_date']); ?>" required>
 
             <button type="submit">Update Item</button>
         </form>

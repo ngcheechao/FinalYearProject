@@ -105,18 +105,72 @@
         .back-btn:hover {
             background: #218838;
         }
+
+        /* Legend Box */
+        .legend {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .legend div {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .legend div span {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        .legend .expired {
+            background: #ffcccc;
+        }
+
+        .legend .near-expiry {
+            background: #fff3cd;
+        }
+
+        .legend .fresh {
+            background: #d4edda;
+        }
     </style>
 </head>
 <body>
     <h2>Your Shopping List</h2>
+    <!-- Legend Section -->
+    <div class="legend">
+        <div><span class="expired"></span>Expired Items</div>
+        <div><span class="near-expiry"></span>Expiring Soon (within 3 days)</div>
+        <div><span class="fresh"></span>Fresh Items</div>
+    </div>
     <?php
+    session_start();
+
+    // Check if the user is logged in
+    if (!isset($_SESSION['user_id'])) {
+        die("<p>Error: User not logged in. <a href='login.php'>Login</a></p>");
+    }
+
+    $user_id = $_SESSION['user_id']; // Retrieve user_id from session
+
     // Define a mapping for unit values
     $unit_mapping = [
-        0 => 'kg',
-        1 => 'g',
-        2 => 'pieces',
-        3 => 'ml',
-        4 => 'l'
+        1 => 'kg',
+        2 => 'g',
+        3 => 'pieces',
+        4 => 'ml',
+        5 => 'l'
     ];
 
     // Connect to the database
@@ -132,28 +186,46 @@
         die("Connection failed: " . $conn->connect_error);
     }
 
-    // Fetch items from the groceries table
-    $sql = "SELECT * FROM groceries";
-    $result = $conn->query($sql);
+    // Fetch items for the logged-in user
+    $sql = "SELECT * FROM groceries WHERE user_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $user_id); // Bind the user_id to the query
+    $stmt->execute();
+    $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
         echo "<table>
                 <tr>
-                    
                     <th>Item Name</th>
                     <th>Quantity</th>
                     <th>Price</th>
                     <th>Unit</th>
+                    <th>Expiry Date</th>
                     <th>Actions</th>
                 </tr>";
         while ($row = $result->fetch_assoc()) {
             $unit_label = isset($unit_mapping[$row['unit']]) ? $unit_mapping[$row['unit']] : 'Unknown';
-            echo "<tr>
-                    
+
+            // Calculate days until expiry
+            $today = new DateTime();
+            $expiry_date = new DateTime($row['expiry_date']);
+            $interval = $today->diff($expiry_date)->days;
+
+            // Determine background color based on expiry
+            if ($expiry_date < $today) {
+                $bg_color = 'background-color: #ffcccc;'; // Expired: Red
+            } elseif ($interval <= 3) {
+                $bg_color = 'background-color: #fff3cd;'; // Near expiry: Yellow
+            } else {
+                $bg_color = 'background-color: #d4edda;'; // Fresh: Green
+            }
+
+            echo "<tr style='$bg_color'>
                     <td>" . htmlspecialchars($row['item_name']) . "</td>
                     <td>" . $row['quantity'] . "</td>
                     <td>$" . number_format($row['price'], 2) . "</td>
                     <td>" . htmlspecialchars($unit_label) . "</td>
+                    <td>" . htmlspecialchars($row['expiry_date']) . "</td>
                     <td>
                         <form style='display: inline;' action='edit_item.php' method='GET'>
                             <input type='hidden' name='id' value='" . $row['id'] . "'>
@@ -168,9 +240,10 @@
         }
         echo "</table>";
     } else {
-        echo "<p class='no-data'>No items found in the table.</p>";
+        echo "<p class='no-data'>No items found in your shopping list.</p>";
     }
 
+    $stmt->close();
     $conn->close();
     ?>
     <a href="add_items.html" class="back-btn">Add More Items</a>

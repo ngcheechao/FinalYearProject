@@ -31,9 +31,10 @@ if (isset($_POST['submit'])) {
     $quantity = $_POST['quantity'];
     $unit = $_POST['unit']; // Numeric unit value from the form
     $price = $_POST['price'];
+    $expiry_date = $_POST['expiry_date']; // New expiry date field
 
     // Validate form inputs
-    if (empty($item_name) || empty($category) || empty($quantity) || empty($unit) || empty($price)) {
+    if (empty($item_name) || empty($category) || empty($quantity) || empty($unit) || empty($price) || empty($expiry_date)) {
         die("<p>Error: All fields are required! <a href='add_items.html'>Go back</a></p>");
     }
 
@@ -42,9 +43,9 @@ if (isset($_POST['submit'])) {
     }
 
     // Insert the data into the database using a prepared statement
-    $stmt = $conn->prepare("INSERT INTO groceries (item_name, quantity, price, unit, user_id)
-                            VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("sdsii", $item_name, $quantity, $price, $unit, $user_id);
+    $stmt = $conn->prepare("INSERT INTO groceries (item_name, category, quantity, price, unit, expiry_date, user_id)
+                            VALUES (?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("ssdsisi", $item_name, $category, $quantity, $price, $unit, $expiry_date, $user_id);
 
     // Execute the statement
     if ($stmt->execute()) {
@@ -75,8 +76,6 @@ if (isset($_POST['submit'])) {
               </p>";
     }
     
-    
-
     // Close the statement
     $stmt->close();
 }

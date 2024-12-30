@@ -82,6 +82,16 @@
         .btn-custom:hover {
             background-color: #218838;
         }
+
+        .forgot-password {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .forgot-password a {
+            color: #4718e1;
+            text-decoration: underline;
+        }
     </style>
 </head>
 
@@ -99,7 +109,6 @@
 
         <!-- Login Form -->
         <div class="form-container active" id="login-form">
-            <!--<h2 class="text-center mb-4">Login</h2> -->
             <form action="login.php" method="post">
                 <div class="mb-3">
                     <label for="email" class="form-label">Email:</label>
@@ -111,23 +120,24 @@
                 </div>
                 <button type="submit" class="btn btn-custom w-100">Login</button>
             </form>
+            <div class="forgot-password">
+                <a href="forgotPassword.html">Forgot Password?</a>
+            </div>
         </div>
 
         <!-- Sign Up Form -->
         <div class="form-container" id="signup-form">
-            <!--<h2 class="text-center mb-4">Sign Up</h2> -->
             <form action="createUser.php" method="post">
-
                 <div class="mb-3">
                     <label for="username" class="form-label">Username:</label>
                     <input type="text" class="form-control" id="username" name="username" required>
                 </div>
                 <div class="mb-3">
-                    <label for="signup-email" class="form-label"> Email:</label>
+                    <label for="signup-email" class="form-label">Email:</label>
                     <input type="email" class="form-control" id="signup-email" name="email" required>
                 </div>
                 <div class="mb-3">
-                    <label for="signup-password" class="form-label"> Password:</label>
+                    <label for="signup-password" class="form-label">Password:</label>
                     <input type="password" class="form-control" id="signup-password" name="password" required>
                 </div>
                 <button type="submit" class="btn btn-custom w-100">Sign Up</button>
