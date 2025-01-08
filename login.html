@@ -10,13 +10,19 @@
     <style>
         body {
             height: 100vh;
-            background-color: #f0f2f5;
             display: flex;
             justify-content: center;
             align-items: center;
             background: url('food_4.jpg') no-repeat center center fixed;
             background-size: cover;
             color: #ffffff;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body.dark-mode {
+            background: none;
+            background-color: #121212;
+            color: #f0f2f5;
         }
 
         .card {
@@ -60,10 +66,6 @@
             transition: 0.3s;
         }
 
-        .switch-bg.sign-up {
-            left: 50%;
-        }
-
         .form-container {
             display: none;
         }
@@ -92,10 +94,74 @@
             color: #4718e1;
             text-decoration: underline;
         }
+
+        .dark-mode .btn-custom {
+            background-color: #000000;
+        }
+
+        .dark-mode .forgot-password a {
+            color: #4cae4c;
+        }
+
+        .dark-mode .switch-bg {
+            background-color: #000000;
+        }
+
+        /* Dark mode toggle container */
+        .dark-mode-container {
+            position: fixed;
+            /* Use fixed positioning for a consistent position */
+            top: 20px;
+            /* Distance from the top of the page */
+            right: 20px;
+            /* Distance from the right edge of the page */
+            width: 100px;
+            /* Width of the toggle container */
+            height: 40px;
+            /* Height of the toggle container */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            /* Ensure it stays on top of other elements */
+        }
+
+        .dark-mode-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 50%;
+            height: 100%;
+            background-color: #333333;
+            border-radius: 20px;
+            transition: left 0.3s ease-in-out;
+        }
+
+        .dark-mode-btn {
+            width: 50%;
+            text-align: center;
+            padding: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            z-index: 1;
+            color: #ffffff;
+        }
+
+        .dark-mode-btn.active {
+            color: #ffffff;
+        }
     </style>
 </head>
 
 <body>
+    <!-- Dark Mode Toggle -->
+    <div class="dark-mode-container">
+        <div class="dark-mode-btn active" id="light-mode">☀️</div>
+        <div class="dark-mode-btn" id="dark-mode">🌙</div>
+        <div class="dark-mode-bg" id="dark-mode-bg"></div>
+    </div>
+
     <div class="card p-4">
         <div class="text-center mb-3">
             <img src="Logo.png" alt="Login Icon" width="100">
@@ -153,6 +219,9 @@
         const switchBg = document.getElementById("switch-bg");
         const loginForm = document.getElementById("login-form");
         const signupForm = document.getElementById("signup-form");
+        const lightModeBtn = document.getElementById("light-mode");
+        const darkModeBtn = document.getElementById("dark-mode");
+        const darkModeBg = document.getElementById("dark-mode-bg");
 
         loginSwitch.addEventListener("click", () => {
             switchBg.style.left = "0";
@@ -168,6 +237,20 @@
             loginSwitch.classList.remove("active");
             signupForm.classList.add("active");
             loginForm.classList.remove("active");
+        });
+
+        lightModeBtn.addEventListener("click", () => {
+            document.body.classList.remove("dark-mode");
+            darkModeBg.style.left = "0";
+            lightModeBtn.classList.add("active");
+            darkModeBtn.classList.remove("active");
+        });
+
+        darkModeBtn.addEventListener("click", () => {
+            document.body.classList.add("dark-mode");
+            darkModeBg.style.left = "50%";
+            darkModeBtn.classList.add("active");
+            lightModeBtn.classList.remove("active");
         });
     </script>
 </body>
