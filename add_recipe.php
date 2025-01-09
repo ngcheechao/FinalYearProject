@@ -29,10 +29,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } else {
         // Sanitize and retrieve form inputs
         $recipe_name = $conn->real_escape_string(trim($_POST['recipe_name']));
-        
-        // Remove unwanted carriage returns and newlines from ingredients and instructions
-        $ingredients = $conn->real_escape_string(trim(str_replace(array("\r", "\n"), ' ', $_POST['ingredients'])));
-        $instructions = $conn->real_escape_string(trim(str_replace(array("\r", "\n"), ' ', $_POST['instructions'])));
+        $ingredients = $conn->real_escape_string(trim($_POST['ingredients']));
+        $instructions = $conn->real_escape_string(trim($_POST['instructions']));
 
         // Prepare the SQL statement
         $sql = "INSERT INTO recipes (recipe_name, ingredients, instructions) VALUES (?, ?, ?)";
