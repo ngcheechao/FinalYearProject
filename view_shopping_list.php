@@ -9,7 +9,8 @@
         /* General Styles */
         body {
             font-family: 'Roboto', sans-serif;
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            background: url('food_6.jpg') no-repeat center center fixed;
+            background-size: cover;
             margin: 0;
             padding: 0;
             display: flex;
@@ -17,6 +18,7 @@
             align-items: center;
             min-height: 100vh;
         }
+
 
         h2 {
             text-align: center;
@@ -147,7 +149,7 @@
     </style>
 </head>
 <body>
-    <h2>Your Shopping List</h2>
+    <h2 style="color:white">My Groceries Tracker</h2>
     <!-- Legend Section -->
     <div class="legend">
         <div><span class="expired"></span>Expired Items</div>
