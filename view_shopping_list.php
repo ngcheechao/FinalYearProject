@@ -19,7 +19,6 @@
             min-height: 100vh;
         }
 
-
         h2 {
             text-align: center;
             margin: 20px;
@@ -108,22 +107,24 @@
             background: #218838;
         }
 
-        /* Legend Box */
+       /* Legend Box Positioned at Bottom-Right */
         .legend {
             position: fixed;
             bottom: 20px;
             right: 20px;
-            background: white;
+            background: rgba(255, 255, 255, 0.9);
             border: 1px solid #ddd;
-            padding: 10px;
+            padding: 15px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 250px;
         }
+
 
         .legend div {
             display: flex;
             align-items: center;
-            margin-bottom: 5px;
+            margin-bottom: 10px;
         }
 
         .legend div span {
@@ -146,55 +147,73 @@
         .legend .fresh {
             background: #d4edda;
         }
+
+        /* Daily Quote Section */
+        .quote-section {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 8px;
+            max-width: 90%;
+            text-align: center;
+            margin: 20px auto;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
     </style>
 </head>
 <body>
-    <h2 style="color:white">My Groceries Tracker</h2>
-    <!-- Legend Section -->
-    <div class="legend">
-        <div><span class="expired"></span>Expired Items</div>
-        <div><span class="near-expiry"></span>Expiring Soon (within 3 days)</div>
-        <div><span class="fresh"></span>Fresh Items</div>
-    </div>
     <?php
     session_start();
+    header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+    header("Cache-Control: post-check=0, pre-check=0", false);
+    header("Pragma: no-cache");
+
+    // Fetch Daily Quote
+    function fetchDailyQuote() {
+        $api_url = "https://api.quotable.io/random?" . time(); // Add timestamp to prevent caching
+        $curl = curl_init($api_url);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_TIMEOUT, 10);
+        $response = curl_exec($curl);
+
+        if (curl_errno($curl)) {
+            curl_close($curl);
+            return ['content' => 'Start your day with a positive thought!', 'author' => 'Anonymous'];
+        }
+
+        curl_close($curl);
+        $data = json_decode($response, true);
+        return [
+            'content' => $data['content'] ?? 'Stay positive and reduce waste!',
+            'author' => $data['author'] ?? 'Anonymous'
+        ];
+    }
+
+    // Call the function
+    $daily_quote = fetchDailyQuote();
 
     // Check if the user is logged in
     if (!isset($_SESSION['user_id'])) {
         die("<p>Error: User not logged in. <a href='login.php'>Login</a></p>");
     }
 
-    $user_id = $_SESSION['user_id']; // Retrieve user_id from session
+    $user_id = $_SESSION['user_id'];
 
-    // Define a mapping for unit values
-    $unit_mapping = [
-        1 => 'kg',
-        2 => 'g',
-        3 => 'pieces',
-        4 => 'ml',
-        5 => 'l'
-    ];
-
-    // Connect to the database
-    $host = 'localhost'; // Change if necessary
-    $username = 'root'; // Change if necessary
-    $password = ''; // Change if necessary
-    $database = 'fyp'; // Replace with your database name
-
-    $conn = new mysqli($host, $username, $password, $database);
-
-    // Check connection
+    // Database Connection
+    $conn = new mysqli('localhost', 'root', '', 'fyp');
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
     }
 
-    // Fetch items for the logged-in user
     $sql = "SELECT * FROM groceries WHERE user_id = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $user_id); // Bind the user_id to the query
+    $stmt->bind_param("i", $user_id);
     $stmt->execute();
     $result = $stmt->get_result();
+    ?>
 
+    <h2 style="color:white">My Groceries Tracker</h2>
+
+    <?php
     if ($result->num_rows > 0) {
         echo "<table>
                 <tr>
@@ -206,20 +225,19 @@
                     <th>Actions</th>
                 </tr>";
         while ($row = $result->fetch_assoc()) {
-            $unit_label = isset($unit_mapping[$row['unit']]) ? $unit_mapping[$row['unit']] : 'Unknown';
+            $unit_mapping = [1 => 'kg', 2 => 'g', 3 => 'pieces', 4 => 'ml', 5 => 'l'];
+            $unit_label = $unit_mapping[$row['unit']] ?? 'Unknown';
 
-            // Calculate days until expiry
             $today = new DateTime();
             $expiry_date = new DateTime($row['expiry_date']);
             $interval = $today->diff($expiry_date)->days;
 
-            // Determine background color based on expiry
             if ($expiry_date < $today) {
-                $bg_color = 'background-color: #ffcccc;'; // Expired: Red
+                $bg_color = 'background-color: #ffcccc;';
             } elseif ($interval <= 3) {
-                $bg_color = 'background-color: #fff3cd;'; // Near expiry: Yellow
+                $bg_color = 'background-color: #fff3cd;';
             } else {
-                $bg_color = 'background-color: #d4edda;'; // Fresh: Green
+                $bg_color = 'background-color: #d4edda;';
             }
 
             echo "<tr style='$bg_color'>
@@ -248,7 +266,25 @@
     $stmt->close();
     $conn->close();
     ?>
+
     <a href="add_items.html" class="back-btn">Add More Items</a>
     <a href="user_dashboard.html" class="back-btn">Go back to dashboard</a>
+
+    <!-- Legend Section -->
+    <div class="legend">
+        <div><span class="expired"></span> Expired Items</div>
+        <div><span class="near-expiry"></span> Expiring Soon (within 3 days)</div>
+        <div><span class="fresh"></span> Fresh Items</div>
+    </div>
+
+    <!-- Daily Quote Section at the Bottom -->
+    <div class="quote-section">
+        <p style="font-style: italic; font-size: 18px; color: #333;">
+            "<?php echo htmlspecialchars($daily_quote['content']); ?>"
+        </p>
+        <p style="font-weight: bold; font-size: 16px; color: #555;">
+            - <?php echo htmlspecialchars($daily_quote['author']); ?>
+        </p>
+    </div>
 </body>
 </html>
