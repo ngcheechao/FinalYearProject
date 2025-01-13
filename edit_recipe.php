@@ -51,10 +51,10 @@ if (isset($_GET['recipe_id'])) {
     $stmt->bind_param("sssi", $recipe_name, $ingredients, $instructions, $recipe_id);
 
     if ($stmt->execute()) {
-        // Use JavaScript to show an alert and redirect
+        // Use JavaScript to show an alert and redirect back to edit_recipe.php
         echo "<script>
                 alert('Recipe updated successfully!');
-                window.location.href = 'admin_dashboard.html';
+                window.location.href = 'edit_recipe.php';
               </script>";
     } else {
         echo "<p>Error updating recipe: " . $stmt->error . "</p>";
@@ -64,102 +64,9 @@ if (isset($_GET['recipe_id'])) {
     $conn->close();
     exit();
 } else {
-    // Display all recipes in a table (same as before)
+    // Display all recipes in a table
     $sql = "SELECT id, recipe_name, ingredients, instructions FROM recipes";
     $result = $conn->query($sql);
-
-    echo "<!DOCTYPE html>
-<html lang='en'>
-<head>
-    <meta charset='UTF-8'>
-    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-    <title>All Recipes</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            margin: 20px;
-            padding: 0;
-            text-align: center;
-        }
-
-        h1 {
-            color: #333;
-        }
-
-        table {
-            width: 90%;
-            max-width: 800px;
-            margin: 20px auto;
-            border-collapse: collapse;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            background-color: #fff;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-
-        thead {
-            background-color: #4CAF50;
-            color: white;
-        }
-
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
-        tr:hover {
-            background-color: #f1f1f1;
-        }
-
-        a.edit-button {
-            color: #007BFF;
-            text-decoration: none;
-        }
-
-        a.edit-button:hover {
-            text-decoration: underline;
-        }
-    </style>
-</head>
-<body>
-    <h1>All Recipes</h1>";
-
-    if ($result->num_rows > 0) {
-        echo "<table>
-            <thead>
-                <tr>
-                    <th>Recipe Name</th>
-                    <th>Ingredients</th>
-                    <th>Instructions</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>";
-        while ($row = $result->fetch_assoc()) {
-            echo "<tr>
-                    <td>" . htmlspecialchars($row['recipe_name']) . "</td>
-                    <td>" . nl2br(htmlspecialchars($row['ingredients'])) . "</td>
-                    <td>" . nl2br(htmlspecialchars($row['instructions'])) . "</td>
-                    <td><a href='edit_recipe.php?recipe_id=" . $row['id'] . "' class='edit-button'>Edit</a></td>
-                  </tr>";
-        }
-        echo "</tbody>
-        </table>";
-    } else {
-        echo "<p>No recipes found.</p>";
-    }
-
-    echo "</body>
-</html>";
-
-    $conn->close();
-    exit();
 }
 ?>
 
@@ -167,36 +74,183 @@ if (isset($_GET['recipe_id'])) {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Edit Recipe</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Recipes</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #81c784, #388e3c);
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #2e7d32;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 18px;
+        }
+        header a {
+            text-decoration: none;
+            color: white;
+        }
+        .container {
+            width: 90%;
+            max-width: 900px;
+            margin: 30px auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            color: #388e3c;
+        }
+        form {
+            margin-top: 30px;
+        }
+        p {
+            margin-bottom: 20px;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            color: #388e3c;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #388e3c;
+            border-radius: 10px;
+            box-sizing: border-box;
+            font-size: 1rem;
+            color: #333;
+            transition: border-color 0.3s ease;
+        }
+        input[type="text"]:focus, textarea:focus {
+            border-color: #2e7d32;
+            outline: none;
+        }
+        textarea {
+            height: 150px;
+            resize: vertical;
+        }
+        .btn-update, .btn-back {
+            display: inline-block;
+            padding: 12px 25px;
+            background-color: #388e3c;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s;
+        }
+        .btn-update:hover, .btn-back:hover {
+            background-color: #2e7d32;
+            transform: scale(1.05);
+        }
+        .btn-back {
+            background-color: #4caf50;
+        }
+        .btn-back:hover {
+            background-color: #388e3c;
+        }
+        .btn-update:focus, .btn-back:focus {
+            outline: none;
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        th, td {
+            text-align: left;
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #388e3c;
+            color: white;
+            font-size: 1.1rem;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        td a {
+            color: #388e3c;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+        td a:hover {
+            color: #2e7d32;
+        }
+    </style>
 </head>
 <body>
-    <?php if (isset($recipe)): ?>
-        <div class="container">
-            <h1 class="title">Edit Recipe</h1>
+    <header>
+        <a href="admin_dashboard.html">← Back to Dashboard</a>
+    </header>
+    <div class="container">
+        <?php if (isset($recipe)): ?>
+            <h1>Edit Recipe</h1>
             <form method="post" action="edit_recipe.php">
                 <input type="hidden" name="recipe_id" value="<?php echo htmlspecialchars($recipe_id); ?>">
-
-                <table class="recipe-edit-table">
-                    <tr>
-                        <th>Recipe Name</th>
-                        <td><input type="text" name="recipe_name" value="<?php echo htmlspecialchars($recipe['recipe_name']); ?>" required></td>
-                    </tr>
-                    <tr>
-                        <th>Ingredients</th>
-                        <td><textarea name="ingredients" required><?php echo htmlspecialchars($recipe['ingredients']); ?></textarea></td>
-                    </tr>
-                    <tr>
-                        <th>Instructions</th>
-                        <td><textarea name="instructions" required><?php echo htmlspecialchars($recipe['instructions']); ?></textarea></td>
-                    </tr>
-                </table>
-
-                <div class="button-container">
-                    <input type="submit" value="Update Recipe" class="btn">
-                </div>
+                <p>
+                    <label for="recipe_name">Recipe Name:</label>
+                    <input type="text" id="recipe_name" name="recipe_name" value="<?php echo htmlspecialchars($recipe['recipe_name']); ?>" required>
+                </p>
+                <p>
+                    <label for="ingredients">Ingredients:</label>
+                    <textarea id="ingredients" name="ingredients" required><?php echo htmlspecialchars($recipe['ingredients']); ?></textarea>
+                </p>
+                <p>
+                    <label for="instructions">Instructions:</label>
+                    <textarea id="instructions" name="instructions" required><?php echo htmlspecialchars($recipe['instructions']); ?></textarea>
+                </p>
+                <button type="submit" class="btn-update">Update Recipe</button>
+                <a href="edit_recipe.php" class="btn-back">Cancel</a>
             </form>
-        </div>
-    <?php endif; ?>
+        <?php else: ?>
+            <h1>All Recipes</h1>
+            <?php if ($result->num_rows > 0): ?>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Recipe Name</th>
+                            <th>Ingredients</th>
+                            <th>Instructions</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php while ($row = $result->fetch_assoc()): ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($row['recipe_name']); ?></td>
+                                <td><?php echo nl2br(htmlspecialchars($row['ingredients'])); ?></td>
+                                <td><?php echo nl2br(htmlspecialchars($row['instructions'])); ?></td>
+                                <td>
+                                    <a href="edit_recipe.php?recipe_id=<?php echo $row['id']; ?>">Edit</a>
+                                </td>
+                            </tr>
+                        <?php endwhile; ?>
+                    </tbody>
+                </table>
+            <?php else: ?>
+                <p>No recipes found.</p>
+            <?php endif; ?>
+        <?php endif; ?>
+    </div>
 </body>
 </html>

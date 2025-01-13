@@ -65,6 +65,23 @@ $conn->close();
             color: #333;
         }
 
+        /* Green Back to Dashboard button style */
+        .back-to-dashboard {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            text-decoration: none;
+            border-radius: 5px;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+
+        .back-to-dashboard:hover {
+            background-color: #45a049;
+        }
+
         table {
             width: 90%;
             max-width: 800px;
@@ -112,6 +129,9 @@ $conn->close();
     </style>
 </head>
 <body>
+    <!-- Green Back to Dashboard Button -->
+    <a href="user_dashboard.html" class="back-to-dashboard">Back to Dashboard</a>
+
     <h1>Search Results</h1>
 
     <?php if (!empty($recipes)): ?>

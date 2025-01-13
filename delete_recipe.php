@@ -21,30 +21,31 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Handle recipe deletion
-if (isset($_GET['delete_id'])) {
-    $delete_id = $_GET['delete_id'];
-
-    // Prepare and execute the delete statement
-    $sql = "DELETE FROM recipes WHERE id = ?";
+// Handle multiple recipe deletions
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete_ids'])) {
+    $delete_ids = $_POST['delete_ids'];
+    $placeholders = implode(',', array_fill(0, count($delete_ids), '?')); // Create placeholders for prepared statement
+    $sql = "DELETE FROM recipes WHERE id IN ($placeholders)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $delete_id);
+
+    // Bind the parameters dynamically
+    $stmt->bind_param(str_repeat('i', count($delete_ids)), ...$delete_ids);
 
     if ($stmt->execute()) {
-        // Redirect with a success message using JavaScript
+        // Redirect with success message
         echo "<script>
-                alert('Recipe deleted successfully!');
-                window.location.href = 'admin_dashboard.html';
+                alert('Selected recipes deleted successfully!');
+                window.location.href = 'delete_recipe.php';
               </script>";
     } else {
-        echo "<p>Error deleting recipe: " . $stmt->error . "</p>";
+        echo "<p>Error deleting recipes: " . $stmt->error . "</p>";
     }
 
     // Close the statement
     $stmt->close();
 }
 
-// Fetch and display all recipes in a table
+// Fetch all recipes
 $sql = "SELECT id, recipe_name, ingredients, instructions FROM recipes";
 $result = $conn->query($sql);
 
@@ -54,15 +55,30 @@ $result = $conn->query($sql);
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Delete Recipe</title>
+    <title>Delete Recipes</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #e8f5e9;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #2e7d32;
+            padding: 10px;
+        }
+        .back-button {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 18px;
+            margin-left: 10px;
+        }
+        .back-button:hover {
+            text-decoration: underline;
         }
         h1 {
             text-align: center;
-            margin-top: 20px;
+            margin: 20px 0;
             color: #2e7d32;
         }
         .recipe-table {
@@ -85,46 +101,64 @@ $result = $conn->query($sql);
         .recipe-table tr:nth-child(even) {
             background-color: #f1f8e9;
         }
+        .delete-section {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
         .delete-button {
-            display: inline-block;
-            padding: 8px 12px;
+            padding: 10px 20px;
             color: #ffffff;
             background-color: #43a047;
+            border: none;
             border-radius: 5px;
-            text-decoration: none;
+            cursor: pointer;
+            font-size: 16px;
         }
         .delete-button:hover {
             background-color: #388e3c;
         }
+        .delete-button:disabled {
+            background-color: #a5d6a7;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
+    <header>
+        <a href="admin_dashboard.html" class="back-button">← Back to Dashboard</a>
+    </header>
     <h1>All Recipes</h1>
 
-    <?php if ($result->num_rows > 0): ?>
-        <table class="recipe-table">
-            <tr>
-                <th>Recipe Name</th>
-                <th>Ingredients</th>
-                <th>Instructions</th>
-                <th>Actions</th>
-            </tr>
-            <?php while ($row = $result->fetch_assoc()): ?>
+    <form method="POST" action="delete_recipe.php">
+        <?php if ($result->num_rows > 0): ?>
+            <table class="recipe-table">
                 <tr>
-                    <td><?php echo htmlspecialchars($row['recipe_name']); ?></td>
-                    <td><?php echo nl2br(htmlspecialchars($row['ingredients'])); ?></td>
-                    <td><?php echo nl2br(htmlspecialchars($row['instructions'])); ?></td>
-                    <td>
-                        <a href="delete_recipe.php?delete_id=<?php echo $row['id']; ?>" 
-                           class="delete-button" 
-                           onclick="return confirm('Are you sure you want to delete this recipe?')">Delete</a>
-                    </td>
+                    <th>Select</th>
+                    <th>Recipe Name</th>
+                    <th>Ingredients</th>
+                    <th>Instructions</th>
                 </tr>
-            <?php endwhile; ?>
-        </table>
-    <?php else: ?>
-        <p style="text-align: center; color: #2e7d32;">No recipes found.</p>
-    <?php endif; ?>
+                <?php while ($row = $result->fetch_assoc()): ?>
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="delete_ids[]" value="<?php echo $row['id']; ?>">
+                        </td>
+                        <td><?php echo htmlspecialchars($row['recipe_name']); ?></td>
+                        <td><?php echo nl2br(htmlspecialchars($row['ingredients'])); ?></td>
+                        <td><?php echo nl2br(htmlspecialchars($row['instructions'])); ?></td>
+                    </tr>
+                <?php endwhile; ?>
+            </table>
+            <div class="delete-section">
+                <button type="submit" class="delete-button" onclick="return confirm('Are you sure you want to delete the selected recipes?')">Delete Selected</button>
+            </div>
+        <?php else: ?>
+            <p style="text-align: center; color: #2e7d32;">No recipes found.</p>
+        <?php endif; ?>
+    </form>
 
     <?php $conn->close(); ?>
 </body>

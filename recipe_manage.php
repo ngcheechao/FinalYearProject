@@ -54,7 +54,7 @@ if (isset($_GET['recipe_id'])) {
         // Use JavaScript to show an alert and redirect
         echo "<script>
                 alert('Recipe updated successfully!');
-                window.location.href = 'admin_dashboard.html';
+                window.location.href = 'user_dashboard.html';
               </script>";
     } else {
         echo "<p>Error updating recipe: " . $stmt->error . "</p>";
@@ -78,13 +78,30 @@ if (isset($_GET['recipe_id'])) {
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f9;
-            margin: 20px;
+            margin: 0;
             padding: 0;
         }
 
         h1 {
             color: #333;
             text-align: center;
+        }
+
+        /* Green back to dashboard button style */
+        .back-to-dashboard {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            text-decoration: none;
+            border-radius: 5px;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+
+        .back-to-dashboard:hover {
+            background-color: #45a049;
         }
 
         .search-container {
@@ -117,7 +134,7 @@ if (isset($_GET['recipe_id'])) {
         table {
             width: 90%;
             max-width: 800px;
-            margin: 20px auto;
+            margin: 60px auto;
             border-collapse: collapse;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
             background-color: #fff;
@@ -155,6 +172,9 @@ if (isset($_GET['recipe_id'])) {
     </style>
 </head>
 <body>
+    <!-- Green Back to Dashboard Button -->
+    <a href='user_dashboard.html' class='back-to-dashboard'>Back to Dashboard</a>
+    
     <h1>All Recipes</h1>
     
     <!-- Search Bar -->
