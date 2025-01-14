@@ -1,6 +1,10 @@
 <?php
 session_start();
 
+// Enable error reporting
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 // Check if the user is logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.html");
@@ -30,7 +34,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Sanitize and retrieve form inputs
         $recipe_name = $conn->real_escape_string(trim($_POST['recipe_name']));
         $ingredients = $conn->real_escape_string(trim($_POST['ingredients']));
-        $instructions = $conn->real_escape_string(trim($_POST['instructions']));
+        
+        // Process instructions: trim, replace newlines with <br>, and replace multiple spaces with a single space
+        $instructions = trim($_POST['instructions']);
+        $instructions = str_replace(array("\r", "\n"), '<br>', $instructions); // Replace \r and \n with <br>
+        $instructions = preg_replace('/\s+/', ' ', $instructions); // Replace multiple spaces with a single space
+        $instructions = $conn->real_escape_string($instructions); // Escape for SQL
 
         // Prepare the SQL statement
         $sql = "INSERT INTO recipes (recipe_name, ingredients, instructions) VALUES (?, ?, ?)";
@@ -58,3 +67,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 // Close the connection
 $conn->close();
 ?>
+
