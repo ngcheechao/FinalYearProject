@@ -59,14 +59,17 @@
         $user = $_POST['username'];
         $email = $_POST['email'];
         $pass = $_POST['password']; // Use the plain password
-        $is_admin = 0; // Default to normal user
+        $role = $_POST['role']; // Get the role (Admin or Normal User)
+
+        // Determine is_admin value based on the role
+        $is_admin = ($role === "Admin") ? 1 : 0;
 
         // Insert data into the `users` table
         $sql = "INSERT INTO users (username, email, password, is_admin) VALUES ('$user', '$email', '$pass', $is_admin)";
 
         if ($conn->query($sql) === TRUE) {
             echo "<h2 class='success-message'>🎉 New user created successfully!</h2>";
-            echo "<p>Welcome, <strong>$user</strong>! Your account has been created.</p>";
+            echo "<p>Welcome, <strong>$user</strong>! Your account has been created as a <strong>$role</strong>.</p>";
             echo "<a href='login.html' class='btn btn-success'>Go to Login</a>";
         } else {
             echo "<h2 class='error-message'>Error Creating Account</h2>";
