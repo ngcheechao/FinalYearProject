@@ -107,7 +107,7 @@
             background: #218838;
         }
 
-       /* Legend Box Positioned at Bottom-Right */
+        /* Legend Box Positioned at Bottom-Right */
         .legend {
             position: fixed;
             bottom: 20px;
@@ -119,7 +119,6 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             width: 250px;
         }
-
 
         .legend div {
             display: flex;
@@ -163,33 +162,20 @@
 <body>
     <?php
     session_start();
-    header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-    header("Cache-Control: post-check=0, pre-check=0", false);
-    header("Pragma: no-cache");
 
-    // Fetch Daily Quote
-    function fetchDailyQuote() {
-        $api_url = "https://api.quotable.io/random?" . time(); // Add timestamp to prevent caching
-        $curl = curl_init($api_url);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_TIMEOUT, 10);
-        $response = curl_exec($curl);
+    // Predefined Quotes Array
+    $quotes = [
+        ["content" => "Waste not, want not.", "author" => "Benjamin Franklin"],
+        ["content" => "The greatest threat to our planet is the belief that someone else will save it.", "author" => "Robert Swan"],
+        ["content" => "Reduce, reuse, recycle.", "author" => "Anonymous"],
+        ["content" => "Sustainability is not a trend; it's a responsibility.", "author" => "Anonymous"],
+        ["content" => "Every small action counts. Start reducing waste today.", "author" => "Unknown"],
+        ["content" => "Be the change you wish to see in the world.", "author" => "Mahatma Gandhi"]
+    ];
 
-        if (curl_errno($curl)) {
-            curl_close($curl);
-            return ['content' => 'Start your day with a positive thought!', 'author' => 'Anonymous'];
-        }
-
-        curl_close($curl);
-        $data = json_decode($response, true);
-        return [
-            'content' => $data['content'] ?? 'Stay positive and reduce waste!',
-            'author' => $data['author'] ?? 'Anonymous'
-        ];
-    }
-
-    // Call the function
-    $daily_quote = fetchDailyQuote();
+    // Shuffle quotes and pick the first one
+    shuffle($quotes);
+    $daily_quote = $quotes[0];
 
     // Check if the user is logged in
     if (!isset($_SESSION['user_id'])) {
@@ -277,7 +263,7 @@
         <div><span class="fresh"></span> Fresh Items</div>
     </div>
 
-    <!-- Daily Quote Section at the Bottom -->
+    <!-- Daily Quote Section -->
     <div class="quote-section">
         <p style="font-style: italic; font-size: 18px; color: #333;">
             "<?php echo htmlspecialchars($daily_quote['content']); ?>"
