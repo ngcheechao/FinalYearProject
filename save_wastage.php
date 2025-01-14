@@ -21,35 +21,51 @@ if ($conn->connect_error) {
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $foodTypes = $_POST['foodType'];
-    $foodNames = $_POST['foodName'];
+    $groceryItems = $_POST['groceryItem'];
     $quantities = $_POST['quantity'];
-    $units = $_POST['unit'];
-    $costs = $_POST['cost'];
+    $reasons = $_POST['reason'];
 
-    $sql = "INSERT INTO food_wastage (user_id, food_type, food_name, quantity, unit, cost) VALUES (?, ?, ?, ?, ?, ?)";
-    $stmt = $conn->prepare($sql);
+    foreach ($groceryItems as $index => $itemId) {
+        $quantity = $quantities[$index];
+        $reason = $reasons[$index];
 
-    for ($i = 0; $i < count($foodTypes); $i++) {
-        $foodType = $conn->real_escape_string($foodTypes[$i]);
-        $foodName = $conn->real_escape_string($foodNames[$i]);
-        $quantity = floatval($quantities[$i]);
-        $unit = $conn->real_escape_string($units[$i]);
-        $cost = floatval($costs[$i]);
+        // Insert into food_wastage table
+        $sqlInsert = "INSERT INTO food_wastage (user_id, category, item_name, quantity, unit, price, reason) 
+                      SELECT ?, category, item_name, ?, unit, price * (? / quantity), ? FROM groceries WHERE id = ?";
+        $stmtInsert = $conn->prepare($sqlInsert);
+        $stmtInsert->bind_param("isdsi", $user_id, $quantity, $quantity, $reason, $itemId);
+        $stmtInsert->execute();
+        $stmtInsert->close();
 
-        $stmt->bind_param("issdss", $user_id, $foodType, $foodName, $quantity, $unit, $cost);
+        // Update or remove item from groceries table
+        $sqlSelect = "SELECT quantity FROM groceries WHERE id = ?";
+        $stmtSelect = $conn->prepare($sqlSelect);
+        $stmtSelect->bind_param("i", $itemId);
+        $stmtSelect->execute();
+        $result = $stmtSelect->get_result();
+        $row = $result->fetch_assoc();
+        $currentQuantity = $row['quantity'];
+        $stmtSelect->close();
 
-        if (!$stmt->execute()) {
-            echo "Error adding wastage data: " . $stmt->error;
+        if ($currentQuantity > $quantity) {
+            $newQuantity = $currentQuantity - $quantity;
+            $sqlUpdate = "UPDATE groceries SET quantity = ? WHERE id = ?";
+            $stmtUpdate = $conn->prepare($sqlUpdate);
+            $stmtUpdate->bind_param("di", $newQuantity, $itemId);
+            $stmtUpdate->execute();
+            $stmtUpdate->close();
+        } else {
+            $sqlDelete = "DELETE FROM groceries WHERE id = ?";
+            $stmtDelete = $conn->prepare($sqlDelete);
+            $stmtDelete->bind_param("i", $itemId);
+            $stmtDelete->execute();
+            $stmtDelete->close();
         }
     }
 
-    $stmt->close();
-} else {
-    echo "Invalid request.";
+    $conn->close();
+    $_SESSION['feedback'] = "Food wastage data has been successfully recorded.";
+    header("Location: calculate_wastage.html");
+    exit();
 }
-
-$conn->close();
-
-header("Location: calculate_wastage.html");
-exit();
 ?>

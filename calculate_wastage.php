@@ -20,24 +20,23 @@ if ($conn->connect_error) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $foodTypes = $_POST['foodType'];
-    $foodNames = $_POST['foodName'];
+    $categories = $_POST['category'];
+    $items = $_POST['item'];
     $quantities = $_POST['quantity'];
     $units = $_POST['unit'];
-    $costs = $_POST['cost'];
+    $prices = $_POST['price'];
 
-    // Prepare the SQL insert statement with the new unit field
-    $sql = "INSERT INTO food_wastage (user_id, food_type, food_name, quantity, unit, cost) VALUES (?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO food_wastage (user_id, category, item_name, quantity, unit, price) VALUES (?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
 
-    for ($i = 0; $i < count($foodTypes); $i++) {
-        $foodType = $conn->real_escape_string($foodTypes[$i]);
-        $foodName = $conn->real_escape_string($foodNames[$i]);
-        $quantity = floatval($quantities[$i]); // Convert quantity to float
+    for ($i = 0; $i < count($items); $i++) {
+        $category = $conn->real_escape_string($categories[$i]);
+        $item = $conn->real_escape_string($items[$i]);
+        $quantity = floatval($quantities[$i]);
         $unit = $conn->real_escape_string($units[$i]);
-        $cost = floatval($costs[$i]);
+        $price = floatval($prices[$i]);
 
-        $stmt->bind_param("issdss", $user_id, $foodType, $foodName, $quantity, $unit, $cost);
+        $stmt->bind_param("issdss", $user_id, $category, $item, $quantity, $unit, $price);
 
         if (!$stmt->execute()) {
             echo "Error adding wastage data: " . $stmt->error;
@@ -45,12 +44,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     $stmt->close();
-    echo "Wastage data added successfully.";
-} else {
-    echo "Invalid request.";
-}
+    $conn->close();
 
-$conn->close();
-header("Location: calculate_wastage.html");
-exit();
+    header("Location: calculate_wastage.html");
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
+    error_reporting(E_ALL);
+
+    exit();
+}
 ?>
