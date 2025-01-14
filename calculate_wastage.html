@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculate Wastage</title>
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -18,7 +17,7 @@
             margin: 0;
         }
         .wastage-container {
-            background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white background */
+            background-color: rgba(255, 255, 255, 0.9);
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
@@ -27,9 +26,6 @@
         }
         h2 {
             color: #054A24;
-        }
-        .form-group {
-            margin-bottom: 15px;
         }
         .btn-custom {
             background-color: #56A575;
@@ -45,53 +41,90 @@
         <div class="wastage-container">
             <h2 class="text-center mb-4">Calculate Food Wastage</h2>
             <form id="wastageForm" method="POST" action="save_wastage.php">
-                <div id="foodEntries">
-                    <div class="food-entry">
-                        <div class="mb-3">
-                            <label for="foodType" class="form-label">Type of Food:</label>
-                            <select name="foodType[]" class="form-select" required>
-                                <option value="">Select type</option>
-                                <option value="meat">Meat</option>
-                                <option value="vegetable">Vegetable</option>
-                                <option value="dairy">Dairy</option>
-                                <option value="fruit">Fruit</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="foodName" class="form-label">Name of Food:</label>
-                            <input type="text" name="foodName[]" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="quantity" class="form-label">Quantity:</label>
-                            <div class="input-group">
-                                <input type="number" name="quantity[]" class="form-control" placeholder="Enter quantity" required>
-                                <select name="unit[]" class="form-select" required>
-                                    <option value="kg">kg</option>
-                                    <option value="g">g</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="cost" class="form-label">Cost (in dollars):</label>
-                            <input type="number" name="cost[]" class="form-control" required>
-                        </div>
+                <div id="step1" class="step">
+                    <div class="mb-3">
+                        <label for="foodType" class="form-label">Type of Food:</label>
+                        <select name="foodType[]" class="form-select" id="foodType" required>
+                            <option value="">Select Type</option>
+                            <option value="meat">Meat</option>
+                            <option value="vegetable">Vegetable</option>
+                            <option value="fruit">Fruit</option>
+                            <option value="dairy">Dairy</option>
+                        </select>
                     </div>
                 </div>
-                <button type="button" class="btn btn-custom w-100 mb-2" onclick="addFoodEntry()">Add Another Entry</button>
-                <button type="submit" class="btn btn-custom w-100">Submit Wastage</button>
+
+                <div id="step2" class="step" style="display: none;">
+                    <div class="mb-3">
+                        <label for="groceryItem" class="form-label">Which Food Item is going to waste? (😞):</label>
+                        <select name="groceryItem[]" class="form-select" id="groceryItem" required>
+                            <option value="">Select Item</option>
+                            <!-- Options dynamically populated -->
+                        </select>
+                    </div>
+                </div>
+
+                <div id="step3" class="step" style="display: none;">
+                    <div class="mb-3">
+                        <label for="quantity" class="form-label">How many of it is going to waste?</label>
+                        <div class="input-group">
+                            <input type="number" name="quantity[]" class="form-control" placeholder="Enter quantity" required>
+                            <span class="input-group-text" id="unitDisplay">Unit</span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="reason" class="form-label">Reason for discarding the food:</label>
+                        <textarea name="reason[]" class="form-control" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-custom w-100">Submit Wastage</button>
+                </div>
             </form>
             <button class="btn btn-secondary w-100 mt-3" onclick="window.location.href='wastage_summary.html'">View Summary</button>
+            <button class="btn btn-secondary w-100 mt-3" onclick="window.location.href='user_dashboard.html'">Back to Dashboard</button>
         </div>
     </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function addFoodEntry() {
-            const foodEntries = document.getElementById("foodEntries");
-            const newEntry = document.querySelector(".food-entry").cloneNode(true);
-            newEntry.querySelectorAll("input, select").forEach(input => input.value = "");
-            foodEntries.appendChild(newEntry);
+        document.addEventListener("DOMContentLoaded", async () => {
+            const foodTypeSelect = document.getElementById("foodType");
+            const groceryItemSelect = document.getElementById("groceryItem");
+            const response = await fetch('get_groceries.php');
+            const groceries = await response.json();
+
+            foodTypeSelect.addEventListener("change", () => {
+                const selectedType = foodTypeSelect.value;
+                groceryItemSelect.innerHTML = '<option value="">Select Item</option>';
+
+                groceries.forEach(item => {
+                    if (item.category === selectedType) {
+                        const option = document.createElement('option');
+                        option.value = item.id;
+                        option.dataset.unit = item.unit;
+                        option.dataset.quantity = item.quantity;
+                        option.textContent = `${item.item_name} (${item.quantity} ${convertUnit(item.unit)})`;
+                        groceryItemSelect.appendChild(option);
+                    }
+                });
+                document.getElementById("step2").style.display = "block";
+            });
+
+            groceryItemSelect.addEventListener("change", (e) => {
+                const selectedOption = e.target.selectedOptions[0];
+                const unitText = convertUnit(selectedOption.dataset.unit);
+                document.getElementById("unitDisplay").textContent = unitText;
+                document.getElementById("step3").style.display = "block";
+            });
+        });
+
+        function convertUnit(unitValue) {
+            switch (parseInt(unitValue, 10)) {
+                case 1: return "Kilogram (kg)";
+                case 2: return "Gram (g)";
+                case 3: return "Pieces";
+                case 4: return "Millilitre (ml)";
+                case 5: return "Litre (L)";
+                default: return "Unknown Unit";
+            }
         }
     </script>
 </body>
