@@ -65,7 +65,7 @@ $carbon_footprint = [
 $environmental_impact = 0;
 
 while ($row = $result->fetch_assoc()) {
-    $type = strtolower($row['food_type']); // Normalize to lowercase
+    $type = strtolower($row['food_type']); 
     $quantity = $row['total_quantity'];
     $impact_per_kg = $carbon_footprint[$type] ?? 0.5; // Default to 0.5 kg CO2e if type is unknown
     error_log("Processing food type: $type, quantity: $quantity, impact_per_kg: $impact_per_kg");

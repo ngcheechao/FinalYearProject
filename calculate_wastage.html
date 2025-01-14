@@ -44,7 +44,7 @@
     <div class="container">
         <div class="wastage-container">
             <h2 class="text-center mb-4">Calculate Food Wastage</h2>
-            <form id="wastageForm" method="POST" action="save_wastage.php">
+            <form id="wastageForm" method="POST" action="save_wastage.php" onsubmit="return showSuccessMessage()">
                 <div id="foodEntries">
                     <div class="food-entry">
                         <div class="mb-3">
@@ -92,6 +92,11 @@
             const newEntry = document.querySelector(".food-entry").cloneNode(true);
             newEntry.querySelectorAll("input, select").forEach(input => input.value = "");
             foodEntries.appendChild(newEntry);
+        }
+
+        function showSuccessMessage() {
+            alert("You have successfully added your Food Wastage!");
+            return true; // Allow the form submission to proceed
         }
     </script>
 </body>
