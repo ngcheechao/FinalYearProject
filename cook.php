@@ -232,23 +232,7 @@
     ?>
 
     <script>
-    // Function to handle checkbox clicks
-    function handleCheckboxClick(checkbox, daysUntilExpiry, expiryDate) {
-        if (daysUntilExpiry <= 3) {
-            // Show a Yes/No confirmation dialog
-            const confirmation = confirm("This item is expiring soon (on " + expiryDate + "). Do you still want to select it?");
-            if (confirmation) {
-                // User selected 'Yes', keep the checkbox ticked
-                return true;
-            } else {
-                // User selected 'No', uncheck the checkbox
-                checkbox.checked = false;
-                return false;
-            }
-        }
-        // If the item is not expiring soon, allow the checkbox to be checked
-        return true;
-    }
+  
     </script>
 
 </body>

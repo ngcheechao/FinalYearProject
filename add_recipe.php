@@ -25,46 +25,47 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Handle form submission
+// Initialize feedback message
+$feedback = "";
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Check if form fields are empty
     if (empty($_POST['recipe_name']) || empty($_POST['ingredients']) || empty($_POST['instructions'])) {
-        echo "<p>Please fill in all fields.</p>";
+        $feedback = "Please fill in all fields.";
     } else {
         // Sanitize and retrieve form inputs
         $recipe_name = $conn->real_escape_string(trim($_POST['recipe_name']));
         $ingredients = $conn->real_escape_string(trim($_POST['ingredients']));
         
-        // Process instructions: trim, replace newlines with <br>, and replace multiple spaces with a single space
+        // Process instructions
         $instructions = trim($_POST['instructions']);
-        $instructions = str_replace(array("\r", "\n"), '<br>', $instructions); // Replace \r and \n with <br>
-        $instructions = preg_replace('/\s+/', ' ', $instructions); // Replace multiple spaces with a single space
-        $instructions = $conn->real_escape_string($instructions); // Escape for SQL
+        $instructions = str_replace(array("\r", "\n"), '<br>', $instructions);
+        $instructions = preg_replace('/\s+/', ' ', $instructions);
+        $instructions = $conn->real_escape_string($instructions);
 
         // Prepare the SQL statement
         $sql = "INSERT INTO recipes (recipe_name, ingredients, instructions) VALUES (?, ?, ?)";
         $stmt = $conn->prepare($sql);
-        
+
         if ($stmt === false) {
             die("Error preparing the statement: " . $conn->error);
         }
 
-        // Bind the parameters
+        // Bind and execute
         $stmt->bind_param("sss", $recipe_name, $ingredients, $instructions);
-
-        // Execute the statement and check for success
         if ($stmt->execute()) {
-            echo "<p>Recipe added successfully!</p>";
+            $feedback = "Recipe added successfully!";
         } else {
-            echo "<p>Error adding recipe: " . $stmt->error . "</p>";
+            $feedback = "Error adding recipe: " . $stmt->error;
         }
 
-        // Close the statement
         $stmt->close();
     }
+
+    // Redirect with feedback
+    echo "<script>
+        alert('$feedback');
+        window.location.href = 'admin_dashboard.html';
+    </script>";
+    exit();
 }
-
-// Close the connection
-$conn->close();
-?>
-
