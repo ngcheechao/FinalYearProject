@@ -101,13 +101,27 @@ $total_cost = $wastage_data['total_cost'] ?? 0;
             color: #333333;
             font-family: Arial, sans-serif;
         }
-        .container {
+        .container-fluid {
+            display: flex;
+            gap: 20px;
+        }
+        .report-section {
+            flex: 2;
             background-color: rgba(255, 255, 255, 0.95);
             border-radius: 12px;
             padding: 20px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
             margin-top: 50px;
-            max-width: 900px;
+        }
+        .chart-section {
+            flex: 1;
+            position: sticky;
+            top: 20px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            margin-top: 50px;
         }
         h1, h2 {
             color: #054A24;
@@ -116,7 +130,8 @@ $total_cost = $wastage_data['total_cost'] ?? 0;
         .btn-primary {
             background-color: #56A575;
             border: none;
-            width: 100%;
+            width: auto;
+            margin-bottom: 20px;
         }
         .btn-primary:hover {
             background-color: #45a049;
@@ -159,95 +174,111 @@ $total_cost = $wastage_data['total_cost'] ?? 0;
             font-weight: bold;
             font-size: 1.2rem;
         }
-        #chart-container {
-            margin-top: 30px;
+        .daily-total {
+            font-weight: bold;
+            color: #054A24;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Generate Food Wastage Report</h1>
-        <div class="d-flex justify-content-start mb-3">
-    <a href="user_dashboard.html" class="btn btn-primary">Back to Dashboard</a>
-</div>
+    <div class="container-fluid">
+        <div class="report-section">
+            <a href="user_dashboard.html" class="btn btn-primary">Back to Dashboard</a>
+            <h1>Generate Food Wastage Report</h1>
+            
+            <form method="GET" action="generate_report.php">
+                <label for="filter">Filter by:</label>
+                <select id="filter" name="filter" class="form-select" onchange="this.form.submit()">
+                    <option value="">All Time</option>
+                    <option value="1day" <?= isset($_GET['filter']) && $_GET['filter'] == '1day' ? 'selected' : '' ?>>Past 1 Day</option>
+                    <option value="1week" <?= isset($_GET['filter']) && $_GET['filter'] == '1week' ? 'selected' : '' ?>>Past 1 Week</option>
+                    <option value="1month" <?= isset($_GET['filter']) && $_GET['filter'] == '1month' ? 'selected' : '' ?>>Past 1 Month</option>
+                    <option value="1year" <?= isset($_GET['filter']) && $_GET['filter'] == '1year' ? 'selected' : '' ?>>Past 1 Year</option>
+                </select>
+            </form>
 
-        
-        <form method="GET" action="generate_report.php">
-            <label for="filter">Filter by:</label>
-            <select id="filter" name="filter" class="form-select" onchange="this.form.submit()">
-                <option value="">All Time</option>
-                <option value="1day" <?= isset($_GET['filter']) && $_GET['filter'] == '1day' ? 'selected' : '' ?>>Past 1 Day</option>
-                <option value="1week" <?= isset($_GET['filter']) && $_GET['filter'] == '1week' ? 'selected' : '' ?>>Past 1 Week</option>
-                <option value="1month" <?= isset($_GET['filter']) && $_GET['filter'] == '1month' ? 'selected' : '' ?>>Past 1 Month</option>
-                <option value="1year" <?= isset($_GET['filter']) && $_GET['filter'] == '1year' ? 'selected' : '' ?>>Past 1 Year</option>
-            </select>
-        </form>
-
-        <h2>Detailed Report</h2>
-        <?php
-        $current_date = null;
-        while ($row = $items_result->fetch_assoc()):
-            if ($current_date !== $row['waste_date']):
-                if ($current_date !== null): ?>
-                    </tbody>
-                    </table>
-                <?php endif; ?>
-                <div class="date-section">
-                    <span class="date-title">Date: <?= htmlspecialchars($row['waste_date']) ?></span>
-                </div>
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Grocery</th>
-                            <th>Quantity</th>
-                            <th>Unit</th>
-                            <th>Price ($)</th>
+            <h2>Detailed Report</h2>
+            <?php
+            $current_date = null;
+            $daily_total_price = 0;
+            $daily_total_quantity = 0;
+            while ($row = $items_result->fetch_assoc()):
+                if ($current_date !== $row['waste_date']):
+                    if ($current_date !== null): ?>
+                        <tr class="daily-total">
+                            <td colspan="3">Total for <?= htmlspecialchars($current_date) ?>:</td>
+                            <td>$<?= number_format($daily_total_price, 2) ?></td>
                         </tr>
-                    </thead>
-                    <tbody>
+                        </tbody>
+                        </table>
+                    <?php
+                    $daily_total_price = 0;
+                    $daily_total_quantity = 0;
+                    endif; ?>
+                    <div class="date-section">
+                        <span class="date-title">Date: <?= htmlspecialchars($row['waste_date']) ?></span>
+                    </div>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Grocery</th>
+                                <th>Quantity</th>
+                                <th>Unit</th>
+                                <th>Price ($)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
                 <?php
                 $current_date = $row['waste_date'];
-            endif; ?>
-            <tr>
-                <td><?= htmlspecialchars($row['item_name']) ?></td>
-                <td><?= htmlspecialchars($row['quantity']) ?></td>
-                <td><?= htmlspecialchars($row['unit']) ?></td>
-                <td>$<?= number_format($row['price'], 2) ?></td>
-            </tr>
-        <?php endwhile; ?>
-        <?php if ($current_date !== null): ?>
-            </tbody>
-        </table>
-        <?php endif; ?>
+                endif;
 
-        <div class="summary-section">
-            <h3>Summary</h3>
-            <p><strong>Total Cost of Food Wasted:</strong> $<?= number_format($total_cost, 2) ?></p>
+                $daily_total_price += $row['price'];
+                $daily_total_quantity += $row['quantity'];
+                ?>
+                <tr>
+                    <td><?= htmlspecialchars($row['item_name']) ?></td>
+                    <td><?= htmlspecialchars($row['quantity']) ?></td>
+                    <td><?= htmlspecialchars($row['unit']) ?></td>
+                    <td>$<?= number_format($row['price'], 2) ?></td>
+                </tr>
+            <?php endwhile; ?>
+            <?php if ($current_date !== null): ?>
+                <tr class="daily-total">
+                    <td colspan="3">Total for <?= htmlspecialchars($current_date) ?>:</td>
+                    <td>$<?= number_format($daily_total_price, 2) ?></td>
+                </tr>
+                </tbody>
+                </table>
+            <?php endif; ?>
+
+            <div class="summary-section">
+                <h3>Summary</h3>
+                <p><strong>Total Food Wasted:</strong> <?= number_format($total_food_wasted, 2) ?> kg</p>
+                <p><strong>Total Cost:</strong> $<?= number_format($total_cost, 2) ?></p>
+            </div>
         </div>
 
-        <div id="chart-container">
-            <h2>Graphs</h2>
+        <div class="chart-section">
+            <h3>Food Wastage Overview</h3>
             <canvas id="barChart"></canvas>
-            <canvas id="lineChart"></canvas>
+            <canvas id="lineChart" class="mt-4"></canvas>
         </div>
-
-        
-
-  
+    </div>
 
     <script>
-        const graphData = <?= json_encode($graph_data) ?>;
-        const labels = graphData.map(data => data.date);
-        const totalPrices = graphData.map(data => parseFloat(data.total_price));
-
-        // Bar Chart
         const barCtx = document.getElementById('barChart').getContext('2d');
+        const lineCtx = document.getElementById('lineChart').getContext('2d');
+
+        const chartData = <?= json_encode($graph_data) ?>;
+        const labels = chartData.map(data => data.date);
+        const totalPrices = chartData.map(data => data.total_price);
+
         new Chart(barCtx, {
             type: 'bar',
             data: {
                 labels: labels,
                 datasets: [{
-                    label: 'Total Price ($)',
+                    label: 'Total Price Wasted ($)',
                     data: totalPrices,
                     backgroundColor: 'rgba(75, 192, 192, 0.2)',
                     borderColor: 'rgba(75, 192, 192, 1)',
@@ -255,48 +286,32 @@ $total_cost = $wastage_data['total_cost'] ?? 0;
                 }]
             },
             options: {
+                responsive: true,
                 scales: {
                     y: {
                         beginAtZero: true
-                    }
-                },
-                responsive: true,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top'
                     }
                 }
             }
         });
 
-        // Line Chart
-        const lineCtx = document.getElementById('lineChart').getContext('2d');
         new Chart(lineCtx, {
             type: 'line',
             data: {
                 labels: labels,
                 datasets: [{
-                    label: 'Total Price ($)',
+                    label: 'Total Price Wasted ($)',
                     data: totalPrices,
                     backgroundColor: 'rgba(153, 102, 255, 0.2)',
                     borderColor: 'rgba(153, 102, 255, 1)',
-                    borderWidth: 1,
-                    fill: true,
-                    tension: 0.4
+                    borderWidth: 1
                 }]
             },
             options: {
+                responsive: true,
                 scales: {
                     y: {
                         beginAtZero: true
-                    }
-                },
-                responsive: true,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top'
                     }
                 }
             }
@@ -306,9 +321,8 @@ $total_cost = $wastage_data['total_cost'] ?? 0;
 </html>
 
 <?php
-// Close database connection
+// Close database connections
 $items_stmt->close();
-$graph_stmt->close();
 $wastage_stmt->close();
 $conn->close();
 ?>
