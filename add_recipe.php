@@ -43,8 +43,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $instructions = preg_replace('/\s+/', ' ', $instructions);
         $instructions = $conn->real_escape_string($instructions);
 
+        // Retrieve logged-in user's ID
+        $user_id = $_SESSION['user_id'];
+
         // Prepare the SQL statement
-        $sql = "INSERT INTO recipes (recipe_name, ingredients, instructions) VALUES (?, ?, ?)";
+        $sql = "INSERT INTO recipes (recipe_name, ingredients, instructions, user_id) VALUES (?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
 
         if ($stmt === false) {
@@ -52,7 +55,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         // Bind and execute
-        $stmt->bind_param("sss", $recipe_name, $ingredients, $instructions);
+        $stmt->bind_param("sssi", $recipe_name, $ingredients, $instructions, $user_id);
         if ($stmt->execute()) {
             $feedback = "Recipe added successfully!";
         } else {
@@ -69,3 +72,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </script>";
     exit();
 }
+?>
