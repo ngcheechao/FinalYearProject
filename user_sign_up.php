@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create User</title>
+    <title>Sign Up</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
@@ -58,25 +58,22 @@
         // Get form data
         $user = $_POST['username'];
         $email = $_POST['email'];
-        $pass = $_POST['password']; // Use the plain password
-        $role = $_POST['role']; // Get the role (Admin or Normal User)
+        $pass = $_POST['password'];
 
-        // Determine is_admin value based on the role
-        $is_admin = ($role === "Admin") ? 1 : 0;
+        // Assign the role as "Normal User"
+        $is_admin = 0; // Normal users are not admins
 
         // Insert data into the `users` table
         $sql = "INSERT INTO users (username, email, password, is_admin) VALUES ('$user', '$email', '$pass', $is_admin)";
 
         if ($conn->query($sql) === TRUE) {
-            echo "<h2 class='success-message'>🎉 New user created successfully!</h2>";
-            echo "<p>Welcome, <strong>$user</strong>! Your account has been created as a <strong>$role</strong>.</p>";
-            echo "<a href='login.html' class='btn btn-success'>Go to Login</a>";
-            echo "<br>"; // Adds space between the two buttons
-            echo "<a href='admin_dashboard.html' class='btn btn-success'>Go Back to Admin Dashboard</a>";
+            echo "<h2 class='success-message'>🎉 Account created successfully!</h2>";
+            echo "<p>Welcome, <strong>$user</strong>! You can now log in.</p>";
+            echo "<a href='login.html' class='btn btn-success'>Go to Login Page</a>";
         } else {
             echo "<h2 class='error-message'>Error Creating Account</h2>";
             echo "<p>There was an issue: " . $conn->error . "</p>";
-            echo "<a href='createUser.html' class='btn btn-danger'>Try Again</a>";
+            echo "<a href='login.html' class='btn btn-danger'>Try Again</a>";
         }
 
         $conn->close();
