@@ -1,6 +1,10 @@
 <?php
 session_start();
 
+// Enable error reporting
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 // Check if the user is logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.html");
@@ -34,6 +38,10 @@ if (isset($_GET['recipe_id'])) {
 
     if ($result->num_rows == 1) {
         $recipe = $result->fetch_assoc();
+        // Clean up data
+        $recipe['recipe_name'] = trim($recipe['recipe_name']);
+        $recipe['ingredients'] = trim($recipe['ingredients']);
+        $recipe['instructions'] = trim($recipe['instructions']);
     } else {
         echo "<p>Recipe not found.</p>";
         exit();
@@ -41,9 +49,9 @@ if (isset($_GET['recipe_id'])) {
     $stmt->close();
 } elseif ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['recipe_id'])) {
     $recipe_id = $_POST['recipe_id'];
-    $recipe_name = $conn->real_escape_string($_POST['recipe_name']);
-    $ingredients = $conn->real_escape_string($_POST['ingredients']);
-    $instructions = $conn->real_escape_string($_POST['instructions']);
+    $recipe_name = trim($conn->real_escape_string($_POST['recipe_name']));
+    $ingredients = trim(preg_replace('/\s+/', ' ', $conn->real_escape_string($_POST['ingredients'])));
+    $instructions = trim(preg_replace('/\s+/', ' ', $conn->real_escape_string($_POST['instructions'])));
 
     // Update the recipe in the database
     $sql = "UPDATE recipes SET recipe_name = ?, ingredients = ?, instructions = ? WHERE id = ?";
@@ -64,7 +72,7 @@ if (isset($_GET['recipe_id'])) {
     $conn->close();
     exit();
 } else {
-    // Display all recipes in a table (same as before)
+    // Display all recipes in a table
     $sql = "SELECT id, recipe_name, ingredients, instructions FROM recipes";
     $result = $conn->query($sql);
 
@@ -200,6 +208,7 @@ if (isset($_GET['recipe_id'])) {
                     <td>" . htmlspecialchars($row['recipe_name']) . "</td>
                     <td>" . nl2br(htmlspecialchars($row['ingredients'])) . "</td>
                     <td>" . nl2br(htmlspecialchars($row['instructions'])) . "</td>
+
                   </tr>";
         }
         echo "</tbody>

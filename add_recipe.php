@@ -35,13 +35,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } else {
         // Sanitize and retrieve form inputs
         $recipe_name = $conn->real_escape_string(trim($_POST['recipe_name']));
-        $ingredients = $conn->real_escape_string(trim($_POST['ingredients']));
+        $ingredients = trim($_POST['ingredients']);
+        $ingredients = preg_replace('/\s+/', ' ', $ingredients); // Normalize spaces
+        $ingredients = $conn->real_escape_string(string: $ingredients);
         
         // Process instructions
         $instructions = trim($_POST['instructions']);
-        $instructions = str_replace(array("\r", "\n"), '<br>', $instructions);
-        $instructions = preg_replace('/\s+/', ' ', $instructions);
-        $instructions = $conn->real_escape_string($instructions);
+        $instructions = preg_replace('/\s+/', ' ', $instructions); // Normalize spaces
+        $instructions = $conn->real_escape_string($instructions); // Escape for SQL
 
         // Retrieve logged-in user's ID
         $user_id = $_SESSION['user_id'];
@@ -72,4 +73,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </script>";
     exit();
 }
+
 ?>
