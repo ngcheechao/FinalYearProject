@@ -181,7 +181,9 @@ $total_cost = $wastage_data['total_cost'] ?? 0;
     </style>
 </head>
 <body>
+
     <div class="container-fluid">
+
         <div class="report-section">
             <a href="user_dashboard.html" class="btn btn-primary">Back to Dashboard</a>
             <h1>Generate Food Wastage Report</h1>
