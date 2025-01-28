@@ -1,77 +1,44 @@
 <?php
-session_start();
+// Database connection settings
+        $host = "localhost";
+        $username = "root";
+        $password = "";
+        $dbname = "fyp";
+try {
+    // Create a PDO connection
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-// Enable error reporting
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        // Collect input data
+        $recipe_name = trim($_POST["recipe_name"]);
+        $ingredients = trim($_POST["ingredients"]);
+        $instructions = trim($_POST["instructions"]);
+        $user_id = 1; // Change this if needed, maybe get from session login?
 
-// Check if the user is logged in
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.html");
-    exit();
-}
-
-// Database connection details
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "fyp";
-
-// Create a connection
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
-// Initialize feedback message
-$feedback = "";
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Check if form fields are empty
-    if (empty($_POST['recipe_name']) || empty($_POST['ingredients']) || empty($_POST['instructions'])) {
-        $feedback = "Please fill in all fields.";
-    } else {
-        // Sanitize and retrieve form inputs
-        $recipe_name = $conn->real_escape_string(trim($_POST['recipe_name']));
-        $ingredients = trim($_POST['ingredients']);
-        $ingredients = preg_replace('/\s+/', ' ', $ingredients); // Normalize spaces
-        $ingredients = $conn->real_escape_string(string: $ingredients);
-        
-        // Process instructions
-        $instructions = trim($_POST['instructions']);
-        $instructions = preg_replace('/\s+/', ' ', $instructions); // Normalize spaces
-        $instructions = $conn->real_escape_string($instructions); // Escape for SQL
-
-        // Retrieve logged-in user's ID
-        $user_id = $_SESSION['user_id'];
-
-        // Prepare the SQL statement
-        $sql = "INSERT INTO recipes (recipe_name, ingredients, instructions, user_id) VALUES (?, ?, ?, ?)";
-        $stmt = $conn->prepare($sql);
-
-        if ($stmt === false) {
-            die("Error preparing the statement: " . $conn->error);
+        // Validate input (Check if empty)
+        if (empty($recipe_name) || empty($ingredients) || empty($instructions)) {
+            die("All fields are required.");
         }
 
-        // Bind and execute
-        $stmt->bind_param("sssi", $recipe_name, $ingredients, $instructions, $user_id);
+        // Prepare SQL query using prepared statements to prevent SQL injection
+        $sql = "INSERT INTO recipes (recipe_name, ingredients, instructions, user_id, created_at) 
+                VALUES (:recipe_name, :ingredients, :instructions, :user_id, NOW())";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindParam(":recipe_name", $recipe_name);
+        $stmt->bindParam(":ingredients", $ingredients);
+        $stmt->bindParam(":instructions", $instructions);
+        $stmt->bindParam(":user_id", $user_id);
+
+        // Execute the query
         if ($stmt->execute()) {
-            $feedback = "Recipe added successfully!";
+            echo "Recipe added successfully!";
         } else {
-            $feedback = "Error adding recipe: " . $stmt->error;
+            echo "Error adding recipe.";
         }
-
-        $stmt->close();
     }
-
-    // Redirect with feedback
-    echo "<script>
-        alert('$feedback');
-        window.location.href = 'admin_dashboard.html';
-    </script>";
-    exit();
+} catch (PDOException $e) {
+    die("Database connection failed: " . $e->getMessage());
 }
-
 ?>
