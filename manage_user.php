@@ -44,19 +44,58 @@ if (isset($_GET['delete'])) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background-color: #f8f9fa;
+            background-color: #f3f9f3;
             padding: 20px;
         }
 
-        .table-container {
+        .container {
+            max-width: 900px;
             margin: auto;
-            max-width: 800px;
         }
 
-        .message {
-            text-align: center;
-            margin-bottom: 20px;
-            font-weight: bold;
+        .table-container {
+            margin-top: 20px;
+        }
+
+        h2 {
+            color: #2e7d32;
+        }
+
+        .btn-primary, .btn-outline-primary {
+            background-color: #2e7d32;
+            border-color: #2e7d32;
+            color: white; /* Ensures text is visible */
+        }
+
+        .btn-primary:hover, .btn-outline-primary:hover {
+            background-color: #1b5e20;
+            border-color: #1b5e20;
+            color: white; /* Ensures text remains visible on hover */
+        }
+
+        .btn-danger {
+            background-color: #d32f2f;
+            border-color: #d32f2f;
+        }
+
+        .btn-danger:hover {
+            background-color: #b71c1c;
+            border-color: #b71c1c;
+        }
+
+        .table thead {
+            background-color: #2e7d32;
+            color: white;
+        }
+
+        .alert-info {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border-color: #a5d6a7;
+        }
+
+        .text-center a {
+            margin: 10px 0;
         }
     </style>
 </head>
@@ -73,7 +112,7 @@ if (isset($_GET['delete'])) {
         <!-- User List Table -->
         <div class="table-container">
             <table class="table table-bordered table-striped">
-                <thead class="table-dark">
+                <thead>
                     <tr>
                         <th>ID</th>
                         <th>Username</th>
@@ -105,14 +144,12 @@ if (isset($_GET['delete'])) {
                 </tbody>
             </table>
             <div class="text-center mt-4">
-                <a href="createUser.html" class="btn btn-outline-primary">Add User</a>
+                <a href="createUser.html" class="btn btn-outline-primary" style="color: white; background-color: #2e7d32; border-color: #2e7d32;">Add User</a>
             </div>
             <div class="text-center mt-4">
-                <a href="admin_dashboard.html" class="btn btn-outline-primary">Back to Admin Dashboard</a>
+                <a href="admin_dashboard.html" class="btn btn-outline-primary" style="color: white; background-color: #2e7d32; border-color: #2e7d32;">Back to Admin Dashboard</a>
             </div>
-            
         </div>
-        
     </div>
 
     <!-- Bootstrap JS -->
@@ -120,6 +157,7 @@ if (isset($_GET['delete'])) {
 </body>
 
 </html>
+
 <?php
 $conn->close();
 ?>
