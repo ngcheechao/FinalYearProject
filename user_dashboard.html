@@ -15,7 +15,7 @@
 
         /* Navbar Styling */
         .navbar {
-            background-color: #56A575;
+            background-color:rgb(20, 150, 31);
             width: 100%;
             padding: 10px 20px;
         }
@@ -29,11 +29,11 @@
         .navbar-nav .nav-item {
             flex: 1;
             text-align: center;
-            border-right: 2px solid rgba(255, 255, 255, 0.5); /* Add white border between buttons */
+            border-right: 2px solid rgba(255, 255, 255, 0.5);
         }
 
         .navbar-nav .nav-item:last-child {
-            border-right: none; /* Remove border from last item */
+            border-right: none;
         }
 
         .navbar-nav .nav-link {
@@ -68,7 +68,7 @@
             width: 50px;
             text-align: center;
             color: white;
-            border: 2px solid white; /* Add white border */
+            border: 2px solid white;
         }
 
         .btn-page.active {
@@ -83,7 +83,7 @@
             background: rgba(255, 255, 255, 0.9);
             border-radius: 12px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-            min-height: 300px; /* Prevent shifting */
+            min-height: 300px;
             transition: all 0.3s ease-in-out;
         }
 
@@ -122,7 +122,7 @@
 
     <!-- Content Display Area -->
     <div id="content">
-        
+        <p>Loading content...</p>
     </div>
 
     <div class="footer">
@@ -133,20 +133,24 @@
     <script>
         function loadContent(page, btnNumber) {
             fetch(page)
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById("content").innerHTML = data;
-                updateActiveButton(btnNumber);
-            })
-            .catch(error => console.error("Error loading content:", error));
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById("content").innerHTML = data;
+                    updateActiveButton(btnNumber);
+                })
+                .catch(error => console.error("Error loading content:", error));
         }
 
         function updateActiveButton(activeBtn) {
             document.getElementById('btn1').classList.remove('active');
             document.getElementById('btn2').classList.remove('active');
-
             document.getElementById('btn' + activeBtn).classList.add('active');
         }
+
+        // Load the default page (purchasing_behaviour.html) on page load
+        window.onload = function () {
+            loadContent('purchasing_behaviour.html', 1);
+        };
     </script>
 
     <!-- Bootstrap JS -->
