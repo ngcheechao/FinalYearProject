@@ -1,3 +1,37 @@
+<?php
+session_start();
+
+// Predefined Quotes Array
+$quotes = [
+    ["content" => "Waste not, want not.", "author" => "Benjamin Franklin"],
+    ["content" => "The greatest threat to our planet is the belief that someone else will save it.", "author" => "Robert Swan"],
+    ["content" => "Reduce, reuse, recycle.", "author" => "Anonymous"],
+    ["content" => "Sustainability is not a trend; it's a responsibility.", "author" => "Anonymous"],
+    ["content" => "Every small action counts. Start reducing waste today.", "author" => "Unknown"],
+    ["content" => "Be the change you wish to see in the world.", "author" => "Mahatma Gandhi"]
+];
+
+shuffle($quotes);
+$daily_quote = $quotes[0];
+
+if (!isset($_SESSION['user_id'])) {
+    die("<p>Error: User not logged in. <a href='login.php'>Login</a></p>");
+}
+
+$user_id = $_SESSION['user_id'];
+
+$conn = new mysqli('localhost', 'root', '', 'fyp');
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+$sql = "SELECT * FROM groceries WHERE user_id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,7 +40,6 @@
     <title>Shopping List</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
-        /* General Styles */
         body {
             font-family: 'Roboto', sans-serif;
             background: url('food_6.jpg') no-repeat center center fixed;
@@ -87,116 +120,17 @@
             background: #c82333;
         }
 
-        .no-data {
-            text-align: center;
-            font-size: 18px;
-            color: #6c757d;
-        }
-
-        .back-btn {
-            margin: 20px;
-            text-decoration: none;
+        .wastage-btn {
             background: #28a745;
             color: white;
-            padding: 10px 15px;
-            border-radius: 5px;
-            transition: background 0.3s ease;
         }
 
-        .back-btn:hover {
+        .wastage-btn:hover {
             background: #218838;
-        }
-
-        /* Legend Box Positioned at Bottom-Right */
-        .legend {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid #ddd;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            width: 250px;
-        }
-
-        .legend div {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .legend div span {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            margin-right: 10px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-        }
-
-        .legend .expired {
-            background: #ffcccc;
-        }
-
-        .legend .near-expiry {
-            background: #fff3cd;
-        }
-
-        .legend .fresh {
-            background: #d4edda;
-        }
-
-        /* Daily Quote Section */
-        .quote-section {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 15px;
-            border-radius: 8px;
-            max-width: 90%;
-            text-align: center;
-            margin: 20px auto;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
 <body>
-    <?php
-    session_start();
-
-    // Predefined Quotes Array
-    $quotes = [
-        ["content" => "Waste not, want not.", "author" => "Benjamin Franklin"],
-        ["content" => "The greatest threat to our planet is the belief that someone else will save it.", "author" => "Robert Swan"],
-        ["content" => "Reduce, reuse, recycle.", "author" => "Anonymous"],
-        ["content" => "Sustainability is not a trend; it's a responsibility.", "author" => "Anonymous"],
-        ["content" => "Every small action counts. Start reducing waste today.", "author" => "Unknown"],
-        ["content" => "Be the change you wish to see in the world.", "author" => "Mahatma Gandhi"]
-    ];
-
-    // Shuffle quotes and pick the first one
-    shuffle($quotes);
-    $daily_quote = $quotes[0];
-
-    // Check if the user is logged in
-    if (!isset($_SESSION['user_id'])) {
-        die("<p>Error: User not logged in. <a href='login.php'>Login</a></p>");
-    }
-
-    $user_id = $_SESSION['user_id'];
-
-    // Database Connection
-    $conn = new mysqli('localhost', 'root', '', 'fyp');
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    }
-
-    $sql = "SELECT * FROM groceries WHERE user_id = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $user_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    ?>
-
     <h2 style="color:white">My Groceries Tracker</h2>
 
     <?php
@@ -214,19 +148,7 @@
             $unit_mapping = [1 => 'kg', 2 => 'g', 3 => 'pieces', 4 => 'ml', 5 => 'l'];
             $unit_label = $unit_mapping[$row['unit']] ?? 'Unknown';
 
-            $today = new DateTime();
-            $expiry_date = new DateTime($row['expiry_date']);
-            $interval = $today->diff($expiry_date)->days;
-
-            if ($expiry_date < $today) {
-                $bg_color = 'background-color: #ffcccc;';
-            } elseif ($interval <= 3) {
-                $bg_color = 'background-color: #fff3cd;';
-            } else {
-                $bg_color = 'background-color: #d4edda;';
-            }
-
-            echo "<tr style='$bg_color'>
+            echo "<tr>
                     <td>" . htmlspecialchars($row['item_name']) . "</td>
                     <td>" . $row['quantity'] . "</td>
                     <td>$" . number_format($row['price'], 2) . "</td>
@@ -241,6 +163,9 @@
                             <input type='hidden' name='id' value='" . $row['id'] . "'>
                             <button type='submit' class='delete-btn'>Delete</button>
                         </form>
+                        <a href='calculate_wastage.html?item=" . urlencode($row['item_name']) . "&quantity=" . $row['quantity'] . "&unit=" . urlencode($unit_label) . "&category=" . urlencode($row['category']) . "'>
+                            <button class='wastage-btn'>Waste</button>
+                        </a>
                     </td>
                   </tr>";
         }
@@ -255,22 +180,5 @@
 
     <a href="add_items.html" class="back-btn">Add More Items</a>
     <a href="user_dashboard.html" class="back-btn">Go back to dashboard</a>
-
-    <!-- Legend Section -->
-    <div class="legend">
-        <div><span class="expired"></span> Expired Items</div>
-        <div><span class="near-expiry"></span> Expiring Soon (within 3 days)</div>
-        <div><span class="fresh"></span> Fresh Items</div>
-    </div>
-
-    <!-- Daily Quote Section -->
-    <div class="quote-section">
-        <p style="font-style: italic; font-size: 18px; color: #333;">
-            "<?php echo htmlspecialchars($daily_quote['content']); ?>"
-        </p>
-        <p style="font-weight: bold; font-size: 16px; color: #555;">
-            - <?php echo htmlspecialchars($daily_quote['author']); ?>
-        </p>
-    </div>
 </body>
 </html>
