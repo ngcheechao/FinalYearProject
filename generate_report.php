@@ -20,7 +20,7 @@ if ($conn->connect_error) {
 }
 
 // Handle date filtering
-$date_filter = ""; // Default: No date filter
+$date_filter = "";
 if (isset($_GET['filter'])) {
     $filter = $_GET['filter'];
     if ($filter == '1day') {
@@ -34,17 +34,7 @@ if (isset($_GET['filter'])) {
     }
 }
 
-// Fetch individual items wasted, grouped by day
-$items_sql = "SELECT DATE(`timestamp`) AS waste_date, item_name, quantity, unit, price 
-              FROM food_wastage
-              WHERE user_id = ? $date_filter
-              ORDER BY waste_date ASC";
-$items_stmt = $conn->prepare($items_sql);
-$items_stmt->bind_param("i", $user_id);
-$items_stmt->execute();
-$items_result = $items_stmt->get_result();
-
-// Fetch data for graphs
+// Fetch data for graph
 $graph_sql = "SELECT DATE(`timestamp`) AS waste_date, SUM(price) AS total_price
               FROM food_wastage
               WHERE user_id = ? $date_filter
@@ -76,22 +66,91 @@ $wastage_data = $wastage_result->fetch_assoc();
 
 $total_food_wasted = $wastage_data['total_food_wasted'] ?? 0;
 $total_cost = $wastage_data['total_cost'] ?? 0;
-
-// HTML Output
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generate Report</title>
+    <title>Food Wastage Report</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .navbar {
+            background: linear-gradient(135deg, #14961F, rgb(23, 240, 38));
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .navbar-nav {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .navbar-nav .nav-item {
+            margin: 0 8px;
+        }
+
+        .navbar-nav .nav-link {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+            padding: 10px 15px;
+            transition: all 0.3s ease-in-out;
+            border-radius: 5px;
+        }
+
+        .navbar-nav .nav-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .container {
+            margin-top: 100px;
+        }
+    </style>
 </head>
-<body class="bg-light">
-    <div class="container mt-4">
-        <a href="user_dashboard.html" class="btn btn-primary">Back to Dashboard</a>
-        <a href="download_report.php" class="btn btn-success">Download as PDF</a>
+
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="user_dashboard.php">
+                <img src="logo.png" alt="Logo" width="35"> ⬅ Dashboard
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="add_items.html">Add Items</a></li>
+                    <li class="nav-item"><a class="nav-link" href="view_shopping_list.php">Shopping List</a></li>
+                    <li class="nav-item"><a class="nav-link" href="recipe_manage.php">Recipes</a></li>
+                    <li class="nav-item"><a class="nav-link" href="cook.php">Cook</a></li>
+                    <li class="nav-item"><a class="nav-link" href="calculate_wastage.html">Waste Impact</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="generate_report.php">Reports</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
         <h1 class="text-center">Food Wastage Report</h1>
 
         <form method="GET" action="generate_report.php" class="mb-3">
@@ -105,33 +164,7 @@ $total_cost = $wastage_data['total_cost'] ?? 0;
             </select>
         </form>
 
-        <h3>Summary</h3>
-        <p><strong>Total Food Wasted:</strong> <?= number_format($total_food_wasted, 2) ?> kg</p>
-        <p><strong>Total Cost:</strong> $<?= number_format($total_cost, 2) ?></p>
-
-        <h3>Detailed Report</h3>
-        <table class="table table-bordered">
-            <thead class="table-dark">
-                <tr>
-                    <th>Date</th>
-                    <th>Item</th>
-                    <th>Quantity</th>
-                    <th>Unit</th>
-                    <th>Price ($)</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php while ($row = $items_result->fetch_assoc()): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($row['waste_date']) ?></td>
-                        <td><?= htmlspecialchars($row['item_name']) ?></td>
-                        <td><?= htmlspecialchars($row['quantity']) ?></td>
-                        <td><?= htmlspecialchars($row['unit']) ?></td>
-                        <td>$<?= number_format($row['price'], 2) ?></td>
-                    </tr>
-                <?php endwhile; ?>
-            </tbody>
-        </table>
+        <a href="download_report.php" class="btn btn-success mb-3">Download as PDF</a>
 
         <h3>Wastage Trend</h3>
         <canvas id="barChart"></canvas>
@@ -163,11 +196,12 @@ $total_cost = $wastage_data['total_cost'] ?? 0;
             }
         });
     </script>
+
 </body>
+
 </html>
 
 <?php
-$items_stmt->close();
 $wastage_stmt->close();
 $conn->close();
 ?>

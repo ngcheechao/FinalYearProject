@@ -15,7 +15,53 @@
             align-items: center;
             height: 100vh;
             margin: 0;
+            padding-top: 80px; /* Prevents content from overlapping navbar */
         }
+
+        /* Navbar Styling */
+        .navbar {
+            background: linear-gradient(135deg, #14961F, rgb(23, 240, 38));
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .navbar-nav {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .navbar-nav .nav-item {
+            margin: 0 8px;
+        }
+
+        .navbar-nav .nav-link {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+            padding: 10px 15px;
+            transition: all 0.3s ease-in-out;
+            border-radius: 5px;
+        }
+
+        .navbar-nav .nav-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        /* Main Container */
         .wastage-container {
             background-color: rgba(255, 255, 255, 0.9);
             padding: 30px;
@@ -24,19 +70,46 @@
             width: 100%;
             max-width: 500px;
         }
+
         h2 {
             color: #054A24;
         }
+
         .btn-custom {
             background-color: #56A575;
             color: white;
         }
+
         .btn-custom:hover {
             background-color: #45a049;
         }
     </style>
 </head>
 <body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="user_dashboard.html">
+                <img src="logo.png" alt="Logo" width="35"> ⬅Dashboard
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="add_items.html">Add Items</a></li>
+                    <li class="nav-item"><a class="nav-link" href="view_shopping_list.php">Shopping List</a></li>
+                    <li class="nav-item"><a class="nav-link" href="recipe_manage.php">Recipes</a></li>
+                    <li class="nav-item"><a class="nav-link" href="cook.php">Cook</a></li>
+                    <li class="nav-item"><a class="nav-link" href="calculate_wastage.html">Waste Impact</a></li>
+                    <li class="nav-item"><a class="nav-link" href="generate_report.php">Reports</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
     <div class="container">
         <div class="wastage-container">
             <h2 class="text-center mb-4">Calculate Food Wastage</h2>
@@ -59,7 +132,6 @@
                         <label for="groceryItem" class="form-label">Which Food Item is going to waste? (😞):</label>
                         <select name="groceryItem[]" class="form-select" id="groceryItem" required>
                             <option value="">Select Item</option>
-                            <!-- Options dynamically populated -->
                         </select>
                     </div>
                 </div>
@@ -107,25 +179,12 @@
                 });
                 document.getElementById("step2").style.display = "block";
             });
-
-            groceryItemSelect.addEventListener("change", (e) => {
-                const selectedOption = e.target.selectedOptions[0];
-                const unitText = convertUnit(selectedOption.dataset.unit);
-                document.getElementById("unitDisplay").textContent = unitText;
-                document.getElementById("step3").style.display = "block";
-            });
         });
 
         function convertUnit(unitValue) {
-            switch (parseInt(unitValue, 10)) {
-                case 1: return "Kilogram (kg)";
-                case 2: return "Gram (g)";
-                case 3: return "Pieces";
-                case 4: return "Millilitre (ml)";
-                case 5: return "Litre (L)";
-                default: return "Unknown Unit";
-            }
+            return ["Unknown", "Kilogram (kg)", "Gram (g)", "Pieces", "Millilitre (ml)", "Litre (L)"][unitValue] || "Unknown Unit";
         }
     </script>
+
 </body>
 </html>
