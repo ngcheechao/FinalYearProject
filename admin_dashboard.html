@@ -1,35 +1,118 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="styles.css">
-
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        /* Add background image to the body */
         body {
             background: url('food_5.jpg') no-repeat center center fixed;
             background-size: cover;
         }
+        .dashboard-container {
+            max-width: 800px;
+            margin: 50px auto;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .dashboard-button {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px;
+            text-align: center;
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .dashboard-button:hover {
+            background: #218838;
+        }
+        .logout-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #28a745;
+            border-color: #218838;
+        }
+        .logout-button:hover {
+            background: #218838;
+        }
+        .stats-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .stats-box {
+            background: #e9f7ef;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 40%;
+            margin: 0 10px;
+        }
+        .stats-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #28a745;
+        }
+        .navbar-dark.bg-dark {
+            background-color: #28a745 !important;
+        }
     </style>
 </head>
-
-
 <body>
-    <div class="dashboard-container">
-        <h1>Welcome to Your Dashboard</h1>
-        <p>Manage your activities here:</p>
-
-        <!-- Buttons for each functionality -->
-        <div class="button-container">
-            <a href="add_recipe.html" class="dashboard-button">Add recipe</a>
-            <a href="edit_recipe.php" class="dashboard-button">Edit recipe</a>
-            <a href="delete_recipe.php" class="dashboard-button">Delete recipe</a>
-            <a href="manage_user.php" class="dashboard-button">Manage User Account</a>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="admin_dashboard.html">Admin Panel</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-toggle="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link" href="add_recipe.html">Add Recipe</a></li>
+                    <li class="nav-item"><a class="nav-link" href="edit_recipe.php">Edit Recipe</a></li>
+                    <li class="nav-item"><a class="nav-link" href="delete_recipe.php">Delete Recipe</a></li>
+                    <li class="nav-item"><a class="nav-link" href="manage_user.php">Manage Users</a></li>
+                </ul>
+            </div>
         </div>
-        <a href="login.html">Back to Login page</a>
-    </div>
-</body>
+        <a href="login.html" class="btn btn-outline-danger logout-button">Logout</a>
+    </nav>
 
+    <div class="dashboard-container text-center">
+        <h1>Admin Dashboard</h1>
+        <p>Manage your activities here:</p>
+        
+        <div class="stats-container">
+            <div class="stats-box">
+                <h3>Total Recipes</h3>
+                <p class="stats-number" id="recipeCount">0</p>
+            </div>
+            <div class="stats-box">
+                <h3>Total Users</h3>
+                <p class="stats-number" id="userCount">0</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Fetch statistics data from the backend
+        fetch('fetch_stats.php')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('recipeCount').textContent = data.recipes;
+                document.getElementById('userCount').textContent = data.users;
+            })
+            .catch(error => console.error('Error fetching statistics:', error));
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
 </html>
