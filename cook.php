@@ -288,7 +288,7 @@ $result = $stmt->get_result();
     }
     ?>
 
-    <a href="add_items.html" class="back-btn">Add More Items</a>
+    
 
     <!-- Legend Box (Bottom Right Corner) -->
     <div class="legend">
