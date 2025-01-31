@@ -1,33 +1,14 @@
 <?php
 session_start();
 
-<<<<<<< HEAD
-// Predefined Quotes Array
-$quotes = [
-    ["content" => "Waste not, want not.", "author" => "Benjamin Franklin"],
-    ["content" => "The greatest threat to our planet is the belief that someone else will save it.", "author" => "Robert Swan"],
-    ["content" => "Reduce, reuse, recycle.", "author" => "Anonymous"],
-    ["content" => "Sustainability is not a trend; it's a responsibility.", "author" => "Anonymous"],
-    ["content" => "Every small action counts. Start reducing waste today.", "author" => "Unknown"],
-    ["content" => "Be the change you wish to see in the world.", "author" => "Mahatma Gandhi"]
-];
-
-shuffle($quotes);
-$daily_quote = $quotes[0];
-
-=======
 // Check if the user is logged in
->>>>>>> 15afe91771e74abfc8241dee2d082da4438793c7
 if (!isset($_SESSION['user_id'])) {
     die("<p>Error: User not logged in. <a href='login.php'>Login</a></p>");
 }
 
 $user_id = $_SESSION['user_id'];
 
-<<<<<<< HEAD
-=======
 // Database Connection
->>>>>>> 15afe91771e74abfc8241dee2d082da4438793c7
 $conn = new mysqli('localhost', 'root', '', 'fyp');
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
@@ -48,6 +29,7 @@ $result = $stmt->get_result();
     <title>Shopping List</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
+        /* General Styles */
         body {
             font-family: 'Roboto', sans-serif;
             background: url('food_6.jpg') no-repeat center center fixed;
@@ -76,39 +58,11 @@ $result = $stmt->get_result();
             font-size: 1.5rem;
             font-weight: bold;
             color: white;
-            display: flex;
-            align-items: center;
-            gap: 10px;
             padding-left: 20px;
             text-decoration: none;
         }
 
-        .navbar-nav {
-            display: flex;
-            justify-content: center;
-            width: 100%;
-        }
-
-        .navbar-nav .nav-item {
-            margin: 0 8px;
-        }
-
-        .navbar-nav .nav-link {
-            color: white;
-            font-size: 1.1rem;
-            font-weight: bold;
-            padding: 10px 15px;
-            transition: all 0.3s ease-in-out;
-            border-radius: 5px;
-            text-decoration: none;
-        }
-
-        .navbar-nav .nav-link:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: scale(1.1);
-        }
-
-        /* Table Styles */
+        /* Table Styling */
         h2 {
             text-align: center;
             margin: 20px;
@@ -146,160 +100,49 @@ $result = $stmt->get_result();
             background: #f8f9fa;
         }
 
-<<<<<<< HEAD
-        td button {
-            padding: 5px 10px;
-            font-size: 14px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        td button:hover {
-            transform: scale(1.05);
-        }
-
-        .edit-btn {
-            background: #007bff;
-            color: white;
-        }
-
-        .edit-btn:hover {
-            background: #0056b3;
-        }
-
-        .delete-btn {
-            background: #dc3545;
-            color: white;
-        }
-
-        .delete-btn:hover {
-            background: #c82333;
-        }
-
-        .wastage-btn {
-=======
-        .back-btn {
-            margin: 20px;
-            text-decoration: none;
->>>>>>> 15afe91771e74abfc8241dee2d082da4438793c7
-            background: #28a745;
-            color: white;
-        }
-
-        .wastage-btn:hover {
-            background: #218838;
-        }
-<<<<<<< HEAD
-    </style>
-</head>
-<body>
-    <h2 style="color:white">My Groceries Tracker</h2>
-=======
-
-        /* Legend Box */
-        .legend {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid #ddd;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            width: 250px;
-        }
-
-        .legend h4 {
-            margin: 0 0 10px;
-            font-size: 1.1rem;
-            color: #333;
-        }
-
-        .legend div {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .legend div span {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            margin-right: 10px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-        }
-
-        /* Legend Colors */
-        .legend .expired {
-            background: #ffcccc;
-        }
-
-        .legend .near-expiry {
-            background: #fff3cd;
-        }
-
-        .legend .fresh {
-            background: #d4edda;
-        }
-
-
-        /* Edit & Delete Button Styling */
-        .edit-btn, .delete-btn {
+        /* Buttons */
+        .edit-btn, .delete-btn, .waste-btn {
             padding: 8px 12px;
             border: none;
             border-radius: 5px;
             font-size: 1rem;
             cursor: pointer;
             transition: all 0.3s ease-in-out;
+            text-decoration: none;
+            display: inline-block;
         }
 
         .edit-btn {
-            background-color:rgb(21, 227, 73); 
-            color: black;
+            background-color: #007bff;
+            color: white;
         }
 
         .edit-btn:hover {
-            background-color:rgb(139, 135, 122);
+            background-color: #0056b3;
         }
 
         .delete-btn {
-            background-color:rgb(37, 27, 225);
+            background-color: #dc3545;
             color: white;
         }
 
         .delete-btn:hover {
-            background-color:rgb(139, 135, 122);
+            background-color: #c82333;
         }
 
-        /* Spacing between buttons */
-        .btn-container {
-            display: flex;
-            gap: 10px;
+        .waste-btn {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .waste-btn:hover {
+            background-color: #218838;
         }
     </style>
 </head>
 <body>
 
-    <!-- Navbar -->
-    <nav class="navbar">
-        <a class="navbar-brand" href="user_dashboard.html">
-            <img src="logo.png" alt="Logo" width="35"> ⬅️ Dashboard
-        </a>
-        <div class="navbar-nav">
-            <a class="nav-link" href="add_items.html">Add Items</a>
-            <a class="nav-link active" href="view_shopping_list.php">Shopping List</a>
-            <a class="nav-link" href="recipe_manage.php">Recipes</a>
-            <a class="nav-link" href="cook.php">Cook</a>
-            <a class="nav-link" href="calculate_wastage.html">Waste Impact</a>
-            <a class="nav-link" href="generate_report.php">Reports</a>
-        </div>
-    </nav>
-
     <h2>My Groceries Tracker</h2>
->>>>>>> 15afe91771e74abfc8241dee2d082da4438793c7
 
     <?php
     if ($result->num_rows > 0) {
@@ -323,22 +166,13 @@ $result = $stmt->get_result();
                     <td>" . htmlspecialchars($unit_label) . "</td>
                     <td>" . htmlspecialchars($row['expiry_date']) . "</td>
                     <td>
-<<<<<<< HEAD
-                        <form style='display: inline;' action='edit_item.php' method='GET'>
-                            <input type='hidden' name='id' value='" . $row['id'] . "'>
-                            <button type='submit' class='edit-btn'>Edit</button>
-                        </form>
-                        <form style='display: inline;' action='delete_item.php' method='POST'>
-                            <input type='hidden' name='id' value='" . $row['id'] . "'>
-                            <button type='submit' class='delete-btn'>Delete</button>
-                        </form>
-                        <a href='calculate_wastage.html?item=" . urlencode($row['item_name']) . "&quantity=" . $row['quantity'] . "&unit=" . urlencode($unit_label) . "&category=" . urlencode($row['category']) . "'>
-                            <button class='wastage-btn'>Waste</button>
-                        </a>
-=======
-                        <button class='edit-btn'>Edit</button>
-                        <button class='delete-btn'>Delete</button>
->>>>>>> 15afe91771e74abfc8241dee2d082da4438793c7
+                        <a href='edit_item.php?id=" . $row['id'] . "' class='edit-btn'>Edit</a>
+                        <a href='delete_item.php?id=" . $row['id'] . "' class='delete-btn'>Delete</a>
+                        <a href='calculate_wastage.html?item=" . urlencode($row['item_name']) . 
+                        "&type=" . urlencode($row['category']) . 
+                        "&quantity=" . urlencode($row['quantity']) . 
+                        "&unit=" . urlencode($row['unit']) . "' 
+                        class='waste-btn'>Waste</a>
                     </td>
                   </tr>";
         }
@@ -346,22 +180,13 @@ $result = $stmt->get_result();
     } else {
         echo "<p class='no-data'>No items found in your shopping list.</p>";
     }
+
+    $stmt->close();
+    $conn->close();
     ?>
 
     <a href="add_items.html" class="back-btn">Add More Items</a>
-<<<<<<< HEAD
     <a href="user_dashboard.html" class="back-btn">Go back to dashboard</a>
-=======
 
-    <!-- Legend Box (Bottom Right Corner) -->
-    <div class="legend">
-        <h4>Legend</h4>
-        <div><span class="expired"></span> Expired Items</div>
-        <div><span class="near-expiry"></span> Near Expiry (≤ 3 Days)</div>
-        <div><span class="fresh"></span> Fresh Items</div>
-    </div>
-    
-
->>>>>>> 15afe91771e74abfc8241dee2d082da4438793c7
 </body>
 </html>

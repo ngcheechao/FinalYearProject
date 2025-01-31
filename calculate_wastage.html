@@ -37,30 +37,6 @@
             gap: 10px;
         }
 
-        .navbar-nav {
-            display: flex;
-            justify-content: center;
-            width: 100%;
-        }
-
-        .navbar-nav .nav-item {
-            margin: 0 8px;
-        }
-
-        .navbar-nav .nav-link {
-            color: white;
-            font-size: 1.1rem;
-            font-weight: bold;
-            padding: 10px 15px;
-            transition: all 0.3s ease-in-out;
-            border-radius: 5px;
-        }
-
-        .navbar-nav .nav-link:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: scale(1.1);
-        }
-
         /* Main Container */
         .wastage-container {
             background-color: rgba(255, 255, 255, 0.9);
@@ -93,19 +69,6 @@
             <a class="navbar-brand" href="user_dashboard.html">
                 <img src="logo.png" alt="Logo" width="35"> ⬅Dashboard
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav mx-auto">
-                    <li class="nav-item"><a class="nav-link" href="add_items.html">Add Items</a></li>
-                    <li class="nav-item"><a class="nav-link" href="view_shopping_list.php">Shopping List</a></li>
-                    <li class="nav-item"><a class="nav-link" href="recipe_manage.php">Recipes</a></li>
-                    <li class="nav-item"><a class="nav-link" href="cook.php">Cook</a></li>
-                    <li class="nav-item"><a class="nav-link" href="calculate_wastage.html">Waste Impact</a></li>
-                    <li class="nav-item"><a class="nav-link" href="generate_report.php">Reports</a></li>
-                </ul>
-            </div>
         </div>
     </nav>
 
@@ -117,7 +80,7 @@
                 <div id="step1" class="step">
                     <div class="mb-3">
                         <label for="foodType" class="form-label">Type of Food:</label>
-                        <select name="foodType[]" class="form-select" id="foodType" required>
+                        <select name="foodType" class="form-select" id="foodType" required>
                             <option value="">Select Type</option>
                             <option value="meat">Meat</option>
                             <option value="vegetable">Vegetable</option>
@@ -130,7 +93,7 @@
                 <div id="step2" class="step" style="display: none;">
                     <div class="mb-3">
                         <label for="groceryItem" class="form-label">Which Food Item is going to waste? (😞):</label>
-                        <select name="groceryItem[]" class="form-select" id="groceryItem" required>
+                        <select name="groceryItem" class="form-select" id="groceryItem" required>
                             <option value="">Select Item</option>
                         </select>
                     </div>
@@ -140,13 +103,13 @@
                     <div class="mb-3">
                         <label for="quantity" class="form-label">How many of it is going to waste?</label>
                         <div class="input-group">
-                            <input type="number" name="quantity[]" class="form-control" placeholder="Enter quantity" required>
+                            <input type="number" name="quantity" class="form-control" id="quantity" placeholder="Enter quantity" required>
                             <span class="input-group-text" id="unitDisplay">Unit</span>
                         </div>
                     </div>
                     <div class="mb-3">
                         <label for="reason" class="form-label">Reason for discarding the food:</label>
-                        <textarea name="reason[]" class="form-control" rows="3" required></textarea>
+                        <textarea name="reason" class="form-control" rows="3" required></textarea>
                     </div>
                     <button type="submit" class="btn btn-custom w-100">Submit Wastage</button>
                 </div>
@@ -160,13 +123,44 @@
         document.addEventListener("DOMContentLoaded", async () => {
             const foodTypeSelect = document.getElementById("foodType");
             const groceryItemSelect = document.getElementById("groceryItem");
+            const quantityInput = document.getElementById("quantity");
+            const unitDisplay = document.getElementById("unitDisplay");
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const prefillItem = urlParams.get("item");
+            const prefillType = urlParams.get("type");
+            const prefillQuantity = urlParams.get("quantity");
+            const prefillUnit = urlParams.get("unit");
+
+            if (prefillType) {
+                foodTypeSelect.value = prefillType;
+                document.getElementById("step2").style.display = "block";
+            }
+
             const response = await fetch('get_groceries.php');
             const groceries = await response.json();
+
+            groceries.forEach(item => {
+                if (item.category === foodTypeSelect.value) {
+                    const option = document.createElement('option');
+                    option.value = item.id;
+                    option.dataset.unit = item.unit;
+                    option.dataset.quantity = item.quantity;
+                    option.textContent = `${item.item_name} (${item.quantity} ${convertUnit(item.unit)})`;
+                    groceryItemSelect.appendChild(option);
+                }
+            });
+
+            if (prefillItem) {
+                groceryItemSelect.value = prefillItem;
+                unitDisplay.textContent = convertUnit(prefillUnit);
+                quantityInput.value = prefillQuantity;
+                document.getElementById("step3").style.display = "block";
+            }
 
             foodTypeSelect.addEventListener("change", () => {
                 const selectedType = foodTypeSelect.value;
                 groceryItemSelect.innerHTML = '<option value="">Select Item</option>';
-
                 groceries.forEach(item => {
                     if (item.category === selectedType) {
                         const option = document.createElement('option');
@@ -185,6 +179,5 @@
             return ["Unknown", "Kilogram (kg)", "Gram (g)", "Pieces", "Millilitre (ml)", "Litre (L)"][unitValue] || "Unknown Unit";
         }
     </script>
-
 </body>
 </html>
