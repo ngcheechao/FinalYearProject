@@ -165,7 +165,7 @@ try {
                     <li class="nav-item"><a class="nav-link" href="view_shopping_list.php">Shopping List</a></li>
                     <li class="nav-item"><a class="nav-link active" href="recipe_list.php">Recipes</a></li>
                     <li class="nav-item"><a class="nav-link" href="cook.php">Cook</a></li>
-                    <li class="nav-item"><a class="nav-link" href="calculate_wastage.php">Waste Impact</a></li>
+                    <li class="nav-item"><a class="nav-link" href="calculate_wastage.html">Waste Impact</a></li>
                     <li class="nav-item"><a class="nav-link" href="generate_report.php">Reports</a></li>
                 </ul>
             </div>
