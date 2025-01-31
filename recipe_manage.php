@@ -10,9 +10,21 @@ try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    // Fetch all recipes from the database
-    $sql = "SELECT id, recipe_name, ingredients, instructions, created_at FROM recipes ORDER BY created_at DESC";
-    $stmt = $pdo->query($sql);
+    // Check if a search query is provided
+    $search = isset($_GET['search']) ? $_GET['search'] : '';
+
+    // Fetch recipes based on the search query
+    $sql = "SELECT id, recipe_name, ingredients, instructions, created_at FROM recipes";
+    if (!empty($search)) {
+        $sql .= " WHERE recipe_name LIKE :search";
+    }
+    $sql .= " ORDER BY created_at DESC";
+
+    $stmt = $pdo->prepare($sql);
+    if (!empty($search)) {
+        $stmt->bindValue(':search', '%' . $search . '%', PDO::PARAM_STR);
+    }
+    $stmt->execute();
     $recipes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     die("Database connection failed: " . $e->getMessage());
@@ -27,6 +39,7 @@ try {
     <title>Recipe List</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        /* Navbar Styling */
         .navbar {
             background: linear-gradient(135deg, #14961F, rgb(23, 240, 38));
             position: fixed;
@@ -69,8 +82,45 @@ try {
             transform: scale(1.1);
         }
 
+        /* Search Bar Styling */
+        .search-container {
+            position: fixed;
+            top: 80px; /* Position below the navbar */
+            right: 20px; /* Position on the right side */
+            z-index: 999;
+        }
+
+        .search-form {
+            display: flex;
+            align-items: center;
+        }
+
+        .search-form input {
+            border-radius: 20px;
+            padding: 8px 20px;
+            border: 1px solid #ddd;
+            outline: none;
+            width: 250px;
+        }
+
+        .search-form button {
+            background: #007BFF;
+            border: none;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            margin-left: 10px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .search-form button:hover {
+            background: #0056b3;
+        }
+
+        /* Container Styling */
         .container {
-            margin-top: 100px;
+            margin-top: 140px; /* Adjusted to accommodate the search bar */
         }
 
         /* Table Styling */
@@ -81,15 +131,18 @@ try {
             background: white;
             border: 1px solid #ddd;
         }
+
         th, td {
             padding: 10px;
             text-align: left;
             border-bottom: 1px solid #ddd;
         }
+
         th {
             background: #007BFF;
             color: green;
         }
+
         tr:hover {
             background: #f1f1f1;
         }
@@ -119,6 +172,15 @@ try {
         </div>
     </nav>
 
+    <!-- Search Bar -->
+    <div class="search-container">
+        <form class="search-form" method="GET" action="recipe_list.php">
+            <input type="text" name="search" id="searchInput" placeholder="Search recipes..." value="<?php echo htmlspecialchars($search); ?>">
+            <button type="submit">Search</button>
+        </form>
+    </div>
+
+    <!-- Recipe List -->
     <div class="container">
         <h2 class="text-center">Recipe List</h2>
 
@@ -130,7 +192,7 @@ try {
                     <th>Instructions</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="recipeTableBody">
                 <?php if (!empty($recipes)): ?>
                     <?php foreach ($recipes as $recipe): ?>
                         <tr>
@@ -147,8 +209,6 @@ try {
             </tbody>
         </table>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>
