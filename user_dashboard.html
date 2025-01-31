@@ -15,76 +15,96 @@
 
         /* Navbar Styling */
         .navbar {
-            background-color:rgb(20, 150, 31);
+            background: linear-gradient(135deg, #14961F,rgb(23, 240, 38));
             width: 100%;
-            padding: 10px 20px;
+            padding: 12px 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .navbar-brand img {
+            width: 35px;
+            height: 35px;
         }
 
         .navbar-nav {
-            width: 100%;
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
+            width: 100%;
         }
 
         .navbar-nav .nav-item {
-            flex: 1;
-            text-align: center;
-            border-right: 2px solid rgba(255, 255, 255, 0.5);
-        }
-
-        .navbar-nav .nav-item:last-child {
-            border-right: none;
+            margin: 0 8px;
         }
 
         .navbar-nav .nav-link {
-            color: #fff;
+            color: white;
             font-size: 1.1rem;
             font-weight: bold;
-            text-align: center;
             padding: 10px 15px;
+            transition: all 0.3s ease-in-out;
+            border-radius: 5px;
         }
 
         .navbar-nav .nav-link:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
         }
 
-        /* Fix Button Placement */
-        .button-container {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        .btn-page {
-            background-color: #56A575;
-            font-weight: bold;
+        .navbar-toggler {
             border: none;
-            padding: 8px 16px;
-            cursor: pointer;
-            border-radius: 5px;
-            font-size: 1.2rem;
-            width: 50px;
-            text-align: center;
-            color: white;
-            border: 2px solid white;
-        }
-
-        .btn-page.active {
-            background-color: #09d84e;
+            background: white;
         }
 
         /* Content Area Styling */
         #content {
             width: 80%;
-            margin: 0 auto;
+            margin: 20px auto;
             padding: 20px;
             background: rgba(255, 255, 255, 0.9);
             border-radius: 12px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
             min-height: 300px;
             transition: all 0.3s ease-in-out;
+            color: black;
+        }
+
+        /* Pagination Buttons */
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .btn-page {
+            background-color: #56A575;
+            font-weight: bold;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            color: white;
+            border: 2px solid white;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .btn-page:hover {
+            background-color: #09d84e;
+        }
+
+        .btn-page.active {
+            background-color: #09d84e;
+            transform: scale(1.1);
         }
 
         .footer {
@@ -93,6 +113,10 @@
             color: #ffffff;
         }
 
+        .logout-container {
+            display: flex;
+            align-items: center;
+        }
     </style>
 </head>
 
@@ -100,24 +124,32 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">Dashboard</a>
+            <a class="navbar-brand" href="#">
+                <img src="logo.png" alt="Logo"> 
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item"><a class="nav-link" href="add_items.html">Add Purchased Items</a></li>
-                    <li class="nav-item"><a class="nav-link" href="view_shopping_list.php">Manage Your Shopping</a></li>
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="add_items.html">Add Items</a></li>
+                    <li class="nav-item"><a class="nav-link" href="view_shopping_list.php">Shopping List</a></li>
                     <li class="nav-item"><a class="nav-link" href="recipe_manage.php">Recipes</a></li>
                     <li class="nav-item"><a class="nav-link" href="cook.php">Cook</a></li>
-                    <li class="nav-item"><a class="nav-link" href="calculate_wastage.html">Calculate Waste Impact</a></li>
-                    <li class="nav-item"><a class="nav-link" href="generate_report.php">View Usage Report</a></li>
+                    <li class="nav-item"><a class="nav-link" href="calculate_wastage.html">Waste Impact</a></li>
+                    <li class="nav-item"><a class="nav-link" href="generate_report.php">Reports</a></li>
                 </ul>
+            </div>
+            <div class="logout-container">
+                <a href="login.html" class="btn btn-primary logout-btn">Logout</a>
             </div>
         </div>
     </nav>
 
     <!-- Pagination Buttons -->
     <div class="container text-center button-container">
-        <button class="btn-page active" id="btn1" onclick="loadContent('purchasing_behaviour.html', 1)">1</button>
-        <button class="btn-page" id="btn2" onclick="loadContent('vegetable_storage.html', 2)">2</button>
+        <button class="btn-page active" id="btn1" onclick="loadContent('article_1.html', 1)">Page 1</button>
+        <button class="btn-page" id="btn2" onclick="loadContent('article_2.html', 2)">Page 2</button>
     </div>
 
     <!-- Content Display Area -->
@@ -125,9 +157,7 @@
         <p>Loading content...</p>
     </div>
 
-    <div class="footer">
-        <p>Final Year Project Dashboard - Designed for Easy Navigation</p>
-    </div>
+    
 
     <!-- JavaScript for Dynamic Loading -->
     <script>
@@ -149,7 +179,7 @@
 
         // Load the default page (purchasing_behaviour.html) on page load
         window.onload = function () {
-            loadContent('purchasing_behaviour.html', 1);
+            loadContent('article_1.html', 1);
         };
     </script>
 

@@ -1,6 +1,7 @@
 <?php
 session_start();
 
+<<<<<<< HEAD
 // Predefined Quotes Array
 $quotes = [
     ["content" => "Waste not, want not.", "author" => "Benjamin Franklin"],
@@ -14,12 +15,19 @@ $quotes = [
 shuffle($quotes);
 $daily_quote = $quotes[0];
 
+=======
+// Check if the user is logged in
+>>>>>>> 15afe91771e74abfc8241dee2d082da4438793c7
 if (!isset($_SESSION['user_id'])) {
     die("<p>Error: User not logged in. <a href='login.php'>Login</a></p>");
 }
 
 $user_id = $_SESSION['user_id'];
 
+<<<<<<< HEAD
+=======
+// Database Connection
+>>>>>>> 15afe91771e74abfc8241dee2d082da4438793c7
 $conn = new mysqli('localhost', 'root', '', 'fyp');
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
@@ -50,12 +58,61 @@ $result = $stmt->get_result();
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
+            padding-top: 80px; /* Prevents navbar from overlapping content */
         }
 
+        /* Navbar Styling */
+        .navbar {
+            background: linear-gradient(135deg, #14961F, rgb(23, 240, 38));
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            padding: 10px 0;
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-left: 20px;
+            text-decoration: none;
+        }
+
+        .navbar-nav {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .navbar-nav .nav-item {
+            margin: 0 8px;
+        }
+
+        .navbar-nav .nav-link {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+            padding: 10px 15px;
+            transition: all 0.3s ease-in-out;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+
+        .navbar-nav .nav-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        /* Table Styles */
         h2 {
             text-align: center;
             margin: 20px;
-            color: #495057;
+            color: white;
         }
 
         table {
@@ -89,6 +146,7 @@ $result = $stmt->get_result();
             background: #f8f9fa;
         }
 
+<<<<<<< HEAD
         td button {
             padding: 5px 10px;
             font-size: 14px;
@@ -121,6 +179,11 @@ $result = $stmt->get_result();
         }
 
         .wastage-btn {
+=======
+        .back-btn {
+            margin: 20px;
+            text-decoration: none;
+>>>>>>> 15afe91771e74abfc8241dee2d082da4438793c7
             background: #28a745;
             color: white;
         }
@@ -128,10 +191,115 @@ $result = $stmt->get_result();
         .wastage-btn:hover {
             background: #218838;
         }
+<<<<<<< HEAD
     </style>
 </head>
 <body>
     <h2 style="color:white">My Groceries Tracker</h2>
+=======
+
+        /* Legend Box */
+        .legend {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 250px;
+        }
+
+        .legend h4 {
+            margin: 0 0 10px;
+            font-size: 1.1rem;
+            color: #333;
+        }
+
+        .legend div {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .legend div span {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        /* Legend Colors */
+        .legend .expired {
+            background: #ffcccc;
+        }
+
+        .legend .near-expiry {
+            background: #fff3cd;
+        }
+
+        .legend .fresh {
+            background: #d4edda;
+        }
+
+
+        /* Edit & Delete Button Styling */
+        .edit-btn, .delete-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .edit-btn {
+            background-color:rgb(21, 227, 73); 
+            color: black;
+        }
+
+        .edit-btn:hover {
+            background-color:rgb(139, 135, 122);
+        }
+
+        .delete-btn {
+            background-color:rgb(37, 27, 225);
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background-color:rgb(139, 135, 122);
+        }
+
+        /* Spacing between buttons */
+        .btn-container {
+            display: flex;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a class="navbar-brand" href="user_dashboard.html">
+            <img src="logo.png" alt="Logo" width="35"> ⬅️ Dashboard
+        </a>
+        <div class="navbar-nav">
+            <a class="nav-link" href="add_items.html">Add Items</a>
+            <a class="nav-link active" href="view_shopping_list.php">Shopping List</a>
+            <a class="nav-link" href="recipe_manage.php">Recipes</a>
+            <a class="nav-link" href="cook.php">Cook</a>
+            <a class="nav-link" href="calculate_wastage.html">Waste Impact</a>
+            <a class="nav-link" href="generate_report.php">Reports</a>
+        </div>
+    </nav>
+
+    <h2>My Groceries Tracker</h2>
+>>>>>>> 15afe91771e74abfc8241dee2d082da4438793c7
 
     <?php
     if ($result->num_rows > 0) {
@@ -155,6 +323,7 @@ $result = $stmt->get_result();
                     <td>" . htmlspecialchars($unit_label) . "</td>
                     <td>" . htmlspecialchars($row['expiry_date']) . "</td>
                     <td>
+<<<<<<< HEAD
                         <form style='display: inline;' action='edit_item.php' method='GET'>
                             <input type='hidden' name='id' value='" . $row['id'] . "'>
                             <button type='submit' class='edit-btn'>Edit</button>
@@ -166,6 +335,10 @@ $result = $stmt->get_result();
                         <a href='calculate_wastage.html?item=" . urlencode($row['item_name']) . "&quantity=" . $row['quantity'] . "&unit=" . urlencode($unit_label) . "&category=" . urlencode($row['category']) . "'>
                             <button class='wastage-btn'>Waste</button>
                         </a>
+=======
+                        <button class='edit-btn'>Edit</button>
+                        <button class='delete-btn'>Delete</button>
+>>>>>>> 15afe91771e74abfc8241dee2d082da4438793c7
                     </td>
                   </tr>";
         }
@@ -173,12 +346,22 @@ $result = $stmt->get_result();
     } else {
         echo "<p class='no-data'>No items found in your shopping list.</p>";
     }
-
-    $stmt->close();
-    $conn->close();
     ?>
 
     <a href="add_items.html" class="back-btn">Add More Items</a>
+<<<<<<< HEAD
     <a href="user_dashboard.html" class="back-btn">Go back to dashboard</a>
+=======
+
+    <!-- Legend Box (Bottom Right Corner) -->
+    <div class="legend">
+        <h4>Legend</h4>
+        <div><span class="expired"></span> Expired Items</div>
+        <div><span class="near-expiry"></span> Near Expiry (≤ 3 Days)</div>
+        <div><span class="fresh"></span> Fresh Items</div>
+    </div>
+    
+
+>>>>>>> 15afe91771e74abfc8241dee2d082da4438793c7
 </body>
 </html>

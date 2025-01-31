@@ -1,3 +1,43 @@
+<?php
+session_start();
+
+// Check if the user is logged in
+if (!isset($_SESSION['user_id'])) {
+    die("<p>Error: User not logged in. <a href='login.php'>Login</a></p>");
+}
+
+$user_id = $_SESSION['user_id']; // Retrieve user_id from session
+
+// Define a mapping for unit values
+$unit_mapping = [
+    1 => 'kg',
+    2 => 'g',
+    3 => 'pieces',
+    4 => 'ml',
+    5 => 'l'
+];
+
+// Connect to the database
+$host = 'localhost'; 
+$username = 'root'; 
+$password = ''; 
+$database = 'fyp'; 
+
+$conn = new mysqli($host, $username, $password, $database);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Fetch items for the logged-in user
+$sql = "SELECT * FROM groceries WHERE user_id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $user_id); 
+$stmt->execute();
+$result = $stmt->get_result();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,29 +45,78 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shopping List</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-    
     <style>
         /* General Styles */
         body {
             font-family: 'Roboto', sans-serif;
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            background: url('food_6.jpg') no-repeat center center fixed;
+            background-size: cover;
             margin: 0;
             padding: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
+            padding-top: 80px; /* Prevents navbar from overlapping content */
         }
 
+        /* Navbar Styling */
+        .navbar {
+            background: linear-gradient(135deg, #14961F, rgb(23, 240, 38));
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            padding: 10px 0;
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-left: 20px;
+            text-decoration: none;
+        }
+
+        .navbar-nav {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .navbar-nav .nav-item {
+            margin: 0 8px;
+        }
+
+        .navbar-nav .nav-link {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+            padding: 10px 15px;
+            transition: all 0.3s ease-in-out;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+
+        .navbar-nav .nav-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        /* Table Styles */
         h2 {
             text-align: center;
             margin: 20px;
-            color: #495057;
+            color: white;
         }
 
         table {
-            width: 100%; /* Updated to take full width */
-            max-width: 1000px;
+            width: 95%; /* Set to a larger width */
+            max-width: 1200px; /* Make the table max-width larger */
             border-collapse: collapse;
             margin: 20px 0;
             background: white;
@@ -37,7 +126,7 @@
         }
 
         th, td {
-            padding: 10px 15px;
+            padding: 15px 20px; /* Increase padding for wider columns */
             text-align: left;
             border-bottom: 1px solid #dee2e6;
         }
@@ -56,19 +145,8 @@
             background: #f8f9fa;
         }
 
-        td input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-        }
-
-        .no-data {
-            text-align: center;
-            font-size: 18px;
-            color: #6c757d;
-        }
-
         .back-btn {
-            margin: 10px; /* Adjusted margin for better alignment */
+            margin: 20px;
             text-decoration: none;
             background: #28a745;
             color: white;
@@ -87,17 +165,24 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            background: white;
+            background: rgba(255, 255, 255, 0.9);
             border: 1px solid #ddd;
-            padding: 10px;
+            padding: 15px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 250px;
+        }
+
+        .legend h4 {
+            margin: 0 0 10px;
+            font-size: 1.1rem;
+            color: #333;
         }
 
         .legend div {
             display: flex;
             align-items: center;
-            margin-bottom: 5px;
+            margin-bottom: 10px;
         }
 
         .legend div span {
@@ -109,6 +194,7 @@
             border-radius: 3px;
         }
 
+        /* Legend Colors */
         .legend .expired {
             background: #ffcccc;
         }
@@ -120,120 +206,98 @@
         .legend .fresh {
             background: #d4edda;
         }
+
+        /* Button Container Alignment */
+        .btn-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center; /* Center align the buttons */
+            margin-top: 20px;
+        }
+
+        /*log out style*/
+        .logout-container {
+            display: flex;
+            align-items: center;
+        }
     </style>
 </head>
 <body>
-    <h2>Your Shopping List</h2>
-    <!-- Legend Section -->
-    <div class="legend">
-        <div><span class="expired"></span>Expired Items</div>
-        <div><span class="near-expiry"></span>Expiring Soon (within 3 days)</div>
-        <div><span class="fresh"></span>Fresh Items</div>
-    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a class="navbar-brand" href="user_dashboard.html">
+            <img src="logo.png" alt="Logo" width="35"> ⬅️ Dashboard
+        </a>
+        <div class="navbar-nav">
+            <a class="nav-link" href="add_items.html">Add Items</a>
+            <a class="nav-link active" href="view_shopping_list.php">Shopping List</a>
+            <a class="nav-link" href="recipe_manage.php">Recipes</a>
+            <a class="nav-link" href="cook.php">Cook</a>
+            <a class="nav-link" href="calculate_wastage.html">Waste Impact</a>
+            <a class="nav-link" href="generate_report.php">Reports</a>
+        </div>
+    </nav>
+
+    <h2>My Groceries Tracker</h2>
+
     <?php
-    session_start();
-
-    // Check if the user is logged in
-    if (!isset($_SESSION['user_id'])) {
-        die("<p>Error: User not logged in. <a href='login.php'>Login</a></p>");
-    }
-
-    $user_id = $_SESSION['user_id']; // Retrieve user_id from session
-
-    // Define a mapping for unit values
-    $unit_mapping = [
-        1 => 'kg',
-        2 => 'g',
-        3 => 'pieces',
-        4 => 'ml',
-        5 => 'l'
-    ];
-
-    // Connect to the database
-    $host = 'localhost'; // Change if necessary
-    $username = 'root'; // Change if necessary
-    $password = ''; // Change if necessary
-    $database = 'fyp'; // Replace with your database name
-
-    $conn = new mysqli($host, $username, $password, $database);
-
-    // Check connection
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    }
-
-    // Fetch items for the logged-in user
-    $sql = "SELECT * FROM groceries WHERE user_id = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $user_id); // Bind the user_id to the query
-    $stmt->execute();
-    $result = $stmt->get_result();
-
     if ($result->num_rows > 0) {
-        echo "<form action='generate_recipe.php' method='POST'>
+        echo "<form action='generate_recipe.php' method='post'>
                 <table>
                     <tr>
+                        <th>Select</th>
                         <th>Item Name</th>
                         <th>Quantity</th>
                         <th>Price</th>
                         <th>Unit</th>
                         <th>Expiry Date</th>
-                        <th>Select</th>
                     </tr>";
         while ($row = $result->fetch_assoc()) {
-            $unit_label = isset($unit_mapping[$row['unit']]) ? $unit_mapping[$row['unit']] : 'Unknown';
+            $unit_mapping = [1 => 'kg', 2 => 'g', 3 => 'pieces', 4 => 'ml', 5 => 'l'];
+            $unit_label = $unit_mapping[$row['unit']] ?? 'Unknown';
 
-            // Calculate days until expiry
             $today = new DateTime();
             $expiry_date = new DateTime($row['expiry_date']);
             $interval = $today->diff($expiry_date)->days;
 
-            // Determine background color based on expiry
             if ($expiry_date < $today) {
-                $bg_color = 'background-color: #ffcccc;'; // Expired: Red
-                $checkbox_disabled = 'disabled'; // Disable checkbox for expired items
-                $checkbox_confirm = ''; // No confirmation needed for expired items
+                $bg_color = 'background-color: #ffcccc;';
             } elseif ($interval <= 3) {
-                $bg_color = 'background-color: #fff3cd;'; // Near expiry: Yellow
-                $checkbox_disabled = ''; // Checkbox enabled
-                $checkbox_confirm = ''; // No confirmation yet, but checkbox is enabled
+                $bg_color = 'background-color: #fff3cd;';
             } else {
-                $bg_color = 'background-color: #d4edda;'; // Fresh: Green
-                $checkbox_disabled = ''; // Checkbox enabled
-                $checkbox_confirm = ''; // No confirmation needed for fresh items
+                $bg_color = 'background-color: #d4edda;';
             }
 
             echo "<tr style='$bg_color'>
+                    <td><input type='checkbox' name='selected_items[]' value='" . $row['id'] . "'></td>
                     <td>" . htmlspecialchars($row['item_name']) . "</td>
                     <td>" . $row['quantity'] . "</td>
                     <td>$" . number_format($row['price'], 2) . "</td>
                     <td>" . htmlspecialchars($unit_label) . "</td>
                     <td>" . htmlspecialchars($row['expiry_date']) . "</td>
-                    <td>
-                        <input type='checkbox' name='selected_items[]' value='" . $row['id'] . "' $checkbox_disabled
-                        onclick='return handleCheckboxClick(this, " . $interval . ", \"" . htmlspecialchars($row['expiry_date']) . "\")'>
-                        $checkbox_confirm
-                    </td>
                   </tr>";
         }
         echo "</table>
-              <div style='display: flex; justify-content: center;'>
-                  <button type='submit' class='back-btn'>Submit Selected Items</button>
-                  <a href='add_items.html' class='back-btn'>Add More Items</a>
-                  <a href='user_dashboard.html' class='back-btn'>Go back to dashboard</a>
+              <div class='btn-container'>
+                  <button type='submit' class='back-btn'>Generate Recipe</button>
               </div>
               </form>";
     } else {
         echo "<p class='no-data'>No items found in your shopping list.</p>";
     }
-
-    $stmt->close();
-    $conn->close();
     ?>
 
-    <script>
-  
-    </script>
+    <a href="add_items.html" class="back-btn">Add More Items</a>
+
+    <!-- Legend Box (Bottom Right Corner) -->
+    <div class="legend">
+        <h4>Legend</h4>
+        <div><span class="expired"></span> Expired Items</div>
+        <div><span class="near-expiry"></span> Near Expiry (≤ 3 Days)</div>
+        <div><span class="fresh"></span> Fresh Items</div>
+    </div>
+    
 
 </body>
 </html>
