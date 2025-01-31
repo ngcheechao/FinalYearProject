@@ -1,5 +1,6 @@
 <?php
-require_once('tcpdf/tcpdf.php');session_start();
+require_once('tcpdf/tcpdf.php');
+session_start();
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
@@ -19,10 +20,30 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Fetch food wastage data
+// Handle date filtering
+$date_filter = "";
+$filter_label = "All Time";
+if (isset($_GET['filter'])) {
+    $filter = $_GET['filter'];
+    if ($filter == '1day') {
+        $date_filter = "AND `timestamp` >= DATE_SUB(CURDATE(), INTERVAL 1 DAY)";
+        $filter_label = "Past 1 Day";
+    } elseif ($filter == '1week') {
+        $date_filter = "AND `timestamp` >= DATE_SUB(CURDATE(), INTERVAL 1 WEEK)";
+        $filter_label = "Past 1 Week";
+    } elseif ($filter == '1month') {
+        $date_filter = "AND `timestamp` >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)";
+        $filter_label = "Past 1 Month";
+    } elseif ($filter == '1year') {
+        $date_filter = "AND `timestamp` >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)";
+        $filter_label = "Past 1 Year";
+    }
+}
+
+// Fetch food wastage data based on the filter
 $sql = "SELECT DATE(`timestamp`) AS waste_date, item_name, quantity, unit, price 
         FROM food_wastage 
-        WHERE user_id = ? 
+        WHERE user_id = ? $date_filter
         ORDER BY waste_date ASC";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
@@ -33,7 +54,7 @@ $result = $stmt->get_result();
 $summary_sql = "SELECT SUM(quantity * (CASE WHEN unit = 'g' THEN 0.001 ELSE 1 END)) AS total_food_wasted,
                        SUM(price) AS total_cost
                 FROM food_wastage
-                WHERE user_id = ?";
+                WHERE user_id = ? $date_filter";
 $summary_stmt = $conn->prepare($summary_sql);
 $summary_stmt->bind_param("i", $user_id);
 $summary_stmt->execute();
@@ -48,7 +69,7 @@ $pdf = new TCPDF();
 $pdf->SetCreator(PDF_CREATOR);
 $pdf->SetAuthor('Food Wastage Report');
 $pdf->SetTitle('Food Wastage Report');
-$pdf->SetHeaderData('', 0, 'Food Wastage Report', 'Generated on ' . date('Y-m-d'));
+$pdf->SetHeaderData('', 0, 'Food Wastage Report', "Filtered by: $filter_label\nGenerated on " . date('Y-m-d'));
 $pdf->setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
 $pdf->setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
 $pdf->SetMargins(10, 20, 10);
@@ -58,6 +79,11 @@ $pdf->AddPage();
 // Add title
 $pdf->SetFont('helvetica', 'B', 16);
 $pdf->Cell(0, 10, "Food Wastage Report", 0, 1, 'C');
+$pdf->Ln(5);
+
+// Display selected filter timeframe
+$pdf->SetFont('helvetica', 'I', 12);
+$pdf->Cell(0, 8, "Timeframe: $filter_label", 0, 1, 'C');
 $pdf->Ln(5);
 
 // Summary

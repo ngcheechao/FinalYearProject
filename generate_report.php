@@ -131,7 +131,7 @@ $total_cost = $wastage_data['total_cost'] ?? 0;
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="user_dashboard.php">
+            <a class="navbar-brand" href="user_dashboard.html">
                 <img src="logo.png" alt="Logo" width="35"> ⬅ Dashboard
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
