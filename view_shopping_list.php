@@ -155,6 +155,12 @@ $result = $stmt->get_result();
             width: 250px;
         }
 
+        .legend h4 {
+            margin: 0 0 10px;
+            font-size: 1.1rem;
+            color: #333;
+        }
+
         .legend div {
             display: flex;
             align-items: center;
@@ -170,6 +176,7 @@ $result = $stmt->get_result();
             border-radius: 3px;
         }
 
+        /* Legend Colors */
         .legend .expired {
             background: #ffcccc;
         }
@@ -181,6 +188,47 @@ $result = $stmt->get_result();
         .legend .fresh {
             background: #d4edda;
         }
+
+
+        /* Edit & Delete Button Styling */
+        .edit-btn, .delete-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .edit-btn {
+            background-color:rgb(21, 227, 73); 
+            color: black;
+        }
+
+        .edit-btn:hover {
+            background-color:rgb(139, 135, 122);
+        }
+
+        .delete-btn {
+            background-color:rgb(37, 27, 225);
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background-color:rgb(139, 135, 122);
+        }
+
+        /* Spacing between buttons */
+        .btn-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        /*log out style*/
+        .logout-container {
+            display: flex;
+            align-items: center;
+        }
     </style>
 </head>
 <body>
@@ -188,7 +236,7 @@ $result = $stmt->get_result();
     <!-- Navbar -->
     <nav class="navbar">
         <a class="navbar-brand" href="user_dashboard.html">
-            <img src="logo.png" alt="Logo" width="35"> ⬅ Dashboard
+            <img src="logo.png" alt="Logo" width="35"> ⬅️ Dashboard
         </a>
         <div class="navbar-nav">
             <a class="nav-link" href="add_items.html">Add Items</a>
@@ -248,7 +296,15 @@ $result = $stmt->get_result();
     ?>
 
     <a href="add_items.html" class="back-btn">Add More Items</a>
-    <a href="user_dashboard.html" class="back-btn">Go back to dashboard</a>
+
+    <!-- Legend Box (Bottom Right Corner) -->
+    <div class="legend">
+        <h4>Legend</h4>
+        <div><span class="expired"></span> Expired Items</div>
+        <div><span class="near-expiry"></span> Near Expiry (≤ 3 Days)</div>
+        <div><span class="fresh"></span> Fresh Items</div>
+    </div>
+    
 
 </body>
 </html>

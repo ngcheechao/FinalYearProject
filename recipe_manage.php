@@ -100,7 +100,7 @@ try {
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="user_dashboard.php">
+            <a class="navbar-brand" href="user_dashboard.html">
                 <img src="logo.png" alt="Logo" width="35"> ⬅ Dashboard
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -108,7 +108,7 @@ try {
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav mx-auto">
-                    <li class="nav-item"><a class="nav-link" href="add_items.php">Add Items</a></li>
+                    <li class="nav-item"><a class="nav-link" href="add_items.html">Add Items</a></li>
                     <li class="nav-item"><a class="nav-link" href="view_shopping_list.php">Shopping List</a></li>
                     <li class="nav-item"><a class="nav-link active" href="recipe_list.php">Recipes</a></li>
                     <li class="nav-item"><a class="nav-link" href="cook.php">Cook</a></li>
