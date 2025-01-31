@@ -223,12 +223,6 @@ $result = $stmt->get_result();
             display: flex;
             gap: 10px;
         }
-
-        /*log out style*/
-        .logout-container {
-            display: flex;
-            align-items: center;
-        }
     </style>
 </head>
 <body>
