@@ -29,7 +29,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $quantity = $quantities[$index];
         $reason = $reasons[$index];
 
-        // Insert into food_wastage table
+        // 🔹 Step 1: Check if the grocery item exists before inserting
+        $sqlCheck = "SELECT * FROM groceries WHERE id = ? AND user_id = ?";
+        $stmtCheck = $conn->prepare($sqlCheck);
+        $stmtCheck->bind_param("ii", $itemId, $user_id);
+        $stmtCheck->execute();
+        $resultCheck = $stmtCheck->get_result();
+        $rowCheck = $resultCheck->fetch_assoc();
+        $stmtCheck->close();
+
+        if (!$rowCheck) {
+            echo "<script>alert('Error: Item not found in groceries!'); window.history.back();</script>";
+            exit();
+        }
+
+        // 🔹 Step 2: Insert into food_wastage table
         $sqlInsert = "INSERT INTO food_wastage (user_id, category, item_name, quantity, unit, price, reason) 
                       SELECT ?, category, item_name, ?, unit, price * (? / quantity), ? FROM groceries WHERE id = ?";
         $stmtInsert = $conn->prepare($sqlInsert);
@@ -37,15 +51,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmtInsert->execute();
         $stmtInsert->close();
 
-        // Update or remove item from groceries table
-        $sqlSelect = "SELECT quantity FROM groceries WHERE id = ?";
-        $stmtSelect = $conn->prepare($sqlSelect);
-        $stmtSelect->bind_param("i", $itemId);
-        $stmtSelect->execute();
-        $result = $stmtSelect->get_result();
-        $row = $result->fetch_assoc();
-        $currentQuantity = $row['quantity'];
-        $stmtSelect->close();
+        // 🔹 Step 3: Update or remove item from groceries table
+        $currentQuantity = $rowCheck['quantity'];
 
         if ($currentQuantity > $quantity) {
             $newQuantity = $currentQuantity - $quantity;
@@ -64,8 +71,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     $conn->close();
-    $_SESSION['feedback'] = "Food wastage data has been successfully recorded.";
-    header("Location: calculate_wastage.html");
+
+    // ✅ Show a success popup message and redirect to calculate_wastage.html
+    echo "<script>
+        alert('✅ Food wastage data has been successfully recorded!');
+        window.location.href = 'calculate_wastage.html';
+    </script>";
     exit();
 }
 ?>

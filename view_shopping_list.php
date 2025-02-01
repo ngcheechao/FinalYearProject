@@ -287,12 +287,12 @@ $result = $stmt->get_result();
                     <td>
                         <a href='edit_item.php?id=" . $row['id'] . "' class='edit-btn'>Edit</a>
                         <a href='delete_item.php?id=" . $row['id'] . "' class='delete-btn'>Delete</a>
-                        <a href='calculate_wastage.html?item=" . urlencode($row['item_name']) . 
-                        "&type=" . urlencode($row['category']) . 
-                        "&quantity=" . urlencode($row['quantity']) . 
-                        "&unit=" . urlencode($row['unit']) . "' 
+                        <a href='calculate_wastage.html?
+                        item=" . urlencode($row['item_name']) . "
+                        &type=" . urlencode($row['category']) . "
+                        &quantity=" . urlencode($row['quantity']) . "
+                        &unit=" . urlencode($unit_label) . "' 
                         class='waste-btn'>Waste</a>
-                    </td>
                   </tr>";
         }
         echo "</table>";
