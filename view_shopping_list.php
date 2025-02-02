@@ -225,6 +225,10 @@ $result = $stmt->get_result();
             background: #d4edda;
         }
 
+        .no-data {
+            color: blue;
+        }
+
 
     </style>
 </head>

@@ -1,5 +1,8 @@
 <?php
-// Database connection
+// Start session
+session_start();
+
+// Secure Database Connection
 $servername = "localhost";
 $username = "root";
 $password = "";
@@ -11,38 +14,48 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Start session
-session_start();
+// Check if form data is set
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $email = trim($_POST['email']);
+    $pass = $_POST['password']; // User's entered password
 
-// Get login form data
-$email = $_POST['email'];
-$pass = $_POST['password']; // Plain text comparison
-
-// Check if the user exists in the database
-$sql = "SELECT * FROM users WHERE email='$email'";
-$result = $conn->query($sql);
-
-if ($result->num_rows > 0) {
-    $row = $result->fetch_assoc();
-    // Directly compare plain text passwords
-    if ($pass === $row['password']) {  // Remove password_verify and use direct comparison
-        // Store user ID in session
-        $_SESSION['user_id'] = $row['id'];
-
-        // Check if the user is an admin
-        if ($row['is_admin'] == 1) {
-            header("Location: admin_dashboard.html");
-        } else {
-            header("Location: user_dashboard.html");
-        }
-        exit();
+    // Input Validation
+    if (empty($email) || empty($pass)) {
+        $message = "Error: Email and password are required!";
     } else {
-        // Invalid password
-        $message = "Invalid password. Please try again.";
+        // Use Prepared Statement to Prevent SQL Injection
+        $stmt = $conn->prepare("SELECT id, username, password, is_admin FROM users WHERE email = ?");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $stmt->store_result();
+
+        if ($stmt->num_rows > 0) {
+            $stmt->bind_result($id, $username, $hashed_pass, $is_admin);
+            $stmt->fetch();
+
+            // Verify the entered password against the hashed password
+            if (password_verify($pass, $hashed_pass)) {
+                // Store user details in session
+                $_SESSION['user_id'] = $id;
+                $_SESSION['username'] = $username;
+                $_SESSION['is_admin'] = $is_admin;
+
+                // Redirect based on user role
+                if ($is_admin == 1) {
+                    header("Location: admin_dashboard.html");
+                } else {
+                    header("Location: user_dashboard.html");
+                }
+                exit();
+            } else {
+                $message = "Invalid password. Please try again.";
+            }
+        } else {
+            $message = "No account found with that email.";
+        }
+
+        $stmt->close();
     }
-} else {
-    // No account found
-    $message = "No account found with that email.";
 }
 
 $conn->close();
@@ -60,9 +73,8 @@ $conn->close();
 
 <body>
     <script>
-        // Display a modal with the error message and redirect on close
         document.addEventListener('DOMContentLoaded', () => {
-            const message = "<?php echo isset($message) ? $message : ''; ?>";
+            const message = "<?php echo isset($message) ? htmlspecialchars($message, ENT_QUOTES, 'UTF-8') : ''; ?>";
             if (message) {
                 const modalHTML = `
                     <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
@@ -86,13 +98,11 @@ $conn->close();
                 const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
                 errorModal.show();
 
-                // Redirect to login page when the modal is closed
                 const modalElement = document.getElementById('errorModal');
                 modalElement.addEventListener('hidden.bs.modal', () => {
                     window.location.href = 'login.html';
                 });
             } else {
-                // Redirect to login page if no message exists
                 window.location.href = 'login.html';
             }
         });
