@@ -1,9 +1,10 @@
 <?php
 // Database connection settings
-        $host = "localhost";
-        $username = "root";
-        $password = "";
-        $dbname = "fyp";
+$host = "localhost";
+$username = "root";
+$password = "";
+$dbname = "fyp";
+
 try {
     // Create a PDO connection
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
@@ -33,7 +34,9 @@ try {
 
         // Execute the query
         if ($stmt->execute()) {
-            echo "Recipe added successfully!";
+            // Redirect to edit_recipe.php after successful insertion
+            header("Location: edit_recipe.php");
+            exit(); // Ensure no further code is executed after redirect
         } else {
             echo "Error adding recipe.";
         }

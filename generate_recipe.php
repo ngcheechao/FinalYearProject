@@ -3,69 +3,47 @@ session_start();
 
 // Check if the user is logged in
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.html");
-    exit();
+    die("<p>Error: User not logged in. <a href='login.php'>Login</a></p>");
 }
 
-// Database connection details
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "fyp";
+$user_id = $_SESSION['user_id']; // Retrieve user_id from session
 
-// Create a connection
-$conn = new mysqli($servername, $username, $password, $dbname);
+// Connect to the database
+$host = 'localhost'; 
+$username = 'root'; 
+$password = ''; 
+$database = 'fyp'; 
+
+$conn = new mysqli($host, $username, $password, $database);
 
 // Check connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Check if selected items are posted
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_items'])) {
-    $selected_items = $_POST['selected_items'];
+// Fetch items for the logged-in user
+$sql_items = "SELECT * FROM groceries WHERE user_id = ?";
+$stmt_items = $conn->prepare($sql_items);
+$stmt_items->bind_param("i", $user_id); 
+$stmt_items->execute();
+$result_items = $stmt_items->get_result();
 
-    // Fetch ingredient names for the selected items
-    $ingredient_list = '';
-    if (!empty($selected_items)) {
-        $placeholders = implode(',', array_fill(0, count($selected_items), '?'));
-        $sql = "SELECT item_name FROM groceries WHERE id IN ($placeholders)";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param(str_repeat('i', count($selected_items)), ...$selected_items);
-        $stmt->execute();
-        $result = $stmt->get_result();
+// Fetch recipes from the database
+$sql_recipes = "SELECT * FROM recipes";
+$stmt_recipes = $conn->prepare($sql_recipes);
+$stmt_recipes->execute();
+$result_recipes = $stmt_recipes->get_result();
 
-        $ingredient_names = [];
-        while ($row = $result->fetch_assoc()) {
-            $ingredient_names[] = $row['item_name'];
-        }
-        $ingredient_list = implode(', ', $ingredient_names);
-        $stmt->close();
+// Fetch selected items from the form submission
+$selected_items = isset($_POST['selected_items']) ? $_POST['selected_items'] : [];
+
+// Get item names for the selected items
+$item_names = [];
+while ($row = $result_items->fetch_assoc()) {
+    if (in_array($row['id'], $selected_items)) {
+        $item_names[] = $row['item_name']; // Store selected item names
     }
-
-    // Fetch recipes matching the selected ingredients
-    $matched_recipes = [];
-    if (!empty($ingredient_names)) {
-        $sql = "SELECT recipe_name, ingredients, instructions FROM recipes";
-        $result = $conn->query($sql);
-
-        while ($row = $result->fetch_assoc()) {
-            $recipe_ingredients = explode(', ', $row['ingredients']);
-            $matches = array_intersect($recipe_ingredients, $ingredient_names);
-
-            // Only include recipes that match all selected ingredients
-            if (count($matches) == count($ingredient_names)) {
-                $matched_recipes[] = $row;
-            }
-        }
-    }
-} else {
-    echo "<p>Error: No ingredients selected. <a href='cook.php'>Go back to select ingredients</a></p>";
-    exit();
 }
-
-// Close the database connection
-$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -73,105 +51,185 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recipe Results</title>
+    <title>Manage Recipe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
+        /* General Styles */
         body {
-            font-family: Arial, sans-serif;
-            background-color: #e9f7ec;
-            padding: 20px;
+            font-family: 'Roboto', sans-serif;
+            background-color: #e9f7ef;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding-top: 80px;
         }
 
+        /* Navbar Styling */
+        .navbar {
+            background: linear-gradient(135deg, #14961F, rgb(23, 240, 38));
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            padding: 10px 0;
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-left: 20px;
+            text-decoration: none;
+        }
+
+        .navbar-nav {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .navbar-nav .nav-item {
+            margin: 0 8px;
+        }
+
+        .navbar-nav .nav-link {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+            padding: 10px 15px;
+            transition: all 0.3s ease-in-out;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+
+        .navbar-nav .nav-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        /* Table Styles */
         h2 {
             text-align: center;
-            margin-bottom: 20px;
-            color: #2d6a4f;
+            margin: 20px;
+            color: #333;
         }
 
         table {
-            width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
+            width: 95%;
+            max-width: 1200px;
             border-collapse: collapse;
-            background: #ffffff;
-            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+            background: white;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
             overflow: hidden;
         }
 
         th, td {
-            padding: 12px;
+            padding: 15px 20px;
             text-align: left;
-            border: 1px solid #d3e4d8;
+            border-bottom: 1px solid #dee2e6;
         }
 
         th {
-            background-color: #52b788;
-            color: #ffffff;
+            background: #28a745;
+            color: white;
+            font-weight: bold;
         }
 
-        tr:nth-child(even) {
-            background-color: #edf7f0;
+        td {
+            color: #495057;
         }
 
         tr:hover {
-            background-color: #d3e4d8;
+            background: #f8f9fa;
         }
 
-        .button-container {
+        /* Button Styles */
+        .btn-container {
             display: flex;
+            gap: 10px;
             justify-content: center;
             margin-top: 20px;
         }
 
-        .button-container a {
+        .btn-container a {
             text-decoration: none;
-            background: #40916c;
+            background: #28a745;
             color: white;
-            padding: 10px 20px;
-            margin: 5px;
+            padding: 10px 15px;
             border-radius: 5px;
             transition: background 0.3s ease;
         }
 
-        .button-container a:hover {
-            background: #1b4332;
+        .btn-container a:hover {
+            background: #218838;
         }
 
-        .no-recipes {
-            text-align: center;
-            color: #d00000;
+        /* Responsive Adjustments */
+        @media screen and (max-width: 768px) {
+            table {
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
-    <h2>Recipe results for the ingredients you selected: <?php echo htmlspecialchars($ingredient_list); ?></h2>
 
-    <?php if (!empty($matched_recipes)) { ?>
-        <table>
-            <thead>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a class="navbar-brand" href="user_dashboard.html">
+            <img src="logo.png" alt="Logo" width="35"> ⬅️ Dashboard
+        </a>
+    </nav>
+
+    <h2>Generated Recipe</h2>
+
+    <?php
+    $recipes_found = false;
+
+    if (count($selected_items) > 0 && $result_recipes->num_rows > 0) {
+        echo "<table>
                 <tr>
                     <th>Recipe Name</th>
                     <th>Ingredients</th>
                     <th>Instructions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($matched_recipes as $recipe) { ?>
-                    <tr>
-                        <td><?php echo htmlspecialchars($recipe['recipe_name']); ?></td>
-                        <td><?php echo htmlspecialchars($recipe['ingredients']); ?></td>
-                        <td><?php echo nl2br(htmlspecialchars($recipe['instructions'])); ?></td>
-                    </tr>
-                <?php } ?>
-            </tbody>
-        </table>
-    <?php } else { ?>
-        <p class="no-recipes">No recipes match all the selected ingredients.</p>
-    <?php } ?>
+                </tr>";
 
-    <div class="button-container">
+        while ($recipe = $result_recipes->fetch_assoc()) {
+            $recipe_ingredients = explode(',', $recipe['ingredients']); // assuming ingredients are stored as comma separated values
+            
+            // Compare selected items with recipe ingredients
+            $matched_ingredients = array_intersect($recipe_ingredients, $item_names);
+
+            if (count($matched_ingredients) > 0) {
+                $recipes_found = true;
+                echo "<tr>
+                        <td>" . htmlspecialchars($recipe['recipe_name']) . "</td>
+                        <td>" . implode(', ', $matched_ingredients) . "</td>
+                        <td>" . htmlspecialchars($recipe['instructions']) . "</td>
+                      </tr>";
+            }
+        }
+        echo "</table>";
+    }
+
+    if (!$recipes_found) {
+        echo "<p>No search results found based on selected items.</p>";
+    }
+    ?>
+
+    <div class="btn-container">
         <a href="user_dashboard.html">Return to Dashboard</a>
-        <a href="recipe_manage.php">Manage Recipes</a>
+        <a href="recipe_manage.php">Back to Recipe Management</a>
     </div>
+
 </body>
 </html>
