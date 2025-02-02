@@ -9,7 +9,64 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body {
+       /* Navbar Styling */
+       .navbar {
+            background: linear-gradient(135deg, #14961F, rgb(23, 240, 38));
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+        }
+
+        /* Center Navigation Items */
+        .container-fluid {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            justify-content: space-between;
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Centering the Nav Items */
+        .navbar-nav {
+            display: flex;
+            gap: 15px;
+            list-style: none;
+            margin: 0 auto;
+            padding: 0;
+        }
+
+        /* Nav Links Styling */
+        .nav-link {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+            padding: 10px 15px;
+            transition: all 0.3s ease-in-out;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+       body {
             font-family: Arial, sans-serif;
             background: url('https://img.freepik.com/free-photo/top-view-trash-cooking-concept_23-2149056487.jpg?semt=ais_hybrid') no-repeat center center fixed;
             background-size: cover;
@@ -19,8 +76,9 @@
             height: 100vh;
             margin: 0;
             overflow-y: auto;
-            padding: 20px 0;
+            padding: 100px 0 20px; /* Adjusted padding for navbar */
         }
+
         .summary-container {
             background-color: rgba(255, 255, 255, 0.9);
             padding: 30px;
@@ -30,13 +88,16 @@
             max-width: 800px;
             text-align: center;
         }
+
         h2 {
             color: #054A24;
             font-weight: bold;
         }
+
         .chart-container {
             margin: 20px 0;
         }
+
         .back-button {
             background-color: #56A575;
             color: white;
@@ -47,12 +108,15 @@
             font-size: 16px;
             margin-top: 20px;
         }
+
         .back-button:hover {
             background-color: #45a049;
         }
+
         .summary-content {
             margin-bottom: 30px;
         }
+
         .summary-content p {
             font-size: 16px;
             margin: 10px 0;
@@ -60,23 +124,43 @@
     </style>
 </head>
 <body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="user_dashboard.html">
+                <img src="logo.png" alt="Logo" width="35"> Dashboard
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav d-flex flex-row ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="add_items.html">Add Items</a></li>
+                    <li class="nav-item"><a class="nav-link" href="view_shopping_list.php">Shopping List</a></li>
+                    <li class="nav-item"><a class="nav-link" href="recipe_manage.php">Recipes</a></li>
+                    <li class="nav-item"><a class="nav-link" href="cook.php">Cook</a></li>
+                    <li class="nav-item"><a class="nav-link" href="calculate_wastage.html">Waste Impact</a></li>
+                    <li class="nav-item"><a class="nav-link" href="generate_report.php">Reports</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
     <div class="summary-container">
         <h2>Food Wastage Summary</h2>
-        <!-- Summary Section -->
         <div id="loadingMessage" class="loading-message">Loading summary data, please wait...</div>
         <div id="summaryContent" class="summary-content" style="display: none;">
             <p><strong>Total Food Wasted:</strong> <span id="totalFoodWasted"></span> kg</p>
             <p><strong>Total Price of Wasted Food:</strong> $<span id="totalPrice"></span></p>
             <p><strong>Meals for Children:</strong> Could have fed <span id="childrenFed"></span> children</p>
-            <p><strong>Environmental Impact:</strong> <span id="environmentalImpact"></span> kg CO<sub>2</sub> equivalent</p>
         </div>
 
-        <!-- Chart Containers -->
         <div class="chart-container">
             <canvas id="foodWasteChart" width="400" height="400"></canvas>
         </div>
         <div class="chart-container">
-            <canvas id="carbonFootprintChart" width="400" height="400"></canvas>
+            <canvas id="moneyWasteChart" width="400" height="400"></canvas>
         </div>
         <div class="chart-container">
             <canvas id="childrenFedChart" width="400" height="400"></canvas>
@@ -85,31 +169,18 @@
         <button class="back-button" onclick="window.location.href='user_dashboard.html'">Back to Dashboard</button>
     </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         fetch('wastage_summary.php')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                return response.json();
-            })
+            .then(response => response.json())
             .then(data => {
-                // Hide loading message and show the summary content
                 document.getElementById('loadingMessage').style.display = 'none';
                 const summaryContent = document.getElementById('summaryContent');
                 summaryContent.style.display = 'block';
-
-                // Populate the summary data
                 document.getElementById('totalFoodWasted').textContent = data.total_food_wasted;
                 document.getElementById('totalPrice').textContent = data.total_cost;
                 document.getElementById('childrenFed').textContent = data.children_fed || 0;
-                document.getElementById('environmentalImpact').textContent = data.environmental_impact || 0;
-
-                // Render Charts
                 renderFoodWasteChart(data.total_food_wasted);
-                renderCarbonFootprintChart(data.environmental_impact);
+                renderMoneyWasteChart(data.total_cost);
                 renderChildrenFedChart(data.children_fed);
             })
             .catch(error => {
@@ -118,82 +189,37 @@
             });
 
         const averageValues = {
-            foodWaste: 121,
-            carbonFootprint: 720,
-            childrenFed: 1460
+            foodWaste: 121 / 12,
+            moneyWaste: 21.50,
+            childrenFed: 1460 / 12
         };
 
         function renderFoodWasteChart(userValue) {
-            const ctx = document.getElementById('foodWasteChart').getContext('2d');
-            new Chart(ctx, {
+            new Chart(document.getElementById('foodWasteChart').getContext('2d'), {
                 type: 'bar',
                 data: {
-                    labels: ['Your Food Waste', 'Average Annual Food Waste'],
-                    datasets: [{
-                        label: 'Food Waste (kg)',
-                        data: [userValue, averageValues.foodWaste],
-                        backgroundColor: ['#FF6384', '#36A2EB']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: { enabled: true }
-                    },
-                    scales: {
-                        y: { beginAtZero: true }
-                    }
+                    labels: ['Your Food Waste', 'Average Monthly Food Waste'],
+                    datasets: [{ label: 'Food Waste (kg)', data: [userValue, averageValues.foodWaste], backgroundColor: ['#FF6384', '#36A2EB'] }]
                 }
             });
         }
 
-        function renderCarbonFootprintChart(userValue) {
-            const ctx = document.getElementById('carbonFootprintChart').getContext('2d');
-            new Chart(ctx, {
+        function renderMoneyWasteChart(userValue) {
+            new Chart(document.getElementById('moneyWasteChart').getContext('2d'), {
                 type: 'bar',
                 data: {
-                    labels: ['Your Carbon Footprint', 'Average Annual Carbon Footprint'],
-                    datasets: [{
-                        label: 'Carbon Footprint (kg CO2e)',
-                        data: [userValue, averageValues.carbonFootprint],
-                        backgroundColor: ['#FFCE56', '#4BC0C0']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: { enabled: true }
-                    },
-                    scales: {
-                        y: { beginAtZero: true }
-                    }
+                    labels: ['Your Money Wasted', 'Average Monthly Money Wasted'],
+                    datasets: [{ label: 'Money Wasted ($)', data: [userValue, averageValues.moneyWaste], backgroundColor: ['#FFCE56', '#4BC0C0'] }]
                 }
             });
         }
 
         function renderChildrenFedChart(userValue) {
-            const ctx = document.getElementById('childrenFedChart').getContext('2d');
-            new Chart(ctx, {
+            new Chart(document.getElementById('childrenFedChart').getContext('2d'), {
                 type: 'bar',
                 data: {
-                    labels: ['Children You Could Feed', 'Average Annual Meals Wasted'],
-                    datasets: [{
-                        label: 'Meals for Children',
-                        data: [userValue, averageValues.childrenFed],
-                        backgroundColor: ['#36A2EB', '#FF6384']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: { enabled: true }
-                    },
-                    scales: {
-                        y: { beginAtZero: true }
-                    }
+                    labels: ['Children You Could Feed', 'Average Monthly Meals Wasted'],
+                    datasets: [{ label: 'Meals for Children', data: [userValue, averageValues.childrenFed], backgroundColor: ['#36A2EB', '#FF6384'] }]
                 }
             });
         }
