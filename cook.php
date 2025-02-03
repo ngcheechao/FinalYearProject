@@ -261,16 +261,20 @@ $result = $stmt->get_result();
             $expiry_date = new DateTime($row['expiry_date']);
             $interval = $today->diff($expiry_date)->days;
 
+            // Determine background color based on expiry date
             if ($expiry_date < $today) {
                 $bg_color = 'background-color: #ffcccc;';
+                $disabled = 'disabled'; // Disable checkbox if expired
             } elseif ($interval <= 3) {
                 $bg_color = 'background-color: #fff3cd;';
+                $disabled = ''; // Allow selection for near expiry items
             } else {
                 $bg_color = 'background-color: #d4edda;';
+                $disabled = ''; // Allow selection for fresh items
             }
 
             echo "<tr style='$bg_color'>
-                    <td><input type='checkbox' name='selected_items[]' value='" . $row['id'] . "'></td>
+                    <td><input type='checkbox' name='selected_items[]' value='" . $row['id'] . "' $disabled></td>
                     <td>" . htmlspecialchars($row['item_name']) . "</td>
                     <td>" . $row['quantity'] . "</td>
                     <td>$" . number_format($row['price'], 2) . "</td>
@@ -286,7 +290,8 @@ $result = $stmt->get_result();
     } else {
         echo "<p class='no-data'>No items found in your shopping list.</p>";
     }
-    ?>
+?>
+
 
     
 
