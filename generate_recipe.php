@@ -37,13 +37,23 @@ $result_recipes = $stmt_recipes->get_result();
 // Fetch selected items from the form submission
 $selected_items = isset($_POST['selected_items']) ? $_POST['selected_items'] : [];
 
-// Get item names for the selected items
+// Function to clean up item names (optional, to avoid special characters)
+function clean_string($str) {
+    $str = strtolower(trim($str)); 
+    $str = preg_replace('/[^a-z0-9\s]/', '', $str); // Remove special characters
+    $str = preg_replace('/\s+/', ' ', $str); // Remove extra spaces
+    return $str;
+}
+
+// Get cleaned item names for selected items
 $item_names = [];
 while ($row = $result_items->fetch_assoc()) {
     if (in_array($row['id'], $selected_items)) {
-        $item_names[] = $row['item_name']; // Store selected item names
+        $cleaned_item = clean_string($row['item_name']);
+        $item_names[] = $cleaned_item; // Store selected item names
     }
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -89,31 +99,6 @@ while ($row = $result_items->fetch_assoc()) {
             text-decoration: none;
         }
 
-        .navbar-nav {
-            display: flex;
-            justify-content: center;
-            width: 100%;
-        }
-
-        .navbar-nav .nav-item {
-            margin: 0 8px;
-        }
-
-        .navbar-nav .nav-link {
-            color: white;
-            font-size: 1.1rem;
-            font-weight: bold;
-            padding: 10px 15px;
-            transition: all 0.3s ease-in-out;
-            border-radius: 5px;
-            text-decoration: none;
-        }
-
-        .navbar-nav .nav-link:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: scale(1.1);
-        }
-
         /* Table Styles */
         h2 {
             text-align: center;
@@ -136,6 +121,8 @@ while ($row = $result_items->fetch_assoc()) {
             padding: 15px 20px;
             text-align: left;
             border-bottom: 1px solid #dee2e6;
+            word-wrap: break-word; /* Ensure long words break and wrap */
+            white-space: pre-wrap; /* Preserve whitespace and line breaks */
         }
 
         th {
@@ -172,13 +159,6 @@ while ($row = $result_items->fetch_assoc()) {
         .btn-container a:hover {
             background: #218838;
         }
-
-        /* Responsive Adjustments */
-        @media screen and (max-width: 768px) {
-            table {
-                width: 100%;
-            }
-        }
     </style>
 </head>
 <body>
@@ -190,7 +170,7 @@ while ($row = $result_items->fetch_assoc()) {
         </a>
     </nav>
 
-    <h2>Generated Recipe</h2>
+    <h2>Selected Items: <?php echo implode(", ", $item_names); ?></h2>
 
     <?php
     $recipes_found = false;
@@ -204,16 +184,23 @@ while ($row = $result_items->fetch_assoc()) {
                 </tr>";
 
         while ($recipe = $result_recipes->fetch_assoc()) {
-            $recipe_ingredients = explode(',', $recipe['ingredients']); // assuming ingredients are stored as comma separated values
-            
-            // Compare selected items with recipe ingredients
-            $matched_ingredients = array_intersect($recipe_ingredients, $item_names);
+            // Directly use ingredients as stored in the database
+            $recipe_ingredients = nl2br(htmlspecialchars($recipe['ingredients'])); // Convert newlines to <br> tags
 
+            // Check if any of the selected items are contained as a substring in the recipe ingredients
+            $matched_ingredients = [];
+            foreach ($item_names as $item) {
+                if (strpos(strtolower($recipe_ingredients), strtolower($item)) !== false) {
+                    $matched_ingredients[] = $item;  // If match found, add to matched ingredients
+                }
+            }
+
+            // Only display recipes where at least one item is matched
             if (count($matched_ingredients) > 0) {
                 $recipes_found = true;
                 echo "<tr>
                         <td>" . htmlspecialchars($recipe['recipe_name']) . "</td>
-                        <td>" . implode(', ', $matched_ingredients) . "</td>
+                        <td>" . $recipe_ingredients . "</td>  <!-- Show full ingredients as stored in DB with line breaks -->
                         <td>" . htmlspecialchars($recipe['instructions']) . "</td>
                       </tr>";
             }
