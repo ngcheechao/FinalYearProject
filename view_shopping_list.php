@@ -340,7 +340,7 @@ $result = $stmt->get_result();
                     <th>Item Name</th>
                     <th>Quantity</th>
                     <th>Price</th>
-                    <th>Unit</th>
+                    <th>Category</th>
                     <th>Expiry Date</th>
                     <th>Actions</th>
                 </tr>";
