@@ -68,31 +68,42 @@ $result = $stmt->get_result();
             width: 100%;
             z-index: 1000;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-            padding: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+        }
+
+        /* Navbar Items */
+        .container-fluid {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            justify-content: space-between;
         }
 
         .navbar-brand {
             font-size: 1.5rem;
             font-weight: bold;
             color: white;
+            text-decoration: none;
             display: flex;
             align-items: center;
             gap: 10px;
-            padding-left: 20px;
-            text-decoration: none;
         }
 
+        /* Centering the Nav Items */
         .navbar-nav {
             display: flex;
-            justify-content: center;
-            width: 100%;
+            flex-direction: row;
+            gap: 15px;
+            list-style: none;
+            margin: 0 auto;
+            padding: 0;
         }
 
-        .navbar-nav .nav-item {
-            margin: 0 8px;
-        }
-
-        .navbar-nav .nav-link {
+        /* Nav Links Styling */
+        .nav-link {
             color: white;
             font-size: 1.1rem;
             font-weight: bold;
@@ -102,9 +113,10 @@ $result = $stmt->get_result();
             text-decoration: none;
         }
 
-        .navbar-nav .nav-link:hover {
+        .nav-link:hover {
             background: rgba(255, 255, 255, 0.3);
             transform: scale(1.1);
+            color: white;
         }
 
         /* Table Styles */
@@ -115,7 +127,7 @@ $result = $stmt->get_result();
         }
 
         table {
-            width: 95%; /* Set to a larger width */
+            width: 100%; /* Set to a larger width */
             max-width: 1200px; /* Make the table max-width larger */
             border-collapse: collapse;
             margin: 20px 0;
@@ -126,7 +138,7 @@ $result = $stmt->get_result();
         }
 
         th, td {
-            padding: 15px 20px; /* Increase padding for wider columns */
+            padding: 15px 30px; /* Increase padding for wider columns */
             text-align: left;
             border-bottom: 1px solid #dee2e6;
         }
@@ -226,16 +238,18 @@ $result = $stmt->get_result();
 
     <!-- Navbar -->
     <nav class="navbar">
-        <a class="navbar-brand" href="user_dashboard.html">
-            <img src="logo.png" alt="Logo" width="35"> ⬅️ Dashboard
-        </a>
-        <div class="navbar-nav">
-            <a class="nav-link" href="add_items.html">Add Items</a>
-            <a class="nav-link active" href="view_shopping_list.php">Shopping List</a>
-            <a class="nav-link" href="recipe_manage.php">Recipes</a>
-            <a class="nav-link" href="cook.php">Cook</a>
-            <a class="nav-link" href="calculate_wastage.html">Waste Impact</a>
-            <a class="nav-link" href="generate_report.php">Reports</a>
+        <div class="container-fluid">
+            <a class="navbar-brand" href="user_dashboard.html">
+                <img src="logo.png" alt="Logo" width="35"> ⬅️Dashboard
+            </a>
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="add_items.html">Add Items</a></li>
+                <li class="nav-item"><a class="nav-link" href="view_shopping_list.php">Shopping List</a></li>
+                <li class="nav-item"><a class="nav-link" href="recipe_manage.php">Recipes</a></li>
+                <li class="nav-item"><a class="nav-link" href="cook.php">Cook</a></li>
+                <li class="nav-item"><a class="nav-link" href="calculate_wastage.html">Waste Impact</a></li>
+                <li class="nav-item"><a class="nav-link" href="generate_report.php">Reports</a></li>
+            </ul>
         </div>
     </nav>
 

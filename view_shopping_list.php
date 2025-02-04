@@ -43,14 +43,14 @@ $result = $stmt->get_result();
             padding-top: 80px; /* Prevents navbar from overlapping content */
         }
 
-
-        /* Table Styling */
+        /* Heading */
         h2 {
             text-align: center;
             margin: 20px;
             color: white;
         }
 
+        /* Table Styling */
         table {
             width: 90%;
             max-width: 1000px;
@@ -82,7 +82,20 @@ $result = $stmt->get_result();
             background: #f8f9fa;
         }
 
-        /* Buttons */
+        /* Action Buttons Styling (Ensures they stay in one row) */
+        .action-buttons {
+            display: flex;
+            gap: 10px; /* Adds spacing between buttons */
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap; /* Prevents wrapping */
+        }
+
+        .action-buttons form {
+            display: inline; /* Prevents form from taking full width */
+        }
+
+        /* Buttons Styling */
         .edit-btn, .delete-btn, .waste-btn {
             padding: 8px 12px;
             border: none;
@@ -94,6 +107,7 @@ $result = $stmt->get_result();
             display: inline-block;
         }
 
+        /* Edit Button */
         .edit-btn {
             background-color: #007bff;
             color: white;
@@ -103,6 +117,7 @@ $result = $stmt->get_result();
             background-color: #0056b3;
         }
 
+        /* Delete Button */
         .delete-btn {
             background-color: #dc3545;
             color: white;
@@ -112,6 +127,7 @@ $result = $stmt->get_result();
             background-color: #c82333;
         }
 
+        /* Waste Button */
         .waste-btn {
             background-color: #28a745;
             color: white;
@@ -135,7 +151,7 @@ $result = $stmt->get_result();
             padding: 10px 20px;
         }
 
-        /* Center Navigation Items */
+        /* Navbar Items */
         .container-fluid {
             display: flex;
             align-items: center;
@@ -158,7 +174,7 @@ $result = $stmt->get_result();
             display: flex;
             gap: 15px;
             list-style: none;
-            margin: 0 auto; /* Centering */
+            margin: 0 auto;
             padding: 0;
         }
 
@@ -225,31 +241,94 @@ $result = $stmt->get_result();
             background: #d4edda;
         }
 
+        /* No Data Message */
         .no-data {
             color: blue;
         }
+
+        /* Modal Styling */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            width: 300px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-content h3 {
+            margin: 0;
+            color: #dc3545;
+        }
+
+        /* Modal Buttons */
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .delete-btn {
+            background-color: #dc3545;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .cancel-btn {
+            background-color: #6c757d;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+
+        .cancel-btn:hover {
+            background-color: #545b62;
+        }
+
 
 
     </style>
 </head>
 <body>
 
-<!-- Navbar -->
-<nav class="navbar">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="user_dashboard.html">
-            <img src="logo.png" alt="Logo" width="35"> Dashboard
-        </a>
-        <ul class="navbar-nav">
-            <li class="nav-item"><a class="nav-link" href="add_items.html">Add Items</a></li>
-            <li class="nav-item"><a class="nav-link" href="view_shopping_list.php">Shopping List</a></li>
-            <li class="nav-item"><a class="nav-link" href="recipe_manage.php">Recipes</a></li>
-            <li class="nav-item"><a class="nav-link" href="cook.php">Cook</a></li>
-            <li class="nav-item"><a class="nav-link" href="calculate_wastage.html">Waste Impact</a></li>
-            <li class="nav-item"><a class="nav-link" href="generate_report.php">Reports</a></li>
-        </ul>
-    </div>
-</nav>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="user_dashboard.html">
+                <img src="logo.png" alt="Logo" width="35"> ⬅️Dashboard
+            </a>
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="add_items.html">Add Items</a></li>
+                <li class="nav-item"><a class="nav-link" href="view_shopping_list.php">Shopping List</a></li>
+                <li class="nav-item"><a class="nav-link" href="recipe_manage.php">Recipes</a></li>
+                <li class="nav-item"><a class="nav-link" href="cook.php">Cook</a></li>
+                <li class="nav-item"><a class="nav-link" href="calculate_wastage.html">Waste Impact</a></li>
+                <li class="nav-item"><a class="nav-link" href="generate_report.php">Reports</a></li>
+            </ul>
+        </div>
+    </nav>
 
 
     <h2>My Groceries Tracker</h2>
@@ -283,21 +362,31 @@ $result = $stmt->get_result();
             }
 
             echo "<tr style='$bg_color'>
-                    <td>" . htmlspecialchars($row['item_name']) . "</td>
-                    <td>" . $row['quantity'] . "</td>
-                    <td>$" . number_format($row['price'], 2) . "</td>
-                    <td>" . htmlspecialchars($unit_label) . "</td>
-                    <td>" . htmlspecialchars($row['expiry_date']) . "</td>
-                    <td>
-                        <a href='edit_item.php?id=" . $row['id'] . "' class='edit-btn'>Edit</a>
-                        <a href='delete_item.php?id=" . $row['id'] . "' class='delete-btn'>Delete</a>
-                        <a href='calculate_wastage.html?
-                        item=" . urlencode($row['item_name']) . "
-                        &type=" . urlencode($row['category']) . "
-                        &quantity=" . urlencode($row['quantity']) . "
-                        &unit=" . urlencode($unit_label) . "' 
-                        class='waste-btn'>Waste</a>
-                  </tr>";
+                <td>" . htmlspecialchars($row['item_name']) . "</td>
+                <td>" . $row['quantity'] . "</td>
+                <td>$" . number_format($row['price'], 2) . "</td>
+                <td>" . htmlspecialchars($unit_label) . "</td>
+                <td>" . htmlspecialchars($row['expiry_date']) . "</td>
+                <td class='action-buttons'>
+                    <a href='edit_item.php?id=" . $row['id'] . "' class='edit-btn'>Edit</a>
+
+                    <form class='delete-form' action='delete_item.php' method='POST'>
+                        <input type='hidden' name='id' value='" . $row['id'] . "'>
+                        <button type='button' class='delete-btn open-modal' data-id='" . $row['id'] . "'>
+                            Delete
+                        </button>
+                    </form>
+
+                    <a href='calculate_wastage.html?
+                    item=" . urlencode($row['item_name']) . "
+                    &type=" . urlencode($row['category']) . "
+                    &quantity=" . urlencode($row['quantity']) . "
+                    &unit=" . urlencode($unit_label) . "' 
+                    class='waste-btn'>Waste</a>
+                </td>
+
+            </tr>";
+
         }
         echo "</table>";
     } else {
@@ -315,8 +404,51 @@ $result = $stmt->get_result();
         <div><span class="fresh"></span> Fresh Items</div>
     </div>
 
-    
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <h3>Confirm Deletion</h3>
+            <p>Are you sure you want to delete this item?</p>
+            <button id="confirmDelete" class="delete-btn">Yes, Delete</button>
+            <button id="cancelDelete" class="cancel-btn">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            let deleteModal = document.getElementById("deleteModal");
+            let confirmDelete = document.getElementById("confirmDelete");
+            let cancelDelete = document.getElementById("cancelDelete");
+            let deleteForm = null;
+
+            document.querySelectorAll(".open-modal").forEach(button => {
+                button.addEventListener("click", function() {
+                    deleteForm = this.closest(".delete-form");
+                    deleteModal.style.display = "flex";
+                });
+            });
+
+            confirmDelete.addEventListener("click", function() {
+                if (deleteForm) {
+                    deleteForm.submit(); 
+                }
+            });
+
+            cancelDelete.addEventListener("click", function() {
+                deleteModal.style.display = "none";
+            });
+
+            window.addEventListener("click", function(event) {
+                if (event.target === deleteModal) {
+                    deleteModal.style.display = "none";
+                }
+            });
+        });
+        </script>
+
+
     
 
+    
 </body>
 </html>
