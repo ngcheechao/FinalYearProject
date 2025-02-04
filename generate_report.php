@@ -174,7 +174,7 @@ while ($row = $graph_result->fetch_assoc()) {
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="user_dashboard.php">
+            <a class="navbar-brand" href="user_dashboard.html">
                 <img src="logo.png" alt="Logo" width="35"> ⬅ Dashboard
             </a>
         </div>
