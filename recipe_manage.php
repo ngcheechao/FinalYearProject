@@ -11,25 +11,37 @@ try {
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     // Check if a search query is provided
-    $search = isset($_GET['search']) ? $_GET['search'] : '';
-
+    $search = isset($_GET['search']) ? trim($_GET['search']) : '';
+    
     // Fetch recipes based on the search query
     $sql = "SELECT id, recipe_name, ingredients, instructions, created_at FROM recipes";
+    $params = [];
+    
     if (!empty($search)) {
-        $sql .= " WHERE recipe_name LIKE :search";
+        $keywords = array_map('trim', explode(' ', strtolower($search)));
+        
+        $sql .= " WHERE 1=1"; // Ensure valid SQL syntax
+        
+        foreach ($keywords as $index => $keyword) {
+            $sql .= " AND LOWER(ingredients) LIKE :ingredient$index";
+            $params[":ingredient$index"] = "%" . $keyword . "%";
+        }
     }
+    
     $sql .= " ORDER BY created_at DESC";
-
+    
     $stmt = $pdo->prepare($sql);
-    if (!empty($search)) {
-        $stmt->bindValue(':search', '%' . $search . '%', PDO::PARAM_STR);
+    foreach ($params as $key => $value) {
+        $stmt->bindValue($key, $value, PDO::PARAM_STR);
     }
+    
     $stmt->execute();
     $recipes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     die("Database connection failed: " . $e->getMessage());
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
