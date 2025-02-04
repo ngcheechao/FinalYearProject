@@ -26,10 +26,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $reasons = $_POST['reason'];
 
     foreach ($groceryItems as $index => $itemId) {
-        $quantity = $quantities[$index];
+        $quantity = floatval($quantities[$index]); 
+        $formattedQuantity = number_format($quantity, 2, '.', ''); // Ensures correct decimal format
         $reason = $reasons[$index];
 
-        // 🔹 Step 1: Check if the grocery item exists before inserting
+        // 🔹 Step 1: Check if the grocery item exists
         $sqlCheck = "SELECT * FROM groceries WHERE id = ? AND user_id = ?";
         $stmtCheck = $conn->prepare($sqlCheck);
         $stmtCheck->bind_param("ii", $itemId, $user_id);
@@ -43,19 +44,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             exit();
         }
 
-        // 🔹 Step 2: Insert into food_wastage table
+        $currentQuantity = floatval($rowCheck['quantity']);
+
+        // 🔹 Step 2: Ensure users cannot waste more than they have
+        if ($quantity > $currentQuantity) {
+            echo "<script>alert('Error: You cannot waste more than available stock!'); window.history.back();</script>";
+            exit();
+        }
+
+        // 🔹 Step 3: Insert into food_wastage table
         $sqlInsert = "INSERT INTO food_wastage (user_id, category, item_name, quantity, unit, price, reason) 
                       SELECT ?, category, item_name, ?, unit, price * (? / quantity), ? FROM groceries WHERE id = ?";
         $stmtInsert = $conn->prepare($sqlInsert);
-        $stmtInsert->bind_param("isdsi", $user_id, $quantity, $quantity, $reason, $itemId);
+        $stmtInsert->bind_param("isdsi", $user_id, $formattedQuantity, $formattedQuantity, $reason, $itemId);
         $stmtInsert->execute();
         $stmtInsert->close();
 
-        // 🔹 Step 3: Update or remove item from groceries table
-        $currentQuantity = $rowCheck['quantity'];
-
-        if ($currentQuantity > $quantity) {
-            $newQuantity = $currentQuantity - $quantity;
+        // 🔹 Step 4: Update or remove item from groceries table
+        $newQuantity = $currentQuantity - $quantity;
+        if ($newQuantity > 0) {
             $sqlUpdate = "UPDATE groceries SET quantity = ? WHERE id = ?";
             $stmtUpdate = $conn->prepare($sqlUpdate);
             $stmtUpdate->bind_param("di", $newQuantity, $itemId);
@@ -72,7 +79,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $conn->close();
 
-    // ✅ Show a success popup message and redirect to calculate_wastage.html
+    // ✅ Show a success message and redirect to calculate_wastage.html
     echo "<script>
         alert('✅ Food wastage data has been successfully recorded!');
         window.location.href = 'calculate_wastage.html';

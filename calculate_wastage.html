@@ -38,16 +38,6 @@
             justify-content: space-between;
         }
 
-        .navbar-brand {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: white;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
         .navbar-nav {
             display: flex;
             flex-direction: row;
@@ -55,21 +45,6 @@
             list-style: none;
             margin: 0 auto;
             padding: 0;
-        }
-
-        .nav-link {
-            color: white;
-            font-size: 1.1rem;
-            font-weight: bold;
-            padding: 10px 15px;
-            transition: all 0.3s ease-in-out;
-            border-radius: 5px;
-            text-decoration: none;
-        }
-
-        .nav-link:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: scale(1.1);
         }
 
         .wastage-container {
@@ -97,7 +72,6 @@
 </head>
 <body>
 
-    <!-- Navbar -->
     <nav class="navbar">
         <div class="container-fluid">
             <a class="navbar-brand" href="user_dashboard.html">
@@ -114,7 +88,6 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
     <div class="container">
         <div class="wastage-container">
             <h2 class="text-center mb-4">Calculate Food Wastage</h2>
@@ -137,7 +110,6 @@
                         <label for="groceryItem" class="form-label">Which Food Item is going to waste? (😞):</label>
                         <select name="groceryItem[]" class="form-select" id="groceryItem" required>
                             <option value="">Select Item</option>
-                            <!-- Options dynamically populated -->
                         </select>
                     </div>
                 </div>
@@ -146,9 +118,11 @@
                     <div class="mb-3">
                         <label for="quantity" class="form-label">How many of it is going to waste?</label>
                         <div class="input-group">
-                            <input type="number" name="quantity[]" class="form-control" placeholder="Enter quantity" required>
+                            <input type="number" name="quantity[]" class="form-control" id="quantityInput" placeholder="Enter quantity" required step="any" min="0">
                             <span class="input-group-text" id="unitDisplay">Unit</span>
                         </div>
+                        <small id="unitConversionMessage" class="text-muted"></small>
+                        <small id="stockWarning" class="text-danger" style="display: none;">You cannot waste more than available stock.</small>
                     </div>
                     <div class="mb-3">
                         <label for="reason" class="form-label">Reason for discarding the food:</label>
@@ -166,45 +140,53 @@
         document.addEventListener("DOMContentLoaded", async () => {
             const foodTypeSelect = document.getElementById("foodType");
             const groceryItemSelect = document.getElementById("groceryItem");
-            const response = await fetch('get_groceries.php');
-            const groceries = await response.json();
+            const quantityInput = document.getElementById("quantityInput");
+            const stockWarning = document.getElementById("stockWarning");
+            const unitConversionMessage = document.getElementById("unitConversionMessage");
+
+            let groceries = await fetch("get_groceries.php").then(res => res.json());
 
             foodTypeSelect.addEventListener("change", () => {
-                const selectedType = foodTypeSelect.value;
                 groceryItemSelect.innerHTML = '<option value="">Select Item</option>';
-
                 groceries.forEach(item => {
-                    if (item.category === selectedType) {
-                        const option = document.createElement('option');
-                        option.value = item.id;
-                        option.dataset.unit = item.unit;
-                        option.dataset.quantity = item.quantity;
-                        option.textContent = `${item.item_name} (${item.quantity} ${convertUnit(item.unit)})`;
-                        groceryItemSelect.appendChild(option);
+                    if (item.category === foodTypeSelect.value) {
+                        groceryItemSelect.innerHTML += `<option value="${item.id}" data-unit="${item.unit}" data-stock="${item.quantity}">${item.item_name} (${item.quantity} ${convertUnit(item.unit)})</option>`;
                     }
                 });
                 document.getElementById("step2").style.display = "block";
             });
 
-            groceryItemSelect.addEventListener("change", (e) => {
-                const selectedOption = e.target.selectedOptions[0];
-                const unitText = convertUnit(selectedOption.dataset.unit);
-                document.getElementById("unitDisplay").textContent = unitText;
+            groceryItemSelect.addEventListener("change", () => {
+                document.getElementById("unitDisplay").textContent = convertUnit(groceryItemSelect.selectedOptions[0].dataset.unit);
                 document.getElementById("step3").style.display = "block";
+            });
+
+            quantityInput.addEventListener("input", () => {
+                const selectedOption = groceryItemSelect.selectedOptions[0];
+                const enteredValue = parseFloat(quantityInput.value);
+                const unitType = parseInt(selectedOption.dataset.unit, 10);
+                unitConversionMessage.textContent = unitType === 1 ? `You have entered ${enteredValue * 1000} grams.` :
+                                                      unitType === 5 ? `You have entered ${enteredValue * 1000} milliliters.` :
+                                                      unitType === 3 ? "1 piece is approximately 200 grams." : "";
+            });
+            quantityInput.addEventListener("input", () => {
+                const selectedOption = groceryItemSelect.selectedOptions[0];
+                const availableStock = parseFloat(selectedOption.dataset.stock);
+                const enteredValue = parseFloat(quantityInput.value);
+
+                if (enteredValue > availableStock) {
+                    stockWarning.style.display = "block";
+                    quantityInput.value = availableStock;
+                } else {
+                    stockWarning.style.display = "none";
+                }
             });
         });
 
-        function convertUnit(unitValue) {
-            switch (parseInt(unitValue, 10)) {
-                case 1: return "Kilogram (kg)";
-                case 2: return "Gram (g)";
-                case 3: return "Pieces";
-                case 4: return "Millilitre (ml)";
-                case 5: return "Litre (L)";
-                default: return "Unknown Unit";
-            }
+        function convertUnit(unit) {
+            return ["Unknown", "Kilogram (kg)", "Gram (g)", "Pieces", "Millilitre (ml)", "Litre (L)"][unit] || "Unknown Unit";
         }
     </script>
+
 </body>
 </html>
-```
