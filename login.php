@@ -33,8 +33,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt->bind_result($id, $username, $hashed_pass, $is_admin);
             $stmt->fetch();
 
-            // Verify the entered password against the hashed password
-            if (password_verify($pass, $hashed_pass)) {
+            // Directly compare the entered password with the stored password
+            if ($pass === $hashed_pass) {
                 // Store user details in session
                 $_SESSION['user_id'] = $id;
                 $_SESSION['username'] = $username;
