@@ -72,11 +72,23 @@
 </head>
 <body>
 
+   
     <nav class="navbar">
         <div class="container-fluid">
             <a class="navbar-brand" href="user_dashboard.html">
                 <img src="logo.png" alt="Logo" width="35"> Dashboard
             </a>
+            <!-- Notification Icon -->
+            <div class="position-relative">
+                <button class="btn btn-light" id="notificationBtn">
+                    🔔 <span id="notificationCount" class="badge bg-danger" style="display: none;">0</span>
+                </button>
+                <div id="notificationDropdown" class="dropdown-menu dropdown-menu-end p-3" style="display: none; width: 300px;">
+                    
+                    <ul id="notificationList" class="list-unstyled m-0"></ul>
+                </div>
+            </div>
+
             <ul class="navbar-nav">
                 <li class="nav-item"><a class="nav-link" href="add_items.html">Add Items</a></li>
                 <li class="nav-item"><a class="nav-link" href="view_shopping_list.php">Shopping List</a></li>
@@ -137,15 +149,16 @@
     </div>
 
     <script>
+        // ✅ Food Wastage Form Functionality
         document.addEventListener("DOMContentLoaded", async () => {
             const foodTypeSelect = document.getElementById("foodType");
             const groceryItemSelect = document.getElementById("groceryItem");
             const quantityInput = document.getElementById("quantityInput");
             const stockWarning = document.getElementById("stockWarning");
             const unitConversionMessage = document.getElementById("unitConversionMessage");
-
+    
             let groceries = await fetch("get_groceries.php").then(res => res.json());
-
+    
             foodTypeSelect.addEventListener("change", () => {
                 groceryItemSelect.innerHTML = '<option value="">Select Item</option>';
                 groceries.forEach(item => {
@@ -155,12 +168,12 @@
                 });
                 document.getElementById("step2").style.display = "block";
             });
-
+    
             groceryItemSelect.addEventListener("change", () => {
                 document.getElementById("unitDisplay").textContent = convertUnit(groceryItemSelect.selectedOptions[0].dataset.unit);
                 document.getElementById("step3").style.display = "block";
             });
-
+    
             quantityInput.addEventListener("input", () => {
                 const selectedOption = groceryItemSelect.selectedOptions[0];
                 const enteredValue = parseFloat(quantityInput.value);
@@ -169,11 +182,12 @@
                                                       unitType === 5 ? `You have entered ${enteredValue * 1000} milliliters.` :
                                                       unitType === 3 ? "1 piece is approximately 200 grams." : "";
             });
+    
             quantityInput.addEventListener("input", () => {
                 const selectedOption = groceryItemSelect.selectedOptions[0];
                 const availableStock = parseFloat(selectedOption.dataset.stock);
                 const enteredValue = parseFloat(quantityInput.value);
-
+    
                 if (enteredValue > availableStock) {
                     stockWarning.style.display = "block";
                     quantityInput.value = availableStock;
@@ -182,11 +196,62 @@
                 }
             });
         });
-
+    
+        // ✅ Notification System (Separated for Clarity)
+        document.addEventListener("DOMContentLoaded", async () => {
+            const notificationBtn = document.getElementById("notificationBtn");
+            const notificationDropdown = document.getElementById("notificationDropdown");
+            const notificationList = document.getElementById("notificationList");
+            const notificationCount = document.getElementById("notificationCount");
+    
+            // Toggle Notification Dropdown
+            notificationBtn.addEventListener("click", () => {
+                notificationDropdown.style.display = (notificationDropdown.style.display === "none") ? "block" : "none";
+            });
+    
+            // Fetch Notifications from Server
+            async function fetchNotifications() {
+                try {
+                    const response = await fetch("get_notifications.php");
+                    const data = await response.json();
+                    notificationList.innerHTML = `<h6 class="text-center border-bottom pb-2">📢 Recently Wasted</h6>`;
+    
+                    if (data.length > 0) {
+                        notificationCount.textContent = data.length;
+                        notificationCount.style.display = "inline";
+    
+                        data.forEach(item => {
+                            const isExpired = item.reason.toLowerCase().includes("expired");
+                            const expiredTag = isExpired ? `<span class="text-danger fw-bold"> (EXPIRED)</span>` : "";
+                            const listItemClass = isExpired ? "text-danger fw-bold" : "text-dark";
+    
+                            notificationList.innerHTML += `
+                                <li class="p-2 border-bottom">
+                                    <span class="${listItemClass}">${item.item_name}</span> (${item.quantity} ${item.unit}) ${expiredTag}
+                                    <br> <small class="text-muted">${item.timestamp}</small>
+                                </li>
+                            `;
+                        });
+                    } else {
+                        notificationList.innerHTML = `<li class="text-muted p-2">No new notifications</li>`;
+                        notificationCount.style.display = "none";
+                    }
+                } catch (error) {
+                    console.error("Error fetching notifications:", error);
+                    notificationList.innerHTML = `<li class="text-danger p-2">⚠️ Failed to load notifications</li>`;
+                }
+            }
+    
+            setInterval(fetchNotifications, 10000);
+            fetchNotifications();
+        });
+    
+        // ✅ Function to Convert Units
         function convertUnit(unit) {
             return ["Unknown", "Kilogram (kg)", "Gram (g)", "Pieces", "Millilitre (ml)", "Litre (L)"][unit] || "Unknown Unit";
         }
     </script>
+    
 
 </body>
 </html>
