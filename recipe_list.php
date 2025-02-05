@@ -232,4 +232,5 @@ try {
 
         <!-- Back to Recipes Button -->
         <div class="back-button">
-            <a href="recipe_manage.php"></a>
+            <a href="recipe_manage.php">Back to Recipes</a>
+        </div>
