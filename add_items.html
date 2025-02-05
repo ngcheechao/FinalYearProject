@@ -197,6 +197,15 @@
                 <input type="number" id="price" name="price" required step="0.01" min="0">
             </div>
             <div class="form-group">
+                <label for="storage">Storage Method:</label>
+                <select id="storage" name="storage" required onchange="suggestExpiryDate()">
+                    <option value="Room Temp">Room Temperature</option>
+                    <option value="Fridge">Fridge</option>
+                    <option value="Freezer">Freezer</option>
+                </select>
+            </div>
+
+            <div class="form-group">
                 <label for="expiry_date">Expiry Date: Not sure of the exact date? Just select the category, and we’ll
                     suggest a suitable expiry date! 😊</label>
                 <input type="date" id="expiry_date" name="expiry_date" required>
@@ -209,21 +218,30 @@
     <script>
         function suggestExpiryDate() {
             const category = document.getElementById('category').value;
+            const storage = document.getElementById('storage').value;
             const expiryDateField = document.getElementById('expiry_date');
             let suggestedDays = 0;
 
-            switch (category) {
-                case 'Meat': suggestedDays = 2; break;
-                case 'Vegetable': suggestedDays = 5; break;
-                case 'Dairy': suggestedDays = 7; break;
-                case 'Fruit': suggestedDays = 5; break;
+            // Expiry date mapping based on category and storage type
+            const expiryMapping = {
+                "Meat": { "Room Temp": 2, "Fridge": 5, "Freezer": 180 },
+                "Vegetable": { "Room Temp": 5, "Fridge": 10, "Freezer": 180 },
+                "Dairy": { "Room Temp": 7, "Fridge": 14, "Freezer": 90 },
+                "Fruit": { "Room Temp": 5, "Fridge": 10, "Freezer": 90 }
+            };
+
+            // Assign suggested expiry days based on category & storage
+            if (expiryMapping[category] && expiryMapping[category][storage]) {
+                suggestedDays = expiryMapping[category][storage];
             }
 
+            // Calculate the suggested expiry date
             const today = new Date();
             today.setDate(today.getDate() + suggestedDays);
             expiryDateField.value = today.toISOString().split('T')[0];
         }
     </script>
+
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
