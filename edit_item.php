@@ -28,10 +28,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $item_name = $_POST['item_name'];
     $quantity = $_POST['quantity'];
     $price = $_POST['price'];
-    $expiry_date = $_POST['expiry_date']; // Retrieve expiry date from form
+    $expiry_date = $_POST['expiry_date'];
+    $unit = $_POST['unit']; // Retrieve unit from the form
 
     $sql = "UPDATE groceries 
-            SET item_name='$item_name', quantity=$quantity, price=$price, expiry_date='$expiry_date' 
+            SET item_name='$item_name', quantity=$quantity, price=$price, expiry_date='$expiry_date', unit=$unit 
             WHERE id=$id";
 
     if ($conn->query($sql) === TRUE) {
@@ -81,7 +82,7 @@ $conn->close();
             font-weight: bold;
             color: #555;
         }
-        input {
+        input, select {
             padding: 8px;
             margin-top: 5px;
             border: 1px solid #ccc;
@@ -129,6 +130,15 @@ $conn->close();
 
             <label for="expiry_date">Expiry Date:</label>
             <input type="date" name="expiry_date" value="<?php echo htmlspecialchars($row['expiry_date']); ?>" required>
+
+            <label for="unit">Unit:</label>
+            <select name="unit" required>
+                <option value="1" <?php if ($row['unit'] == 1) echo 'selected'; ?>>kg</option>
+                <option value="2" <?php if ($row['unit'] == 2) echo 'selected'; ?>>g</option>
+                <option value="3" <?php if ($row['unit'] == 3) echo 'selected'; ?>>pieces</option>
+                <option value="4" <?php if ($row['unit'] == 4) echo 'selected'; ?>>ml</option>
+                <option value="5" <?php if ($row['unit'] == 5) echo 'selected'; ?>>l</option>
+            </select>
 
             <button type="submit">Update Item</button>
         </form>

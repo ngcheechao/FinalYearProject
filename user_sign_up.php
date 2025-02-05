@@ -69,15 +69,12 @@
                 exit();
             }
 
-            // Hash Password
-            $hashed_pass = password_hash($pass, PASSWORD_BCRYPT);
-
             // Assign Role
             $is_admin = 0;
 
             // Use Prepared Statements to Prevent SQL Injection
             $stmt = $conn->prepare("INSERT INTO users (username, email, password, is_admin) VALUES (?, ?, ?, ?)");
-            $stmt->bind_param("sssi", $user, $email, $hashed_pass, $is_admin);
+            $stmt->bind_param("sssi", $user, $email, $pass, $is_admin);
 
             if ($stmt->execute()) {
                 echo "<h2 class='success-message'>🎉 Account created successfully!</h2>";

@@ -11,25 +11,41 @@ try {
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     // Check if a search query is provided
-    $search = isset($_GET['search']) ? $_GET['search'] : '';
+    $search = isset($_GET['search']) ? trim($_GET['search']) : '';
+    
+   // Check if a search query is provided
+$search = isset($_GET['search']) ? trim($_GET['search']) : '';
+$filter = isset($_GET['filter']) ? $_GET['filter'] : 'ingredients'; // Default filter
 
-    // Fetch recipes based on the search query
-    $sql = "SELECT id, recipe_name, ingredients, instructions, created_at FROM recipes";
-    if (!empty($search)) {
-        $sql .= " WHERE recipe_name LIKE :search";
-    }
-    $sql .= " ORDER BY created_at DESC";
+// Fetch recipes based on the search query
+$sql = "SELECT id, recipe_name, ingredients, instructions, created_at FROM recipes";
+$params = [];
 
-    $stmt = $pdo->prepare($sql);
-    if (!empty($search)) {
-        $stmt->bindValue(':search', '%' . $search . '%', PDO::PARAM_STR);
+if (!empty($search)) {
+    $keywords = array_map('trim', explode(' ', strtolower($search)));
+    
+    $sql .= " WHERE 1=1"; // Ensure valid SQL syntax
+    
+    foreach ($keywords as $index => $keyword) {
+        $sql .= " AND LOWER($filter) LIKE :keyword$index"; // Use the selected filter
+        $params[":keyword$index"] = "%" . $keyword . "%";
     }
-    $stmt->execute();
-    $recipes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+$sql .= " ORDER BY created_at DESC";
+
+$stmt = $pdo->prepare($sql);
+foreach ($params as $key => $value) {
+    $stmt->bindValue($key, $value, PDO::PARAM_STR);
+}
+
+$stmt->execute();
+$recipes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     die("Database connection failed: " . $e->getMessage());
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -172,13 +188,18 @@ try {
         </div>
     </nav>
 
-    <!-- Search Bar -->
-    <div class="search-container">
-        <form class="search-form" method="GET" action="recipe_list.php">
-            <input type="text" name="search" id="searchInput" placeholder="Search recipes..." value="<?php echo htmlspecialchars($search); ?>">
-            <button type="submit">Search</button>
-        </form>
-    </div>
+   <!-- Search Bar -->
+<div class="search-container">
+    <form class="search-form" method="GET" action="recipe_list.php">
+        <select name="filter" id="filterSelect">
+            <option value="ingredients" <?php echo (isset($_GET['filter']) && $_GET['filter'] == 'ingredients') ? 'selected' : ''; ?>>Ingredients</option>
+            <option value="recipe_name" <?php echo (isset($_GET['filter']) && $_GET['filter'] == 'recipe_name') ? 'selected' : ''; ?>>Recipe Name</option>
+            <option value="instructions" <?php echo (isset($_GET['filter']) && $_GET['filter'] == 'instructions') ? 'selected' : ''; ?>>Instructions</option>
+        </select>
+        <input type="text" name="search" id="searchInput" placeholder="Search..." value="<?php echo htmlspecialchars($search); ?>">
+        <button type="submit">Search</button>
+    </form>
+</div>
 
     <!-- Recipe List -->
     <div class="container">

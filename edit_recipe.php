@@ -21,6 +21,9 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+// Initialize $recipe as null
+$recipe = null;
+
 // Check if a recipe ID is provided in the URL to edit
 if (isset($_GET['recipe_id'])) {
     $recipe_id = $_GET['recipe_id'];
@@ -41,9 +44,9 @@ if (isset($_GET['recipe_id'])) {
     $stmt->close();
 } elseif ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['recipe_id'])) {
     $recipe_id = $_POST['recipe_id'];
-    $recipe_name = $conn->real_escape_string($_POST['recipe_name']);
-    $ingredients = $conn->real_escape_string($_POST['ingredients']);
-    $instructions = $conn->real_escape_string($_POST['instructions']);
+    $recipe_name = trim($_POST["recipe_name"]);
+    $ingredients = trim($_POST["ingredients"]);
+    $instructions = trim($_POST["instructions"]);
 
     // Update the recipe in the database
     $sql = "UPDATE recipes SET recipe_name = ?, ingredients = ?, instructions = ? WHERE id = ?";
@@ -203,7 +206,7 @@ if (isset($_GET['recipe_id'])) {
         <a href="admin_dashboard.html">← Back to Dashboard</a>
     </header>
     <div class="container">
-        <?php if (isset($recipe)): ?>
+        <?php if ($recipe !== null): ?>
             <h1>Edit Recipe</h1>
             <form method="post" action="edit_recipe.php">
                 <input type="hidden" name="recipe_id" value="<?php echo htmlspecialchars($recipe_id); ?>">

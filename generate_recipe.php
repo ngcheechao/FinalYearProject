@@ -85,18 +85,55 @@ while ($row = $result_items->fetch_assoc()) {
             width: 100%;
             z-index: 1000;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-            padding: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+        }
+
+        /* Navbar Items */
+        .container-fluid {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            justify-content: space-between;
         }
 
         .navbar-brand {
             font-size: 1.5rem;
             font-weight: bold;
             color: white;
+            text-decoration: none;
             display: flex;
             align-items: center;
             gap: 10px;
-            padding-left: 20px;
+        }
+
+        /* Centering the Nav Items */
+        .navbar-nav {
+            display: flex;
+            flex-direction: row;
+            gap: 15px;
+            list-style: none;
+            margin: 0 auto;
+            padding: 0;
+        }
+
+        /* Nav Links Styling */
+        .nav-link {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+            padding: 10px 15px;
+            transition: all 0.3s ease-in-out;
+            border-radius: 5px;
             text-decoration: none;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+            color: white;
         }
 
         /* Table Styles */
@@ -165,9 +202,19 @@ while ($row = $result_items->fetch_assoc()) {
 
     <!-- Navbar -->
     <nav class="navbar">
-        <a class="navbar-brand" href="user_dashboard.html">
-            <img src="logo.png" alt="Logo" width="35"> ⬅️ Dashboard
-        </a>
+        <div class="container-fluid">
+            <a class="navbar-brand" href="user_dashboard.html">
+                <img src="logo.png" alt="Logo" width="35"> ⬅️Dashboard
+            </a>
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="add_items.html">Add Items</a></li>
+                <li class="nav-item"><a class="nav-link" href="view_shopping_list.php">Shopping List</a></li>
+                <li class="nav-item"><a class="nav-link" href="recipe_manage.php">Recipes</a></li>
+                <li class="nav-item"><a class="nav-link" href="cook.php">Cook</a></li>
+                <li class="nav-item"><a class="nav-link" href="calculate_wastage.html">Waste Impact</a></li>
+                <li class="nav-item"><a class="nav-link" href="generate_report.php">Reports</a></li>
+            </ul>
+        </div>
     </nav>
 
     <h2>Selected Items: <?php echo implode(", ", $item_names); ?></h2>
@@ -188,15 +235,16 @@ while ($row = $result_items->fetch_assoc()) {
             $recipe_ingredients = nl2br(htmlspecialchars($recipe['ingredients'])); // Convert newlines to <br> tags
 
             // Check if any of the selected items are contained as a substring in the recipe ingredients
-            $matched_ingredients = [];
+            $all_items_present = true;
             foreach ($item_names as $item) {
-                if (strpos(strtolower($recipe_ingredients), strtolower($item)) !== false) {
-                    $matched_ingredients[] = $item;  // If match found, add to matched ingredients
+                if (strpos(strtolower($recipe_ingredients), strtolower($item)) === false) {
+                    $all_items_present = false;
+                    break;  // If any selected ingredient is missing, break the loop
                 }
             }
-
-            // Only display recipes where at least one item is matched
-            if (count($matched_ingredients) > 0) {
+            
+            // Only display the recipe if ALL selected items are present
+            if ($all_items_present) {            
                 $recipes_found = true;
                 echo "<tr>
                         <td>" . htmlspecialchars($recipe['recipe_name']) . "</td>

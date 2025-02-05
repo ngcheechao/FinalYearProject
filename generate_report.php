@@ -98,6 +98,7 @@ while ($row = $graph_result->fetch_assoc()) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        /* Navbar Styling */
         .navbar {
             background: linear-gradient(135deg, #14961F, rgb(23, 240, 38));
             position: fixed;
@@ -105,15 +106,55 @@ while ($row = $graph_result->fetch_assoc()) {
             width: 100%;
             z-index: 1000;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+        }
+
+        /* Navbar Items */
+        .container-fluid {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            justify-content: space-between;
         }
 
         .navbar-brand {
             font-size: 1.5rem;
             font-weight: bold;
             color: white;
+            text-decoration: none;
             display: flex;
             align-items: center;
             gap: 10px;
+        }
+
+        /* Centering the Nav Items */
+        .navbar-nav {
+            display: flex;
+            flex-direction: row;
+            gap: 15px;
+            list-style: none;
+            margin: 0 auto;
+            padding: 0;
+        }
+
+        /* Nav Links Styling */
+        .nav-link {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+            padding: 10px 15px;
+            transition: all 0.3s ease-in-out;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+            color: white;
         }
 
         .container {
@@ -172,11 +213,19 @@ while ($row = $graph_result->fetch_assoc()) {
 <body>
 
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
+    <nav class="navbar">
         <div class="container-fluid">
-            <a class="navbar-brand" href="user_dashboard.php">
-                <img src="logo.png" alt="Logo" width="35"> ⬅ Dashboard
+            <a class="navbar-brand" href="user_dashboard.html">
+                <img src="logo.png" alt="Logo" width="35"> Dashboard
             </a>
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="add_items.html">Add Items</a></li>
+                <li class="nav-item"><a class="nav-link" href="view_shopping_list.php">Shopping List</a></li>
+                <li class="nav-item"><a class="nav-link" href="recipe_manage.php">Recipes</a></li>
+                <li class="nav-item"><a class="nav-link" href="cook.php">Cook</a></li>
+                <li class="nav-item"><a class="nav-link" href="calculate_wastage.html">Waste Impact</a></li>
+                <li class="nav-item"><a class="nav-link" href="generate_report.php">Reports</a></li>
+            </ul>
         </div>
     </nav>
 
