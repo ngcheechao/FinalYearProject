@@ -109,12 +109,12 @@ $result = $stmt->get_result();
 
         /* Edit Button */
         .edit-btn {
-            background-color: #007bff;
+            /*background-color:rgb(214, 214, 214);*/
             color: white;
         }
 
         .edit-btn:hover {
-            background-color: #0056b3;
+            background-color:rgb(111, 114, 118);
         }
 
         /* Delete Button */
@@ -282,7 +282,7 @@ $result = $stmt->get_result();
         }
 
         .delete-btn {
-            background-color: #dc3545;
+            background-color:rgb(149, 135, 136);
             color: white;
             padding: 10px 15px;
             border: none;
@@ -300,7 +300,7 @@ $result = $stmt->get_result();
         }
 
         .delete-btn:hover {
-            background-color: #c82333;
+            background-color:rgb(106, 101, 101);
         }
 
         .cancel-btn:hover {
@@ -368,12 +368,12 @@ $result = $stmt->get_result();
                 <td>" . htmlspecialchars($unit_label) . "</td>
                 <td>" . htmlspecialchars($row['expiry_date']) . "</td>
                 <td class='action-buttons'>
-                    <a href='edit_item.php?id=" . $row['id'] . "' class='edit-btn'>Edit</a>
+                    <a href='edit_item.php?id=" . $row['id'] . "' class='edit-btn'>✏️</a>
 
                     <form class='delete-form' action='delete_item.php' method='POST'>
                         <input type='hidden' name='id' value='" . $row['id'] . "'>
                         <button type='button' class='delete-btn open-modal' data-id='" . $row['id'] . "'>
-                            Delete
+                            🗑️
                         </button>
                     </form>
 
