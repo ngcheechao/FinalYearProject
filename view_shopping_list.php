@@ -444,6 +444,12 @@ $result = $stmt->get_result();
                 }
             });
         });
+        document.addEventListener("DOMContentLoaded", () => {
+            fetch('check_expiry.php')
+                .then(response => response.text())
+                .then(data => console.log("✅ Expiry check completed:", data))
+                .catch(error => console.error("❌ Expiry check failed:", error));
+        });
         </script>
 
 
