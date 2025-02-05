@@ -235,15 +235,16 @@ while ($row = $result_items->fetch_assoc()) {
             $recipe_ingredients = nl2br(htmlspecialchars($recipe['ingredients'])); // Convert newlines to <br> tags
 
             // Check if any of the selected items are contained as a substring in the recipe ingredients
-            $matched_ingredients = [];
+            $all_items_present = true;
             foreach ($item_names as $item) {
-                if (strpos(strtolower($recipe_ingredients), strtolower($item)) !== false) {
-                    $matched_ingredients[] = $item;  // If match found, add to matched ingredients
+                if (strpos(strtolower($recipe_ingredients), strtolower($item)) === false) {
+                    $all_items_present = false;
+                    break;  // If any selected ingredient is missing, break the loop
                 }
             }
-
-            // Only display recipes where at least one item is matched
-            if (count($matched_ingredients) > 0) {
+            
+            // Only display the recipe if ALL selected items are present
+            if ($all_items_present) {            
                 $recipes_found = true;
                 echo "<tr>
                         <td>" . htmlspecialchars($recipe['recipe_name']) . "</td>

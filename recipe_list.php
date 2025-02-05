@@ -12,11 +12,12 @@ try {
 
     // Check if a search query is provided
     $search = isset($_GET['search']) ? $_GET['search'] : '';
+    $filter = isset($_GET['filter']) ? $_GET['filter'] : 'recipe_name'; // Default filter
 
     // Fetch recipes based on the search query
     $sql = "SELECT id, recipe_name, ingredients, instructions FROM recipes";
     if (!empty($search)) {
-        $sql .= " WHERE recipe_name LIKE :search";
+        $sql .= " WHERE $filter LIKE :search"; // Use the selected filter
     }
     $sql .= " ORDER BY recipe_name ASC";
 
@@ -88,13 +89,19 @@ try {
             width: 250px;
         }
 
+        .search-form select {
+            border-radius: 20px;
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            margin-right: 10px;
+        }
+
         .search-form button {
             background: #007BFF;
             border: none;
             color: white;
             padding: 8px 20px;
             border-radius: 20px;
-            margin-left: 10px;
             cursor: pointer;
             transition: background 0.3s ease;
         }
@@ -182,7 +189,12 @@ try {
     <!-- Search Bar -->
     <div class="search-container">
         <form class="search-form" method="GET" action="recipe_list.php">
-            <input type="text" name="search" id="searchInput" placeholder="Search recipes..." value="<?php echo htmlspecialchars($search); ?>">
+            <select name="filter" id="filterSelect">
+                <option value="recipe_name" <?php echo (isset($_GET['filter']) && $_GET['filter'] == 'recipe_name') ? 'selected' : ''; ?>>Recipe Name</option>
+                <option value="ingredients" <?php echo (isset($_GET['filter']) && $_GET['filter'] == 'ingredients') ? 'selected' : ''; ?>>Ingredients</option>
+                <option value="instructions" <?php echo (isset($_GET['filter']) && $_GET['filter'] == 'instructions') ? 'selected' : ''; ?>>Instructions</option>
+            </select>
+            <input type="text" name="search" id="searchInput" placeholder="Search..." value="<?php echo htmlspecialchars($search); ?>">
             <button type="submit">Search</button>
         </form>
     </div>
@@ -220,9 +232,4 @@ try {
 
         <!-- Back to Recipes Button -->
         <div class="back-button">
-            <a href="recipe_manage.php">⬅ Back to Recipes</a>
-        </div>
-    </div>
-
-</body>
-</html>
+            <a href="recipe_manage.php"></a>
