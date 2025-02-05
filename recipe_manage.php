@@ -118,7 +118,13 @@ $recipes = $stmt->fetchAll(PDO::FETCH_ASSOC);
             outline: none;
             width: 250px;
         }
-
+        
+        .search-form select {
+            border-radius: 20px;
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            margin-right: 10px;
+        }
         .search-form button {
             background: #007BFF;
             border: none;
