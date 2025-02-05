@@ -40,7 +40,7 @@ $result = $stmt->get_result();
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            padding-top: 80px; /* Prevents navbar from overlapping content */
+            padding-top: 80px; 
         }
 
         /* Heading */
@@ -82,17 +82,17 @@ $result = $stmt->get_result();
             background: #f8f9fa;
         }
 
-        /* Action Buttons Styling (Ensures they stay in one row) */
+        /* Action Buttons Styling  */
         .action-buttons {
             display: flex;
-            gap: 10px; /* Adds spacing between buttons */
+            gap: 10px; 
             align-items: center;
             justify-content: center;
-            white-space: nowrap; /* Prevents wrapping */
+            white-space: nowrap; 
         }
 
         .action-buttons form {
-            display: inline; /* Prevents form from taking full width */
+            display: inline; 
         }
 
         /* Buttons Styling */
@@ -340,12 +340,12 @@ $result = $stmt->get_result();
                     <th>Item Name</th>
                     <th>Quantity</th>
                     <th>Price</th>
-                    <th>Category</th>
+                    <th>Unit</th>
                     <th>Expiry Date</th>
                     <th>Actions</th>
                 </tr>";
         while ($row = $result->fetch_assoc()) {
-            $unit_mapping = [1 => 'kg', 2 => 'g', 3 => 'pieces', 4 => 'ml', 5 => 'l'];
+            $unit_mapping = [1 => 'Kilogram', 2 => 'Gram', 3 => 'Pieces', 4 => 'Mililitre', 5 => 'Litre'];
             $unit_label = $unit_mapping[$row['unit']] ?? 'Unknown';
 
             $today = new DateTime();

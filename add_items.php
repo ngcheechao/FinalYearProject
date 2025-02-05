@@ -29,9 +29,34 @@ if (isset($_POST['submit'])) {
     $item_name = $_POST['item_name'];
     $category = $_POST['category'];
     $quantity = $_POST['quantity'];
-    $unit = $_POST['unit']; // Numeric unit value from the form
+    $unit = $_POST['unit']; 
     $price = $_POST['price'];
-    $expiry_date = $_POST['expiry_date']; // New expiry date field
+    $today = date('Y-m-d');
+    $expiry_date = $_POST['expiry_date']; 
+    if ($expiry_date <= $today) {
+        echo "
+        <div style='
+            max-width: 400px; 
+            margin: 20px auto; 
+            padding: 20px; 
+            border: 1px solid #ffb3b3; 
+            border-radius: 10px; 
+            background-color: #ffe6e6; 
+            font-family: Arial, sans-serif; 
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);'>
+            <h3 style='color: red; margin-top: 0;'>❌ Invalid Expiry Date!</h3>
+            <p style='margin: 10px 0;'>The expiry date must be a future date. Please select a valid date.</p>
+            <a href='add_items.html' style='
+                display: inline-block; 
+                padding: 8px 15px; 
+                color: white; 
+                background-color: #cc0000; 
+                text-decoration: none; 
+                border-radius: 5px; 
+                font-size: 14px;'>Go Back</a>
+        </div>";
+        exit(); // Stop script execution
+    }
 
     // Validate form inputs
     if (empty($item_name) || empty($category) || empty($quantity) || empty($unit) || empty($price) || empty($expiry_date)) {

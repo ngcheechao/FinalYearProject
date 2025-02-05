@@ -19,23 +19,29 @@
             border-radius: 10px;
             background-color: #ffffff;
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
         }
-        .success-message {
-            color: #28a745;
+        .message-box {
+            padding: 15px;
+            border-radius: 8px;
             font-weight: bold;
+            margin-bottom: 15px;
         }
-        .error-message {
-            color: #dc3545;
-            font-weight: bold;
+        .success-box {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
         }
-        .btn {
-            margin-top: 20px;
+        .error-box {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
         }
     </style>
 </head>
 
 <body>
-    <div class="container text-center">
+    <div class="container">
         <?php
         // Secure Database Connection
         $servername = "localhost";
@@ -46,7 +52,7 @@
         $conn = new mysqli($servername, $username, $password, $dbname);
 
         if ($conn->connect_error) {
-            die("<p class='error-message'>Connection failed: " . $conn->connect_error . "</p>");
+            die("<div class='message-box error-box'>❌ Connection failed: " . $conn->connect_error . "</div>");
         }
 
         // Check if form data is set
@@ -57,17 +63,32 @@
 
             // Input Validation
             if (empty($user) || empty($email) || empty($pass)) {
-                echo "<h2 class='error-message'>Error: All fields are required!</h2>";
+                echo "<div class='message-box error-box'>❌ Error: All fields are required!</div>";
                 echo "<a href='sign_up.html' class='btn btn-danger'>Try Again</a>";
                 exit();
             }
 
             // Validate Email
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                echo "<h2 class='error-message'>Invalid Email Format</h2>";
-                echo "<a href='sign_up.html' class='btn btn-danger'>Try Again</a>";
+                echo "<div class='message-box error-box'>⚠️ Invalid Email Format!</div>";
+                echo "<a href='sign_up.html' class='btn btn-warning'>Try Again</a>";
                 exit();
             }
+
+            // Check if Email Already Exists
+            $check_stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
+            $check_stmt->bind_param("s", $email);
+            $check_stmt->execute();
+            $check_stmt->store_result();
+
+            if ($check_stmt->num_rows > 0) {
+                echo "<div class='message-box error-box'>⚠️ Email already registered! Please log in.</div>";
+                echo "<a href='login.html' class='btn btn-primary'>Go to Login</a>";
+                $check_stmt->close();
+                $conn->close();
+                exit();
+            }
+            $check_stmt->close();
 
             // Assign Role
             $is_admin = 0;
@@ -77,11 +98,11 @@
             $stmt->bind_param("sssi", $user, $email, $pass, $is_admin);
 
             if ($stmt->execute()) {
-                echo "<h2 class='success-message'>🎉 Account created successfully!</h2>";
+                echo "<div class='message-box success-box'>🎉 Account created successfully!</div>";
                 echo "<p>Welcome, <strong>" . htmlspecialchars($user) . "</strong>! You can now log in.</p>";
                 echo "<a href='login.html' class='btn btn-success'>Go to Login Page</a>";
             } else {
-                echo "<h2 class='error-message'>Error Creating Account</h2>";
+                echo "<div class='message-box error-box'>❌ Error Creating Account!</div>";
                 echo "<p>There was an issue: " . $stmt->error . "</p>";
                 echo "<a href='sign_up.html' class='btn btn-danger'>Try Again</a>";
             }
@@ -90,7 +111,7 @@
             $stmt->close();
             $conn->close();
         } else {
-            echo "<h2 class='error-message'>Invalid Request</h2>";
+            echo "<div class='message-box error-box'>❌ Invalid Request!</div>";
         }
         ?>
     </div>

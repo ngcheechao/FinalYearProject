@@ -29,7 +29,35 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $quantity = $_POST['quantity'];
     $price = $_POST['price'];
     $expiry_date = $_POST['expiry_date'];
-    $unit = $_POST['unit']; // Retrieve unit from the form
+    $unit = $_POST['unit']; 
+
+    $today = date('Y-m-d');
+
+    // Validate if expiry date is a future date
+    if ($expiry_date <= $today) {
+        echo "
+        <div style='
+            max-width: 400px; 
+            margin: 20px auto; 
+            padding: 20px; 
+            border: 1px solid #ffb3b3; 
+            border-radius: 10px; 
+            background-color: #ffe6e6; 
+            font-family: Arial, sans-serif; 
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);'>
+            <h3 style='color: red; margin-top: 0;'>❌ Invalid Expiry Date!</h3>
+            <p style='margin: 10px 0;'>The expiry date must be a future date. Please select a valid date.</p>
+            <a href='edit_item.php?id=$id' style='
+                display: inline-block; 
+                padding: 8px 15px; 
+                color: white; 
+                background-color: #cc0000; 
+                text-decoration: none; 
+                border-radius: 5px; 
+                font-size: 14px;'>Go Back</a>
+        </div>";
+        exit();
+    }
 
     $sql = "UPDATE groceries 
             SET item_name='$item_name', quantity=$quantity, price=$price, expiry_date='$expiry_date', unit=$unit 
@@ -123,21 +151,21 @@ $conn->close();
             <input type="text" name="item_name" value="<?php echo htmlspecialchars($row['item_name']); ?>" required>
 
             <label for="quantity">Quantity:</label>
-            <input type="number" name="quantity" value="<?php echo htmlspecialchars($row['quantity']); ?>" required>
+            <input type="number" name="quantity" value="<?php echo htmlspecialchars($row['quantity']); ?>" required min="1">
 
             <label for="price">Price:</label>
-            <input type="number" step="0.01" name="price" value="<?php echo htmlspecialchars($row['price']); ?>" required>
+            <input type="number" id="price" name="price" value="<?php echo htmlspecialchars($row['price']); ?>" required step="0.01" min="0">
 
             <label for="expiry_date">Expiry Date:</label>
             <input type="date" name="expiry_date" value="<?php echo htmlspecialchars($row['expiry_date']); ?>" required>
 
             <label for="unit">Unit:</label>
             <select name="unit" required>
-                <option value="1" <?php if ($row['unit'] == 1) echo 'selected'; ?>>kg</option>
-                <option value="2" <?php if ($row['unit'] == 2) echo 'selected'; ?>>g</option>
-                <option value="3" <?php if ($row['unit'] == 3) echo 'selected'; ?>>pieces</option>
-                <option value="4" <?php if ($row['unit'] == 4) echo 'selected'; ?>>ml</option>
-                <option value="5" <?php if ($row['unit'] == 5) echo 'selected'; ?>>l</option>
+                <option value="1" <?php if ($row['unit'] == 1) echo 'selected'; ?>>Kilogram</option>
+                <option value="2" <?php if ($row['unit'] == 2) echo 'selected'; ?>>Gram</option>
+                <option value="3" <?php if ($row['unit'] == 3) echo 'selected'; ?>>Pieces</option>
+                <option value="4" <?php if ($row['unit'] == 4) echo 'selected'; ?>>Millilitre</option>
+                <option value="5" <?php if ($row['unit'] == 5) echo 'selected'; ?>>Liter</option>
             </select>
 
             <button type="submit">Update Item</button>
