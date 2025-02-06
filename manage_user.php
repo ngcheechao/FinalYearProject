@@ -116,7 +116,7 @@ if (isset($_GET['delete'])) {
             <table class="table table-bordered table-striped">
                 <thead>
                     <tr>
-                        <th>ID</th>
+                        
                         <th>Username</th>
                         <th>Email</th>
                         <th>Password</th>
@@ -133,7 +133,6 @@ if (isset($_GET['delete'])) {
                     if ($result->num_rows > 0) {
                         while ($row = $result->fetch_assoc()) {
                             echo "<tr>";
-                            echo "<td>" . $row['id'] . "</td>";
                             echo "<td>" . $row['username'] . "</td>";
                             echo "<td>" . $row['email'] . "</td>";
                             // Display plain-text password
