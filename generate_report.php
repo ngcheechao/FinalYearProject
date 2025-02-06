@@ -53,6 +53,14 @@ if ($selected_filter) {
     }
 }
 
+$unit_mapping = [
+    1 => "kg",
+    2 => "g",
+    3 => "pcs",
+    4 => "mL",
+    5 => "L"
+];
+
 // Fetch food wastage data
 $sql = "SELECT DATE(`timestamp`) AS waste_date, item_name, quantity, unit, price 
         FROM food_wastage 
@@ -65,8 +73,11 @@ $result = $stmt->get_result();
 
 $food_wastage_data = [];
 while ($row = $result->fetch_assoc()) {
+    $row['unit'] = $unit_mapping[$row['unit']] ?? "Unknown";
     $food_wastage_data[$row['waste_date']][] = $row;
 }
+
+
 
 // Fetch data for graph
 $graph_sql = "SELECT DATE(`timestamp`) AS waste_date, SUM(price) AS total_price
