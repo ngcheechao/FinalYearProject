@@ -1,28 +1,31 @@
 <?php
-// Initialize session and ensure user is logged in
 session_start();
+
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
 }
+
 $user_id = $_SESSION['user_id'];
 
-// Database connection
 $servername = "localhost";
 $username = "root";
 $password = "";
 $dbname = "fyp";
+
+// Create database connection
 $conn = new mysqli($servername, $username, $password, $dbname);
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Determine date filter based on custom date range or preset dropdown
+// Handle date filtering with custom date range option first
 $date_filter = "";
 $filter_label = "All Time";
 $selected_filter = '';
 $start_date = "";
 $end_date = "";
+
 if (isset($_GET['start_date']) && isset($_GET['end_date']) && !empty($_GET['start_date']) && !empty($_GET['end_date'])) {
     $start_date = $_GET['start_date'];
     $end_date = $_GET['end_date'];
@@ -56,9 +59,11 @@ if (isset($_GET['start_date']) && isset($_GET['end_date']) && !empty($_GET['star
             $filter_label = "Past 2 Year";
             break;
     }
+} else {
+    $selected_filter = '';
 }
 
-// Build query string for download link
+// Prepare the query string for the download link
 $download_query = "";
 if (!empty($start_date) && !empty($end_date)) {
     $download_query = "start_date=" . urlencode($start_date) . "&end_date=" . urlencode($end_date);
@@ -66,7 +71,7 @@ if (!empty($start_date) && !empty($end_date)) {
     $download_query = "filter=" . urlencode($selected_filter);
 }
 
-// Define unit mapping
+// Unit mapping (assuming unit is stored as a numeric value)
 $unit_mapping = [
     1 => "Kilogram",
     2 => "Gram",
@@ -75,22 +80,24 @@ $unit_mapping = [
     5 => "Litre"
 ];
 
-// Fetch food wastage data
+// Fetch food wastage data including category (if available)
+// UPDATED: Order by waste_date DESC so newest records appear first.
 $sql = "SELECT DATE(`timestamp`) AS waste_date, item_name, category, quantity, unit, price 
         FROM food_wastage 
         WHERE user_id = ? $date_filter
-        ORDER BY waste_date ASC";
+        ORDER BY waste_date DESC";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
+
 $food_wastage_data = [];
 while ($row = $result->fetch_assoc()) {
     $row['unit'] = $unit_mapping[$row['unit']] ?? "Unknown";
     $food_wastage_data[$row['waste_date']][] = $row;
 }
 
-// Fetch graph data (total price per day)
+// Fetch data for graph (total price per day)
 $graph_sql = "SELECT DATE(`timestamp`) AS waste_date, SUM(price) AS total_price
               FROM food_wastage
               WHERE user_id = ? $date_filter
@@ -100,6 +107,7 @@ $graph_stmt = $conn->prepare($graph_sql);
 $graph_stmt->bind_param("i", $user_id);
 $graph_stmt->execute();
 $graph_result = $graph_stmt->get_result();
+
 $graph_data = [];
 while ($row = $graph_result->fetch_assoc()) {
     $graph_data[] = [
@@ -108,7 +116,7 @@ while ($row = $graph_result->fetch_assoc()) {
     ];
 }
 
-// Fetch graph data for quantity (total quantity wasted per day)
+// Enhanced Graph Option (total quantity wasted per day)
 $graph_qty_sql = "SELECT DATE(`timestamp`) AS waste_date, SUM(
     CASE 
         WHEN unit = 1 THEN quantity 
@@ -124,6 +132,7 @@ $graph_qty_stmt = $conn->prepare($graph_qty_sql);
 $graph_qty_stmt->bind_param("i", $user_id);
 $graph_qty_stmt->execute();
 $graph_qty_result = $graph_qty_stmt->get_result();
+
 $graph_data_qty = [];
 while ($row = $graph_qty_result->fetch_assoc()) {
     $graph_data_qty[] = [
@@ -132,7 +141,7 @@ while ($row = $graph_qty_result->fetch_assoc()) {
     ];
 }
 
-// Additional summary metrics
+// Additional Summary Metrics
 $summary_qty_sql = "SELECT SUM(
     CASE 
       WHEN unit = 1 THEN quantity 
@@ -234,7 +243,6 @@ $avg_price = ($total_items > 0) ? ($total_cost / $total_items) : 0;
   </nav>
 
   <div class="container">
-      <!-- Row for view toggles and download link -->
       <div class="mb-4 d-flex justify-content-between align-items-center">
           <div>
               <button class="btn btn-primary btn-toggle" onclick="showSection('data-section')">View Data</button>
@@ -247,7 +255,6 @@ $avg_price = ($total_items > 0) ? ($total_cost / $total_items) : 0;
 
       <h1 class="text-center my-4">Food Wastage Report</h1>
       
-      <!-- Filter Form -->
       <div class="mb-4">
           <form method="GET" action="generate_report.php" class="d-flex align-items-center">
               <label for="filter" class="me-2">Filter by:</label>
@@ -268,7 +275,6 @@ $avg_price = ($total_items > 0) ? ($total_cost / $total_items) : 0;
           </form>
       </div>
       
-      <!-- Summary Metrics -->
       <div class="mb-4">
           <div class="alert alert-info">
               <strong>Summary:</strong>
@@ -280,7 +286,6 @@ $avg_price = ($total_items > 0) ? ($total_cost / $total_items) : 0;
           </div>
       </div>
       
-      <!-- Report Container -->
       <div class="report-container">
           <div id="data-section" class="content-container">
               <?php if (!empty($food_wastage_data)): ?>
@@ -347,7 +352,6 @@ $avg_price = ($total_items > 0) ? ($total_cost / $total_items) : 0;
   </div>
 
   <script>
-      // Toggle between Cost and Quantity datasets for the graph
       var barChart;
       const costData = <?= json_encode(array_column($graph_data, 'total_price')) ?>;
       const quantityData = <?= json_encode(array_column($graph_data_qty, 'total_quantity')) ?>;
@@ -380,10 +384,7 @@ $avg_price = ($total_items > 0) ? ($total_cost / $total_items) : 0;
                       scales: {
                           y: {
                               beginAtZero: true,
-                              title: {
-                                  display: true,
-                                  text: yAxisLabel
-                              }
+                              title: { display: true, text: yAxisLabel }
                           }
                       }
                   }
