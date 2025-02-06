@@ -54,11 +54,11 @@ if ($selected_filter) {
 }
 
 $unit_mapping = [
-    1 => "kg",
-    2 => "g",
-    3 => "pcs",
-    4 => "mL",
-    5 => "L"
+    1 => "Kilogram",
+    2 => "Gram",
+    3 => "Pieces",
+    4 => "Millilitre",
+    5 => "Litre"
 ];
 
 // Fetch food wastage data
