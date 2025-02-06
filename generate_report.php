@@ -216,7 +216,7 @@ while ($row = $graph_result->fetch_assoc()) {
     <nav class="navbar">
         <div class="container-fluid">
             <a class="navbar-brand" href="user_dashboard.html">
-                <img src="logo.png" alt="Logo" width="35"> Dashboard
+                <img src="logo.png" alt="Logo" width="35"> ⬅️Dashboard
             </a>
             <ul class="navbar-nav">
                 <li class="nav-item"><a class="nav-link" href="add_items.html">Add Items</a></li>
