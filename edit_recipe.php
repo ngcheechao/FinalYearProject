@@ -80,9 +80,9 @@ if (isset($_GET['recipe_id'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Recipes</title>
     <style>
-        body {
+       body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #81c784, #388e3c);
+            background: linear-gradient(135deg, #e0e0e0, #a5d6a7);
             color: #333;
             margin: 0;
             padding: 0;
@@ -91,10 +91,8 @@ if (isset($_GET['recipe_id'])) {
             background-color: #2e7d32;
             color: white;
             padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 18px;
+            text-align: center;
+            font-size: 20px;
         }
         header a {
             text-decoration: none;
@@ -102,12 +100,42 @@ if (isset($_GET['recipe_id'])) {
         }
         .container {
             width: 90%;
-            max-width: 900px;
+            max-width: 1100px;
             margin: 30px auto;
-            background-color: white;
-            padding: 30px;
+            text-align: center;
+        }
+        .recipes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .recipe-card {
+            background: white;
+            padding: 20px;
             border-radius: 15px;
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+        .recipe-card:hover {
+            transform: scale(1.05);
+        }
+        .recipe-name {
+            font-size: 1.5rem;
+            color: #388e3c;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #388e3c;
+            padding-bottom: 5px;
+        }
+        .recipe-details {
+            font-size: 1rem;
+            color: #555;
+            text-align: left;
+            margin-top: 10px;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+        }
+        .recipe-actions {
+            margin-top: 15px;
         }
         h1 {
             text-align: center;
@@ -199,6 +227,20 @@ if (isset($_GET['recipe_id'])) {
         td a:hover {
             color: #2e7d32;
         }
+        .edit-btn {
+            background-color: #388e3c;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .edit-btn:hover {
+            background-color: #2e7d32;
+        }
     </style>
 </head>
 <body>
@@ -226,33 +268,41 @@ if (isset($_GET['recipe_id'])) {
                 <a href="edit_recipe.php" class="btn-back">Cancel</a>
             </form>
         <?php else: ?>
-            <h1>All Recipes</h1>
-            <?php if ($result->num_rows > 0): ?>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Recipe Name</th>
-                            <th>Ingredients</th>
-                            <th>Instructions</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php while ($row = $result->fetch_assoc()): ?>
-                            <tr>
-                                <td><?php echo htmlspecialchars($row['recipe_name']); ?></td>
-                                <td><?php echo nl2br(htmlspecialchars($row['ingredients'])); ?></td>
-                                <td><?php echo nl2br(htmlspecialchars($row['instructions'])); ?></td>
-                                <td>
-                                    <a href="edit_recipe.php?recipe_id=<?php echo $row['id']; ?>">Edit</a>
-                                </td>
-                            </tr>
-                        <?php endwhile; ?>
-                    </tbody>
-                </table>
-            <?php else: ?>
-                <p>No recipes found.</p>
-            <?php endif; ?>
+             <header>All Recipes</header>
+    <div class="container">
+        <div class="recipes-grid">
+            <?php
+            // Database connection
+            $servername = "localhost";
+            $username = "root";
+            $password = "";
+            $dbname = "fyp";
+            
+            $conn = new mysqli($servername, $username, $password, $dbname);
+            if ($conn->connect_error) {
+                die("Connection failed: " . $conn->connect_error);
+            }
+            
+            $sql = "SELECT id, recipe_name, ingredients, instructions FROM recipes";
+            $result = $conn->query($sql);
+            
+            if ($result->num_rows > 0) {
+                while ($row = $result->fetch_assoc()) {
+                    echo "<div class='recipe-card'>";
+                    echo "<div class='recipe-name'>" . htmlspecialchars($row['recipe_name']) . "</div>";
+                    echo "<div class='recipe-details'><strong>Ingredients:</strong> <br>" . nl2br(htmlspecialchars($row['ingredients'])) . "</div>";
+                    echo "<div class='recipe-details'><strong>Instructions:</strong> <br>" . nl2br(htmlspecialchars($row['instructions'])) . "</div>";
+                    echo "<div class='recipe-actions'><a class='edit-btn' href='edit_recipe.php?recipe_id=" . $row['id'] . "'>Edit</a></div>";
+                    echo "</div>";
+                }
+            } else {
+                echo "<p>No recipes found.</p>";
+            }
+            
+            $conn->close();
+            ?>
+        </div>
+    </div>
         <?php endif; ?>
     </div>
 </body>
