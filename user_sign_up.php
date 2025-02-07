@@ -39,7 +39,6 @@
         }
     </style>
 </head>
-
 <body>
     <div class="container">
         <?php
@@ -64,14 +63,21 @@
             // Input Validation
             if (empty($user) || empty($email) || empty($pass)) {
                 echo "<div class='message-box error-box'>❌ Error: All fields are required!</div>";
-                echo "<a href='sign_up.html' class='btn btn-danger'>Try Again</a>";
+                echo "<a href='login.html' class='btn btn-danger'>Try Again</a>";
                 exit();
             }
 
             // Validate Email
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 echo "<div class='message-box error-box'>⚠️ Invalid Email Format!</div>";
-                echo "<a href='sign_up.html' class='btn btn-warning'>Try Again</a>";
+                echo "<a href='login.html' class='btn btn-warning'>Try Again</a>";
+                exit();
+            }
+
+            // Validate Password Length: must be exactly 8 characters
+            if (strlen($pass) !== 8) {
+                echo "<div class='message-box error-box'>❌ Password must be exactly 8 characters long!</div>";
+                echo "<a href='login.html' class='btn btn-danger'>Try Again</a>";
                 exit();
             }
 
@@ -104,7 +110,7 @@
             } else {
                 echo "<div class='message-box error-box'>❌ Error Creating Account!</div>";
                 echo "<p>There was an issue: " . $stmt->error . "</p>";
-                echo "<a href='sign_up.html' class='btn btn-danger'>Try Again</a>";
+                echo "<a href='login.html' class='btn btn-danger'>Try Again</a>";
             }
 
             // Close Statement & Connection
@@ -115,7 +121,6 @@
         }
         ?>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
