@@ -1,118 +1,128 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background: url('food_5.jpg') no-repeat center center fixed;
-            background-size: cover;
-        }
-        .dashboard-container {
-            max-width: 800px;
-            margin: 50px auto;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        .dashboard-button {
-            display: block;
-            width: 100%;
-            margin-bottom: 10px;
-            padding: 10px;
-            text-align: center;
-            background: #28a745;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-        }
-        .dashboard-button:hover {
-            background: #218838;
-        }
-        .logout-button {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: #28a745;
-            border-color: #218838;
-        }
-        .logout-button:hover {
-            background: #218838;
-        }
-        .stats-container {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-        }
-        .stats-box {
-            background: #e9f7ef;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            width: 40%;
-            margin: 0 10px;
-        }
-        .stats-number {
-            font-size: 2em;
-            font-weight: bold;
-            color: #28a745;
-        }
-        .navbar-dark.bg-dark {
-            background-color: #28a745 !important;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    /* Background image and basic styling */
+    body {
+      background: url('food_5.jpg') no-repeat center center fixed;
+      background-size: cover;
+      margin: 0;
+      padding: 0;
+    }
+    /* Dashboard container styling */
+    .dashboard-container {
+      max-width: 800px;
+      margin: 50px auto;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    /* Stats styling */
+    .stats-container {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+    .stats-box {
+      background: #e9f7ef;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      flex: 1 1 200px;
+    }
+    .stats-number {
+      font-size: 2em;
+      font-weight: bold;
+      color: #28a745;
+    }
+    /* Navbar adjustments */
+    .navbar-dark.bg-dark {
+      background-color: #28a745 !important;
+    }
+    /* Logout button styling */
+    .logout-button {
+      margin-left: auto;
+      background-color: rgb(22, 53, 224);
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 5px;
+      transition: background-color 0.3s ease;
+    }
+    .logout-button:hover {
+      background-color: rgb(76, 83, 194);
+      color: #fff;
+      text-decoration: none;
+    }
+  </style>
 </head>
 <body>
-    <!-- Navbar -->
+  <!-- Header / Navbar -->
+  <header>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="admin_dashboard.html">Admin Panel</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-toggle="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item"><a class="nav-link" href="add_recipe.html">Add Recipe</a></li>
-                    <li class="nav-item"><a class="nav-link" href="edit_recipe.php">Edit Recipe</a></li>
-                    <li class="nav-item"><a class="nav-link" href="delete_recipe.php">Delete Recipe</a></li>
-                    <li class="nav-item"><a class="nav-link" href="manage_user.php">Manage Users</a></li>
-                </ul>
-            </div>
+      <div class="container">
+        <a class="navbar-brand" href="admin_dashboard.html">Admin Panel</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item"><a class="nav-link" href="add_recipe.html">Add Recipe</a></li>
+            <li class="nav-item"><a class="nav-link" href="edit_recipe.php">Edit Recipe</a></li>
+            <li class="nav-item"><a class="nav-link" href="delete_recipe.php">Delete Recipe</a></li>
+            <li class="nav-item"><a class="nav-link" href="manage_user.php">Manage Users</a></li>
+          </ul>
+          <a href="login.html" class="btn logout-button">Logout</a>
         </div>
-        <a href="login.html" class="btn btn-outline-danger logout-button">Logout</a>
+      </div>
     </nav>
+  </header>
 
-    <div class="dashboard-container text-center">
-        <h1>Admin Dashboard</h1>
-        <p>Manage your activities here:</p>
-        
-        <div class="stats-container">
-            <div class="stats-box">
-                <h3>Total Recipes</h3>
-                <p class="stats-number" id="recipeCount">0</p>
-            </div>
-            <div class="stats-box">
-                <h3>Total Users</h3>
-                <p class="stats-number" id="userCount">0</p>
-            </div>
-        </div>
+  <!-- Main Dashboard Content -->
+  <main class="dashboard-container text-center">
+    <h1>Admin Dashboard</h1>
+    <p>Manage your activities here:</p>
+    <div class="stats-container">
+      <div class="stats-box">
+        <h3>Total Recipes</h3>
+        <p class="stats-number" id="recipeCount">0</p>
+      </div>
+      <div class="stats-box">
+        <h3>Total Users</h3>
+        <p class="stats-number" id="userCount">0</p>
+      </div>
     </div>
+  </main>
 
-    <script>
-        // Fetch statistics data from the backend
-        fetch('fetch_stats.php')
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('recipeCount').textContent = data.recipes;
-                document.getElementById('userCount').textContent = data.users;
-            })
-            .catch(error => console.error('Error fetching statistics:', error));
-    </script>
-    
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- JavaScript to fetch statistics -->
+  <script>
+    async function fetchStats() {
+      try {
+        const response = await fetch('fetch_stats.php');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        document.getElementById('recipeCount').textContent = data.recipes;
+        document.getElementById('userCount').textContent = data.users;
+      } catch (error) {
+        console.error('Error fetching statistics:', error);
+      }
+    }
+    // Fetch stats on page load
+    fetchStats();
+  </script>
+  
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
