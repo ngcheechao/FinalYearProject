@@ -1,31 +1,26 @@
 <?php
 session_start();
-
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
 }
-
 $user_id = $_SESSION['user_id'];
 
 $servername = "localhost";
 $username = "root";
 $password = "";
 $dbname = "fyp";
-
-// Create database connection
 $conn = new mysqli($servername, $username, $password, $dbname);
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Handle date filtering with custom date range option first
+// Determine date filter (custom date range takes precedence)
 $date_filter = "";
 $filter_label = "All Time";
 $selected_filter = '';
 $start_date = "";
 $end_date = "";
-
 if (isset($_GET['start_date']) && isset($_GET['end_date']) && !empty($_GET['start_date']) && !empty($_GET['end_date'])) {
     $start_date = $_GET['start_date'];
     $end_date = $_GET['end_date'];
@@ -63,7 +58,7 @@ if (isset($_GET['start_date']) && isset($_GET['end_date']) && !empty($_GET['star
     $selected_filter = '';
 }
 
-// Prepare the query string for the download link
+// Build query string for the download link
 $download_query = "";
 if (!empty($start_date) && !empty($end_date)) {
     $download_query = "start_date=" . urlencode($start_date) . "&end_date=" . urlencode($end_date);
@@ -71,7 +66,7 @@ if (!empty($start_date) && !empty($end_date)) {
     $download_query = "filter=" . urlencode($selected_filter);
 }
 
-// Unit mapping (assuming unit is stored as a numeric value)
+// Unit mapping
 $unit_mapping = [
     1 => "Kilogram",
     2 => "Gram",
@@ -80,8 +75,7 @@ $unit_mapping = [
     5 => "Litre"
 ];
 
-// Fetch food wastage data including category (if available)
-// UPDATED: Order by waste_date DESC so newest records appear first.
+// Fetch food wastage data for table (newest first)
 $sql = "SELECT DATE(`timestamp`) AS waste_date, item_name, category, quantity, unit, price 
         FROM food_wastage 
         WHERE user_id = ? $date_filter
@@ -90,14 +84,13 @@ $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
-
 $food_wastage_data = [];
 while ($row = $result->fetch_assoc()) {
     $row['unit'] = $unit_mapping[$row['unit']] ?? "Unknown";
     $food_wastage_data[$row['waste_date']][] = $row;
 }
 
-// Fetch data for graph (total price per day)
+// Fetch graph data for cost (ordered ascending for time series)
 $graph_sql = "SELECT DATE(`timestamp`) AS waste_date, SUM(price) AS total_price
               FROM food_wastage
               WHERE user_id = ? $date_filter
@@ -107,46 +100,17 @@ $graph_stmt = $conn->prepare($graph_sql);
 $graph_stmt->bind_param("i", $user_id);
 $graph_stmt->execute();
 $graph_result = $graph_stmt->get_result();
-
 $graph_data = [];
 while ($row = $graph_result->fetch_assoc()) {
-    $graph_data[] = [
-        'date' => $row['waste_date'],
-        'total_price' => $row['total_price']
-    ];
-}
-
-// Enhanced Graph Option (total quantity wasted per day)
-$graph_qty_sql = "SELECT DATE(`timestamp`) AS waste_date, SUM(
-    CASE 
-        WHEN unit = 1 THEN quantity 
-        WHEN unit = 2 THEN quantity/1000 
-        ELSE 0 
-    END
-) AS total_quantity
-FROM food_wastage
-WHERE user_id = ? $date_filter
-GROUP BY waste_date
-ORDER BY waste_date ASC";
-$graph_qty_stmt = $conn->prepare($graph_qty_sql);
-$graph_qty_stmt->bind_param("i", $user_id);
-$graph_qty_stmt->execute();
-$graph_qty_result = $graph_qty_stmt->get_result();
-
-$graph_data_qty = [];
-while ($row = $graph_qty_result->fetch_assoc()) {
-    $graph_data_qty[] = [
-        'date' => $row['waste_date'],
-        'total_quantity' => $row['total_quantity']
-    ];
+    $graph_data[] = ['date' => $row['waste_date'], 'total_price' => $row['total_price']];
 }
 
 // Additional Summary Metrics
 $summary_qty_sql = "SELECT SUM(
     CASE 
-      WHEN unit = 1 THEN quantity 
-      WHEN unit = 2 THEN quantity/1000 
-      ELSE 0 
+        WHEN unit = 1 THEN quantity 
+        WHEN unit = 2 THEN quantity/1000 
+        ELSE 0 
     END
 ) as total_food_wasted_kg
 FROM food_wastage
@@ -200,11 +164,11 @@ $avg_price = ($total_items > 0) ? ($total_cost / $total_items) : 0;
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
       body { background: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-      .navbar { background: linear-gradient(135deg, #14961F, rgb(23, 240, 38)); position: fixed; top: 0; width: 100%; z-index: 1000; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); padding: 10px 20px; }
+      .navbar { background: linear-gradient(135deg, #14961F, rgb(23, 240, 38)); position: fixed; top: 0; width: 100%; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.3); padding: 10px 20px; }
       .navbar-brand { font-size: 1.5rem; font-weight: bold; color: #fff; text-decoration: none; display: flex; align-items: center; gap: 10px; }
       .navbar-nav { display: flex; flex-direction: row; gap: 15px; list-style: none; margin: 0 auto; padding: 0; }
       .nav-link { color: #fff; font-size: 1.1rem; font-weight: bold; padding: 10px 15px; transition: all 0.3s ease-in-out; border-radius: 5px; text-decoration: none; }
-      .nav-link:hover { background: rgba(255, 255, 255, 0.3); transform: scale(1.05); }
+      .nav-link:hover { background: rgba(255,255,255,0.3); transform: scale(1.05); }
       .container { margin-top: 100px; margin-bottom: 50px; }
       .report-container { display: flex; flex-wrap: wrap; gap: 20px; }
       #data-section { width: 100% !important; }
@@ -214,7 +178,7 @@ $avg_price = ($total_items > 0) ? ($total_cost / $total_items) : 0;
           .chart-section { width: 40%; }
           #graph-section .chart-section { width: 100% !important; }
       }
-      .day-section { background: #fff; padding: 20px; margin-bottom: 20px; border-radius: 10px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); }
+      .day-section { background: #fff; padding: 20px; margin-bottom: 20px; border-radius: 10px; box-shadow: 0px 4px 10px rgba(0,0,0,0.1); }
       .day-title { font-weight: bold; font-size: 1.2rem; color: #14961F; margin-bottom: 15px; }
       .data-table { width: 100%; border-collapse: collapse; }
       .data-table th, .data-table td { padding: 12px; border: 1px solid #ddd; text-align: left; }
@@ -223,6 +187,13 @@ $avg_price = ($total_items > 0) ? ($total_cost / $total_items) : 0;
       .btn-toggle { margin-right: 10px; }
       .chart-section { height: 400px; }
       #barChart { width: 100% !important; height: 100% !important; }
+      /* Style for error message */
+      .error-message {
+          color: red;
+          font-weight: bold;
+          margin-top: 10px;
+          display: none;
+      }
   </style>
 </head>
 <body>
@@ -256,7 +227,7 @@ $avg_price = ($total_items > 0) ? ($total_cost / $total_items) : 0;
       <h1 class="text-center my-4">Food Wastage Report</h1>
       
       <div class="mb-4">
-          <form method="GET" action="generate_report.php" class="d-flex align-items-center">
+          <form method="GET" action="generate_report.php" class="d-flex align-items-center" onsubmit="return validateDates();">
               <label for="filter" class="me-2">Filter by:</label>
               <select id="filter" name="filter" class="form-select w-auto me-2" onchange="this.form.submit()">
                   <option value="">All Time</option>
@@ -273,6 +244,8 @@ $avg_price = ($total_items > 0) ? ($total_cost / $total_items) : 0;
               <input type="date" id="end_date" name="end_date" class="form-control w-auto">
               <button type="submit" class="btn btn-outline-primary ms-2">Apply</button>
           </form>
+          <!-- Error message container -->
+          <div id="dateError" class="error-message">Please select both start date and end date.</div>
       </div>
       
       <div class="mb-4">
@@ -335,14 +308,11 @@ $avg_price = ($total_items > 0) ? ($total_cost / $total_items) : 0;
           <div id="graph-section" class="content-container" style="display: none;">
               <div class="chart-section">
                   <h3 class="text-center mb-3">Wastage Trend</h3>
+                  <!-- Only cost option available -->
                   <div class="mb-3 d-flex justify-content-center">
                       <div class="form-check form-check-inline">
-                          <input class="form-check-input" type="radio" name="graphToggle" id="graphPrice" value="price" checked>
-                          <label class="form-check-label" for="graphPrice">Cost ($)</label>
-                      </div>
-                      <div class="form-check form-check-inline">
-                          <input class="form-check-input" type="radio" name="graphToggle" id="graphQuantity" value="quantity">
-                          <label class="form-check-label" for="graphQuantity">Quantity (kg)</label>
+                          <input class="form-check-input" type="radio" name="graphToggle" id="graphCost" value="cost" checked>
+                          <label class="form-check-label" for="graphCost">Cost ($)</label>
                       </div>
                   </div>
                   <canvas id="barChart"></canvas>
@@ -351,10 +321,37 @@ $avg_price = ($total_items > 0) ? ($total_cost / $total_items) : 0;
       </div>
   </div>
 
+  <!-- JavaScript at the bottom -->
   <script>
+      // Validate that both start and end dates are selected
+      function validateDates() {
+          var start = document.getElementById("start_date").value;
+          var end = document.getElementById("end_date").value;
+          var errorDiv = document.getElementById("dateError");
+          if ((start && !end) || (!start && end)) {
+              errorDiv.style.display = "block";
+              return false;
+          }
+          errorDiv.style.display = "none";
+          return true;
+      }
+
+      // Define showSection in global scope so inline onclick attributes can access it.
+      window.showSection = function(id) {
+          document.querySelectorAll('.content-container').forEach(function(el) {
+              el.style.display = 'none';
+          });
+          document.getElementById(id).style.display = 'block';
+          if (id === 'graph-section' && typeof barChart !== 'undefined') {
+              setTimeout(function() {
+                  barChart.resize();
+                  barChart.update();
+              }, 100);
+          }
+      };
+
       var barChart;
       const costData = <?= json_encode(array_column($graph_data, 'total_price')) ?>;
-      const quantityData = <?= json_encode(array_column($graph_data_qty, 'total_quantity')) ?>;
       const labels = <?= json_encode(array_column($graph_data, 'date')) ?>;
       
       function createChart(dataset, labelText, yAxisLabel) {
@@ -392,30 +389,17 @@ $avg_price = ($total_items > 0) ? ($total_cost / $total_items) : 0;
           }
       }
       
+      // Create chart with cost data by default.
       createChart(costData, 'Total Price Wasted ($)', 'Cost ($)');
-      
+
+      // Since only cost option is available, the toggle event listener is optional.
       document.querySelectorAll('input[name="graphToggle"]').forEach(function(radio) {
           radio.addEventListener('change', function() {
-              if (this.value === 'price') {
+              if (this.value === 'cost') {
                   createChart(costData, 'Total Price Wasted ($)', 'Cost ($)');
-              } else if (this.value === 'quantity') {
-                  createChart(quantityData, 'Total Quantity Wasted (kg)', 'Quantity (kg)');
               }
           });
       });
-      
-      function showSection(id) {
-          document.querySelectorAll('.content-container').forEach(function(el) {
-              el.style.display = 'none';
-          });
-          document.getElementById(id).style.display = 'block';
-          if (id === 'graph-section' && typeof barChart !== 'undefined') {
-              setTimeout(function() {
-                  barChart.resize();
-                  barChart.update();
-              }, 100);
-          }
-      }
   </script>
 </body>
 </html>
