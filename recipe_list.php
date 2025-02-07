@@ -111,8 +111,19 @@ try {
     .card-title {
         font-weight: bold;
     }
+    /* Removed the white-space property to prevent double line breaks */
     .card-text {
-        white-space: pre-wrap; /* Preserve line breaks */
+        /* white-space: pre-wrap; */
+    }
+    /* Section Header Styling */
+    .section-header {
+        font-size: 1.25rem;
+        font-weight: bold;
+        color: #155724;
+        border-bottom: 2px solid #155724;
+        padding-bottom: 5px;
+        margin-top: 15px;
+        margin-bottom: 10px;
     }
     /* Back Button Styling */
     .back-button {
@@ -177,9 +188,9 @@ try {
             <div class="card">
               <div class="card-body">
                 <h5 class="card-title"><?php echo htmlspecialchars($recipe['recipe_name']); ?></h5>
-                <h6 class="card-subtitle mb-2 text-muted">Ingredients</h6>
+                <div class="section-header">Ingredients</div>
                 <p class="card-text"><?php echo nl2br(htmlspecialchars($recipe['ingredients'])); ?></p>
-                <h6 class="card-subtitle mb-2 text-muted">Instructions</h6>
+                <div class="section-header">Instructions</div>
                 <p class="card-text"><?php echo nl2br(htmlspecialchars($recipe['instructions'])); ?></p>
               </div>
             </div>
