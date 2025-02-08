@@ -37,25 +37,24 @@ if (isset($_GET['id'])) {
 
 // Update user details after form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Retrieve and trim form fields to remove extra spaces
+    // Retrieve and trim form fields
     $username = trim($_POST['username']);
     $email    = trim($_POST['email']);
     $password = trim($_POST['password']);
-    // Convert role to integer (0 = User, 1 = Admin)
     $is_admin = isset($_POST['is_admin']) ? (int)$_POST['is_admin'] : 0;
 
-    // Server-side validation to ensure no fields are empty
+    // Server-side validation
     if (empty($username) || empty($email) || empty($password)) {
         $message = "Please fill in all required fields.";
     } else {
-        // Prepare the update query using a prepared statement
+        // Prepare the update query
         $sql = "UPDATE users SET username = ?, email = ?, password = ?, is_admin = ? WHERE id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("sssii", $username, $email, $password, $is_admin, $user_id);
 
         if ($stmt->execute()) {
             $message = "User updated successfully.";
-            // Update the $user array so that the form is repopulated with the updated data
+            // Update user array for form repopulation
             $user['username'] = $username;
             $user['email']    = $email;
             $user['password'] = $password;
@@ -77,7 +76,7 @@ $conn->close();
   <title>Edit User</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <style>
-    /* Basic styling for the page and form */
+    /* Basic styling */
     body {
       background-color: #f8f9fa;
       font-family: Arial, sans-serif;
@@ -112,6 +111,15 @@ $conn->close();
       color: #2e7d32;
       border-color: #a5d6a7;
       margin-bottom: 30px;
+    }
+    /* Password eye icon styling */
+    .input-group-text {
+      cursor: pointer;
+      background: #ffffff;
+      border-left: none;
+    }
+    .input-group input {
+      border-right: none;
     }
   </style>
 </head>
@@ -150,14 +158,17 @@ $conn->close();
       </div>
       <div class="mb-3">
         <label for="password" class="form-label">Password</label>
-        <input
-          type="password"
-          class="form-control"
-          id="password"
-          name="password"
-          value="<?php echo htmlspecialchars($user['password']); ?>"
-          required
-        >
+        <div class="input-group">
+          <input
+            type="password"
+            class="form-control"
+            id="password"
+            name="password"
+            value="<?php echo htmlspecialchars($user['password']); ?>"
+            required
+          >
+          <span class="input-group-text" id="togglePassword">👁️</span>
+        </div>
       </div>
       <div class="mb-3">
         <label for="is_admin" class="form-label">User Role</label>
@@ -170,6 +181,20 @@ $conn->close();
       <a href="manage_user.php" class="btn btn-secondary w-100 mt-3">Back to User List</a>
     </form>
   </div>
+
+  <!-- JavaScript to toggle password visibility -->
+  <script>
+    document.getElementById("togglePassword").addEventListener("click", function() {
+      let passwordField = document.getElementById("password");
+      if (passwordField.type === "password") {
+        passwordField.type = "text";
+        this.textContent = "🙈"; // Hide icon
+      } else {
+        passwordField.type = "password";
+        this.textContent = "👁️"; // Show eye icon
+      }
+    });
+  </script>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
