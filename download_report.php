@@ -28,7 +28,7 @@ if (isset($_GET['start_date']) && isset($_GET['end_date']) && !empty($_GET['star
     $end_date = $_GET['end_date'];
     $date_filter = "AND DATE(`timestamp`) BETWEEN '$start_date' AND '$end_date'";
     $filter_label = "From $start_date to $end_date";
-} elseif (isset($_GET['filter'])) {
+} elseif (isset($_GET['filter']) && !empty($_GET['filter'])) {
     $filter = $_GET['filter'];
     if ($filter == '1day') {
         $date_filter = "AND `timestamp` >= DATE_SUB(CURDATE(), INTERVAL 1 DAY)";
@@ -39,13 +39,19 @@ if (isset($_GET['start_date']) && isset($_GET['end_date']) && !empty($_GET['star
     } elseif ($filter == '1month') {
         $date_filter = "AND `timestamp` >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)";
         $filter_label = "Past 1 Month";
+    } elseif ($filter == '5month') {
+        $date_filter = "AND `timestamp` >= DATE_SUB(CURDATE(), INTERVAL 5 MONTH)";
+        $filter_label = "Past 5 Month";
     } elseif ($filter == '1year') {
         $date_filter = "AND `timestamp` >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)";
         $filter_label = "Past 1 Year";
+    } elseif ($filter == '2year') {
+        $date_filter = "AND `timestamp` >= DATE_SUB(CURDATE(), INTERVAL 2 YEAR)";
+        $filter_label = "Past 2 Year";
     }
 }
 
-// Define unit mapping (same as in your report page)
+// Define unit mapping
 $unit_mapping = [
     1 => "Kilogram",
     2 => "Gram",
@@ -64,7 +70,26 @@ $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
 
-// Fetch total summary using a similar unit conversion logic as in your report page
+// Check if there is any data to display
+if ($result->num_rows == 0) {
+    // No data: Output minimal HTML with JavaScript to update the error container on the parent page
+    echo '<html><head><script>
+           if(window.opener && !window.opener.closed) {
+               var errorContainer = window.opener.document.getElementById("error-container");
+               if(errorContainer) {
+                   errorContainer.innerHTML = "<div class=\'alert alert-danger\'>No data available for generating the report.</div>";
+               } else {
+                   alert("No data available for generating the report.");
+               }
+           } else {
+               alert("No data available for generating the report.");
+           }
+           window.close();
+          </script></head><body></body></html>';
+    exit();
+}
+
+// Fetch total summary data
 $summary_sql = "SELECT SUM(
     CASE 
         WHEN unit = 1 THEN quantity 
@@ -80,8 +105,6 @@ $summary_stmt->bind_param("i", $user_id);
 $summary_stmt->execute();
 $summary_result = $summary_stmt->get_result();
 $summary_data = $summary_result->fetch_assoc();
-
-$total_food_wasted = $summary_data['total_food_wasted'] ?? 0;
 $total_cost = $summary_data['total_cost'] ?? 0;
 
 // Initialize PDF
@@ -96,12 +119,11 @@ $pdf->SetMargins(10, 20, 10);
 $pdf->SetAutoPageBreak(TRUE, 10);
 $pdf->AddPage();
 
-// Add Title
+// Add Title and Summary to PDF
 $pdf->SetFont('helvetica', 'B', 18);
 $pdf->Cell(0, 10, "Food Wastage Report", 0, 1, 'C');
 $pdf->Ln(3);
 
-// Display Filter Timeframe and Summary (only Total Cost is shown)
 $pdf->SetFont('helvetica', 'I', 12);
 $pdf->Cell(0, 8, "Timeframe: $filter_label", 0, 1, 'C');
 $pdf->Ln(3);
@@ -110,7 +132,7 @@ $pdf->SetFont('helvetica', '', 12);
 $pdf->Cell(0, 8, "Total Cost: $" . number_format($total_cost, 2), 0, 1, 'C');
 $pdf->Ln(5);
 
-// Table Header Styling (including the Quantity column)
+// Table Header
 $pdf->SetFont('helvetica', 'B', 12);
 $pdf->SetFillColor(230, 230, 230);
 $cellWidth1 = 30; // Date
@@ -126,21 +148,18 @@ $pdf->Cell($cellWidth3, $cellHeight, "Quantity", 1, 0, 'C', 1);
 $pdf->Cell($cellWidth4, $cellHeight, "Unit", 1, 0, 'C', 1);
 $pdf->Cell($cellWidth5, $cellHeight, "Price ($)", 1, 1, 'C', 1);
 
-// Table Rows (including quantity)
+// Table Rows
 $pdf->SetFont('helvetica', '', 12);
-$pdf->SetFillColor(255, 255, 255);
 while ($row = $result->fetch_assoc()) {
-    // Apply the unit mapping to display the proper unit text
     $unit_text = isset($unit_mapping[$row['unit']]) ? $unit_mapping[$row['unit']] : "Unknown";
-    
-    $pdf->Cell($cellWidth1, $cellHeight, $row['waste_date'], 1, 0, 'C', 1);
-    $pdf->Cell($cellWidth2, $cellHeight, $row['item_name'], 1, 0, 'L', 1);
-    $pdf->Cell($cellWidth3, $cellHeight, $row['quantity'], 1, 0, 'C', 1);
-    $pdf->Cell($cellWidth4, $cellHeight, $unit_text, 1, 0, 'C', 1);
-    $pdf->Cell($cellWidth5, $cellHeight, number_format($row['price'], 2), 1, 1, 'R', 1);
+    $pdf->Cell($cellWidth1, $cellHeight, $row['waste_date'], 1, 0, 'C', 0);
+    $pdf->Cell($cellWidth2, $cellHeight, $row['item_name'], 1, 0, 'L', 0);
+    $pdf->Cell($cellWidth3, $cellHeight, $row['quantity'], 1, 0, 'C', 0);
+    $pdf->Cell($cellWidth4, $cellHeight, $unit_text, 1, 0, 'C', 0);
+    $pdf->Cell($cellWidth5, $cellHeight, number_format($row['price'], 2), 1, 1, 'R', 0);
 }
 
-// Output PDF for Download
+// Output PDF for download
 $pdf->Output("food_wastage_report.pdf", "D");
 
 $stmt->close();
