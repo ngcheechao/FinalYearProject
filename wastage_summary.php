@@ -60,7 +60,7 @@ $total_cost = $data['total_cost'] ?? 0;
 $calories_per_kg = 2000;
 $calories_per_meal = 600;
 $total_calories = $total_food_wasted * $calories_per_kg;
-$children_fed = floor($total_calories / $calories_per_meal);
+// $children_fed = floor($total_calories / $calories_per_meal);
 
 $stmt->close();
 $conn->close();
@@ -70,6 +70,6 @@ header('Content-Type: application/json');
 echo json_encode([
     'total_food_wasted' => round($total_food_wasted, 2),
     'total_cost' => round($total_cost, 2),
-    'children_fed' => $children_fed,
+    // 'children_fed' => $children_fed,
 ]);
 ?>

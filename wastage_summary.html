@@ -79,6 +79,62 @@
             padding: 100px 0 20px; /* Adjusted padding for navbar */
         }
 
+        .tips-container {
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    margin-top: 20px;
+}
+
+    .tips-wrapper {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 15px;
+    }
+
+    .tip-card {
+        background: #f8f8f8;
+        padding: 15px;
+        border-radius: 8px;
+        width: 30%;
+        text-align: center;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .tip-card:hover {
+        transform: scale(1.05);
+    }
+
+    .tip-card i {
+        font-size: 30px;
+        color: #14961F;
+        margin-bottom: 10px;
+    }
+
+    .tips-links {
+        list-style: none;
+        padding: 0;
+    }
+
+    .tips-links li {
+        margin-top: 10px;
+    }
+
+    .tips-links a {
+        color: #14961F;
+        font-weight: bold;
+        text-decoration: none;
+    }
+
+    .tips-links a:hover {
+        text-decoration: underline;
+    }
+
+
         .summary-container {
             background-color: rgba(255, 255, 255, 0.9);
             padding: 30px;
@@ -208,7 +264,7 @@
         <div id="summaryContent" class="summary-content" style="display: none;">
             <p><strong>Total Food Wasted:</strong> <span id="totalFoodWasted"></span> kg</p>
             <p><strong>Total Price of Wasted Food:</strong> $<span id="totalPrice"></span></p>
-            <p><strong>Meals for Children:</strong> Could have fed <span id="childrenFed"></span> children</p>
+            <!-- <p><strong>Meals for Children:</strong> Could have fed <span id="childrenFed"></span> children</p> -->
         </div>
 
         <div class="chart-container">
@@ -217,11 +273,40 @@
         <div class="chart-container">
             <canvas id="moneyWasteChart" width="400" height="400"></canvas>
         </div>
-        <div class="chart-container">
+        <!-- <div class="chart-container">
             <canvas id="childrenFedChart" width="400" height="400"></canvas>
+        </div> -->
+        <div class="tips-container">
+            <h3><i class="fas fa-seedling"></i> Reduce Your Food Waste</h3>
+            
+            <div class="tips-wrapper">
+                <div class="tip-card">
+                    <i class="fas fa-clipboard-list"></i>
+                    <h5>Plan Your Meals</h5>
+                    <p>Make a shopping list and plan your meals in advance to buy only what you need.</p>
+                </div>
+        
+                <div class="tip-card">
+                    <i class="fas fa-apple-alt"></i>
+                    <h5>Store Food Properly</h5>
+                    <p>Use airtight containers, label expiration dates, and freeze leftovers to extend shelf life.</p>
+                </div>
+        
+                <div class="tip-card">
+                    <i class="fas fa-recycle"></i>
+                    <h5>Compost Leftovers</h5>
+                    <p>Turn food scraps into nutrient-rich compost instead of throwing them away.</p>
+                </div>
+            </div>
+        
+            <h4>Learn More:</h4>
+            <ul class="tips-links">
+                <li><a href="https://www.nea.gov.sg/our-services/waste-management/3r-programmes-and-resources/food-waste-management" target="_blank">NEA - Waste Management</a></li>
+                    <li><a href="https://www.lovefoodhatewaste.com/" target="_blank">Love Food Hate Waste</a></li>
+                    <li><a href="https://www.foodfromtheheart.sg/highlights/how-to-reduce-food-waste-175" target="_blank">Food From the Heart - How to reduce waste?</a></li>
+            </ul>
         </div>
 
-        <button class="back-button" onclick="window.location.href='user_dashboard.html'">Back to Dashboard</button>
     </div>
     <div class="table-container">
         <h4>Wasted Food Log</h4>
@@ -238,7 +323,7 @@
             <tbody id="wasteTableBody"></tbody>
         </table>
     </div>
-    
+
 
     <script>
         // Unit conversion mapping
@@ -257,10 +342,10 @@
                 summaryContent.style.display = 'block';
                 document.getElementById('totalFoodWasted').textContent = data.total_food_wasted;
                 document.getElementById('totalPrice').textContent = data.total_cost;
-                document.getElementById('childrenFed').textContent = data.children_fed || 0;
+                // document.getElementById('childrenFed').textContent = data.children_fed || 0;
                 renderFoodWasteChart(data.total_food_wasted);
                 renderMoneyWasteChart(data.total_cost);
-                renderChildrenFedChart(data.children_fed);
+                // renderChildrenFedChart(data.children_fed);
             })
             .catch(error => {
                 console.error('Error fetching summary:', error);
@@ -293,15 +378,15 @@
             });
         }
 
-        function renderChildrenFedChart(userValue) {
-            new Chart(document.getElementById('childrenFedChart').getContext('2d'), {
-                type: 'bar',
-                data: {
-                    labels: ['Children You Could Feed', 'Average Monthly Meals Wasted'],
-                    datasets: [{ label: 'Meals for Children', data: [userValue, averageValues.childrenFed], backgroundColor: ['#36A2EB', '#FF6384'] }]
-                }
-            });
-        }
+        // function renderChildrenFedChart(userValue) {
+        //     new Chart(document.getElementById('childrenFedChart').getContext('2d'), {
+        //         type: 'bar',
+        //         data: {
+        //             labels: ['Children You Could Feed', 'Average Monthly Meals Wasted'],
+        //             datasets: [{ label: 'Meals for Children', data: [userValue, averageValues.childrenFed], backgroundColor: ['#36A2EB', '#FF6384'] }]
+        //         }
+        //     });
+        // }
         
 
    // Fetch and display the waste log
