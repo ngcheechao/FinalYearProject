@@ -45,6 +45,15 @@ if (isset($_GET['start_date']) && isset($_GET['end_date']) && !empty($_GET['star
     }
 }
 
+// Define unit mapping (same as in your report page)
+$unit_mapping = [
+    1 => "Kilogram",
+    2 => "Gram",
+    3 => "Pieces",
+    4 => "Millilitre",
+    5 => "Litre"
+];
+
 // Fetch food wastage data based on the filter
 $sql = "SELECT DATE(`timestamp`) AS waste_date, item_name, quantity, unit, price 
         FROM food_wastage 
@@ -55,11 +64,17 @@ $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
 
-// Fetch total summary
-$summary_sql = "SELECT SUM(quantity * (CASE WHEN unit = 'g' THEN 0.001 ELSE 1 END)) AS total_food_wasted,
-                       SUM(price) AS total_cost
-                FROM food_wastage
-                WHERE user_id = ? $date_filter";
+// Fetch total summary using a similar unit conversion logic as in your report page
+$summary_sql = "SELECT SUM(
+    CASE 
+        WHEN unit = 1 THEN quantity 
+        WHEN unit = 2 THEN quantity/1000 
+        ELSE 0 
+    END
+) AS total_food_wasted,
+       SUM(price) AS total_cost
+FROM food_wastage
+WHERE user_id = ? $date_filter";
 $summary_stmt = $conn->prepare($summary_sql);
 $summary_stmt->bind_param("i", $user_id);
 $summary_stmt->execute();
@@ -86,25 +101,23 @@ $pdf->SetFont('helvetica', 'B', 18);
 $pdf->Cell(0, 10, "Food Wastage Report", 0, 1, 'C');
 $pdf->Ln(3);
 
-// Display Filter Timeframe
+// Display Filter Timeframe and Summary (only Total Cost is shown)
 $pdf->SetFont('helvetica', 'I', 12);
 $pdf->Cell(0, 8, "Timeframe: $filter_label", 0, 1, 'C');
 $pdf->Ln(3);
 
-// Display Summary
 $pdf->SetFont('helvetica', '', 12);
-$pdf->Cell(0, 8, "Total Food Wasted: " . number_format($total_food_wasted, 2) . " kg", 0, 1, 'C');
 $pdf->Cell(0, 8, "Total Cost: $" . number_format($total_cost, 2), 0, 1, 'C');
 $pdf->Ln(5);
 
-// Table Header Styling
+// Table Header Styling (including the Quantity column)
 $pdf->SetFont('helvetica', 'B', 12);
 $pdf->SetFillColor(230, 230, 230);
-$cellWidth1 = 40;
-$cellWidth2 = 50;
-$cellWidth3 = 30;
-$cellWidth4 = 20;
-$cellWidth5 = 30;
+$cellWidth1 = 30; // Date
+$cellWidth2 = 50; // Item
+$cellWidth3 = 30; // Quantity
+$cellWidth4 = 30; // Unit
+$cellWidth5 = 30; // Price ($)
 $cellHeight = 10;
 
 $pdf->Cell($cellWidth1, $cellHeight, "Date", 1, 0, 'C', 1);
@@ -113,14 +126,17 @@ $pdf->Cell($cellWidth3, $cellHeight, "Quantity", 1, 0, 'C', 1);
 $pdf->Cell($cellWidth4, $cellHeight, "Unit", 1, 0, 'C', 1);
 $pdf->Cell($cellWidth5, $cellHeight, "Price ($)", 1, 1, 'C', 1);
 
-// Table Rows
+// Table Rows (including quantity)
 $pdf->SetFont('helvetica', '', 12);
 $pdf->SetFillColor(255, 255, 255);
 while ($row = $result->fetch_assoc()) {
+    // Apply the unit mapping to display the proper unit text
+    $unit_text = isset($unit_mapping[$row['unit']]) ? $unit_mapping[$row['unit']] : "Unknown";
+    
     $pdf->Cell($cellWidth1, $cellHeight, $row['waste_date'], 1, 0, 'C', 1);
     $pdf->Cell($cellWidth2, $cellHeight, $row['item_name'], 1, 0, 'L', 1);
     $pdf->Cell($cellWidth3, $cellHeight, $row['quantity'], 1, 0, 'C', 1);
-    $pdf->Cell($cellWidth4, $cellHeight, $row['unit'], 1, 0, 'C', 1);
+    $pdf->Cell($cellWidth4, $cellHeight, $unit_text, 1, 0, 'C', 1);
     $pdf->Cell($cellWidth5, $cellHeight, number_format($row['price'], 2), 1, 1, 'R', 1);
 }
 
