@@ -251,7 +251,6 @@ $avg_price = ($total_items > 0) ? ($total_cost / $total_items) : 0;
       <div class="mb-4">
           <div class="alert alert-info">
               <strong>Summary:</strong>
-              Total Food Wasted: <?= number_format($total_food_wasted_kg, 2) ?> kg |
               Total Cost: $<?= number_format($total_cost, 2) ?> |
               Total Items: <?= $total_items ?> |
               Average Price per Item: $<?= number_format($avg_price, 2) ?> |
