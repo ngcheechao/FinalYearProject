@@ -12,8 +12,12 @@ if ($conn->connect_error) {
 
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
-    $sql = "SELECT * FROM groceries WHERE id = $id";
-    $result = $conn->query($sql);
+    
+    // Use a prepared statement to prevent SQL injection
+    $stmt = $conn->prepare("SELECT * FROM groceries WHERE id = ?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
@@ -21,6 +25,7 @@ if (isset($_GET['id'])) {
         echo "Item not found.";
         exit;
     }
+    $stmt->close();
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -33,8 +38,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $today = date('Y-m-d');
 
-    // Validate if expiry date is a future date
-    if ($expiry_date <= $today) {
+    // Validate expiry date (must be today or later)
+    if ($expiry_date < $today) {
         echo "
         <div style='
             max-width: 400px; 
@@ -46,7 +51,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             font-family: Arial, sans-serif; 
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);'>
             <h3 style='color: red; margin-top: 0;'>❌ Invalid Expiry Date!</h3>
-            <p style='margin: 10px 0;'>The expiry date must be a future date. Please select a valid date.</p>
+            <p style='margin: 10px 0;'>The expiry date cannot be in the past. Please select today or a future date.</p>
             <a href='edit_item.php?id=$id' style='
                 display: inline-block; 
                 padding: 8px 15px; 
@@ -59,16 +64,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
 
-    $sql = "UPDATE groceries 
-            SET item_name='$item_name', quantity=$quantity, price=$price, expiry_date='$expiry_date', unit=$unit 
-            WHERE id=$id";
+    // Use prepared statement to update the database securely
+    $stmt = $conn->prepare("UPDATE groceries 
+                            SET item_name = ?, quantity = ?, price = ?, expiry_date = ?, unit = ?
+                            WHERE id = ?");
+    $stmt->bind_param("sidsii", $item_name, $quantity, $price, $expiry_date, $unit, $id);
 
-    if ($conn->query($sql) === TRUE) {
+    if ($stmt->execute()) {
         header("Location: view_shopping_list.php");
         exit;
     } else {
-        echo "Error updating record: " . $conn->error;
+        echo "Error updating record: " . $stmt->error;
     }
+
+    $stmt->close();
 }
 
 $conn->close();
