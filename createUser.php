@@ -1,90 +1,58 @@
-<!DOCTYPE html>
-<html lang="en">
+<?php
+header('Content-Type: application/json'); // Set response type to JSON
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create User</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #f8f9fa;
-        }
+// Database connection
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "fyp";
 
-        .container {
-            max-width: 500px;
-            padding: 20px;
-            border-radius: 10px;
-            background-color: #ffffff;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-        }
+$conn = new mysqli($servername, $username, $password, $dbname);
 
-        .success-message {
-            color: #28a745;
-            font-weight: bold;
-        }
+// Check connection
+if ($conn->connect_error) {
+    echo json_encode(["status" => "error", "message" => "Connection failed: " . $conn->connect_error]);
+    exit();
+}
 
-        .error-message {
-            color: #dc3545;
-            font-weight: bold;
-        }
+// Get form data
+$user = $_POST['username'];
+$email = $_POST['email'];
+$pass = $_POST['password']; // Plain password (consider hashing later)
+$role = $_POST['role']; 
+$is_admin = ($role === "Admin") ? 1 : 0;
 
-        .btn {
-            margin-top: 20px;
-        }
-    </style>
-</head>
+// Backend Password Validation: At least 8 characters
+if (strlen($pass) < 8) {
+    echo json_encode(["status" => "error", "message" => "⚠️ Password must be at least 8 characters long!"]);
+    exit();
+}
 
-<body>
-    <div class="container text-center">
-        <?php
-        // Database connection
-        $servername = "localhost";
-        $username = "root";
-        $password = "";
-        $dbname = "fyp";
+// Check if the email already exists
+$check_email = "SELECT email FROM users WHERE email = ?";
+$stmt = $conn->prepare($check_email);
+$stmt->bind_param("s", $email);
+$stmt->execute();
+$stmt->store_result();
 
-        $conn = new mysqli($servername, $username, $password, $dbname);
+if ($stmt->num_rows > 0) {
+    echo json_encode(["status" => "error", "message" => "⚠️ Email already registered!"]);
+    exit();
+}
 
-        if ($conn->connect_error) {
-            die("<p class='error-message'>Connection failed: " . $conn->connect_error . "</p>");
-        }
+// Insert new user if email is unique
+$stmt->close();
+$sql = "INSERT INTO users (username, email, password, is_admin) VALUES (?, ?, ?, ?)";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("sssi", $user, $email, $pass, $is_admin);
 
-        // Get form data
-        $user = $_POST['username'];
-        $email = $_POST['email'];
-        $pass = $_POST['password']; // Use the plain password
-        $role = $_POST['role']; // Get the role (Admin or Normal User)
+if ($stmt->execute()) {
+    echo json_encode(["status" => "success", "message" => "🎉 User created successfully!"]);
+} else {
+    echo json_encode(["status" => "error", "message" => "Error creating user: " . $conn->error]);
+}
 
-        // Determine is_admin value based on the role
-        $is_admin = ($role === "Admin") ? 1 : 0;
-
-        // Insert data into the `users` table
-        $sql = "INSERT INTO users (username, email, password, is_admin) VALUES ('$user', '$email', '$pass', $is_admin)";
-
-        if ($conn->query($sql) === TRUE) {
-            echo "<h2 class='success-message'>🎉 New user created successfully!</h2>";
-            echo "<p>Welcome, <strong>$user</strong>! Your account has been created as a <strong>$role</strong>.</p>";
-            echo "<a href='login.html' class='btn btn-success'>Go to Login</a>";
-            echo "<br>"; // Adds space between the two buttons
-            echo "<a href='admin_dashboard.html' class='btn btn-success'>Go Back to Admin Dashboard</a>";
-        } else {
-            echo "<h2 class='error-message'>Error Creating Account</h2>";
-            echo "<p>There was an issue: " . $conn->error . "</p>";
-            echo "<a href='createUser.html' class='btn btn-danger'>Try Again</a>";
-        }
-
-        $conn->close();
-        ?>
-    </div>
-
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-
-</html>
+// Close connection
+$stmt->close();
+$conn->close();
+?>
