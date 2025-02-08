@@ -35,13 +35,18 @@
         .btn-custom:hover {
             background-color: #218838;
         }
+
+        .alert {
+            display: none;
+            margin-top: 15px;
+        }
     </style>
 </head>
 
 <body>
     <div class="card p-4">
         <h2 class="text-center mb-4">Create an Account ✍️</h2>
-        <form action="createUser.php" method="post">
+        <form id="createUserForm">
             <div class="mb-3">
                 <label for="username" class="form-label">Username 👤:</label>
                 <input type="text" class="form-control" id="username" name="username" required>
@@ -62,13 +67,60 @@
                 </select>
             </div>
             <button type="submit" class="btn btn-custom w-100">Create Account</button>
-            <div class="text-center mt-4">
-                <a href="login.html" class="btn btn-outline-primary">Back to Login Page</a>
-            </div>
         </form>
+
+        <!-- Message Box -->
+        <div id="messageBox" class="alert text-center"></div>
+
+        <div class="text-center mt-4">
+            <a href="login.html" class="btn btn-outline-primary">Back to Login Page</a>
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="admin_dashboard.html" class="btn btn-outline-primary">Back to Admin Dashboard</a>
+        </div>
     </div>
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById("createUserForm").addEventListener("submit", function (event) {
+            event.preventDefault(); // Prevent normal form submission
+
+            const formData = new FormData(this);
+            const messageBox = document.getElementById("messageBox");
+            const password = document.getElementById("password").value;
+
+            // Password validation (must be at least 8 characters)
+            if (password.length < 8) {
+                messageBox.className = "alert alert-danger"; // Red error box
+                messageBox.innerHTML = "⚠️ Password must be at least 8 characters long!";
+                messageBox.style.display = "block";
+                return; // Stop form submission
+            }
+
+            fetch("createUser.php", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                    messageBox.className = "alert alert-success"; // Green success box
+                } else {
+                    messageBox.className = "alert alert-danger"; // Red error box
+                }
+                messageBox.innerHTML = data.message;
+                messageBox.style.display = "block";
+            })
+            .catch(error => {
+                messageBox.className = "alert alert-danger";
+                messageBox.innerHTML = "An error occurred. Please try again.";
+                messageBox.style.display = "block";
+            });
+        });
+    </script>
+
 </body>
 
 </html>
