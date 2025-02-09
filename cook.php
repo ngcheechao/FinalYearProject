@@ -46,7 +46,6 @@ $result = $stmt->get_result();
     <title>Shopping List</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
-        /* General Styles */
         body {
             font-family: 'Roboto', sans-serif;
             background: url('food_6.jpg') no-repeat center center fixed;

@@ -28,7 +28,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete_ids'])) {
     $sql = "DELETE FROM recipes WHERE id IN ($placeholders)";
     $stmt = $conn->prepare($sql);
 
-    // Bind the parameters dynamically
     $stmt->bind_param(str_repeat('i', count($delete_ids)), ...$delete_ids);
 
     if ($stmt->execute()) {
