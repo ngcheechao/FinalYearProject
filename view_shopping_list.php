@@ -345,11 +345,11 @@ $result = $stmt->get_result();
 
             // Assign background color based on expiry status
             if ($expiry_date < $today) {
-                $bg_color = 'background-color: #ffcccc;'; // Expired (Red)
+                $bg_color = 'background-color: #ffcccc;'; // Expired item will be displayed with red bg color
             } elseif ($interval <= 3) {
-                $bg_color = 'background-color: #fff3cd;'; // Near Expiry (Yellow)
+                $bg_color = 'background-color: #fff3cd;'; // Near Expiry will be displayed with yellow bg color
             } else {
-                $bg_color = 'background-color: #d4edda;'; // Fresh (Green)
+                $bg_color = 'background-color: #d4edda;'; // Fresh items are displayed with green bg color
             }
 
             echo "<tr style='$bg_color'>

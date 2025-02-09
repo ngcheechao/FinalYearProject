@@ -17,7 +17,7 @@ if ($conn->connect_error) {
 // Check if form data is set
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = trim($_POST['email']);
-    $pass = $_POST['password']; // User's entered password
+    $pass = $_POST['password']; 
 
     // Input Validation
     if (empty($email) || empty($pass)) {

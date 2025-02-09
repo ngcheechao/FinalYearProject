@@ -10,10 +10,10 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 
 // Database connection settings
-$host = 'localhost'; // Change if necessary
-$username = 'root'; // Change if necessary
-$password = ''; // Change if necessary
-$database = 'fyp'; // Replace with your actual database name
+$host = 'localhost'; 
+$username = 'root'; 
+$password = ''; 
+$database = 'fyp'; 
 
 // Connect to the database
 $conn = new mysqli($host, $username, $password, $database);
@@ -32,7 +32,7 @@ if (isset($_POST['submit'])) {
     $unit = $_POST['unit']; 
     $price = $_POST['price'];
     $expiry_date = $_POST['expiry_date']; 
-    $today = date('Y-m-d'); // Get today's date
+    $today = date('Y-m-d'); 
 
     // Validate expiry date (it can be today or in the future)
     if ($expiry_date < $today) {
@@ -57,7 +57,7 @@ if (isset($_POST['submit'])) {
                 border-radius: 5px; 
                 font-size: 14px;'>Go Back</a>
         </div>";
-        exit(); // Stop script execution
+        exit(); 
     }
 
     // Validate form inputs

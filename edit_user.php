@@ -15,6 +15,7 @@ if ($conn->connect_error) {
 
 // Initialize message variable and user array
 $message = "";
+$alert_class = ""; // Used to style success/error messages
 $user = [];
 
 // Fetch user details to pre-populate the form
@@ -32,6 +33,7 @@ if (isset($_GET['id'])) {
         $user = $result->fetch_assoc();
     } else {
         $message = "User not found.";
+        $alert_class = "alert-danger";
     }
 }
 
@@ -46,21 +48,37 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Server-side validation
     if (empty($username) || empty($email) || empty($password)) {
         $message = "Please fill in all required fields.";
+        $alert_class = "alert-danger";
     } else {
-        // Prepare the update query
-        $sql = "UPDATE users SET username = ?, email = ?, password = ?, is_admin = ? WHERE id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sssii", $username, $email, $password, $is_admin, $user_id);
+        // Check if the email already exists for another user
+        $sql_check = "SELECT id FROM users WHERE email = ? AND id != ?";
+        $stmt_check = $conn->prepare($sql_check);
+        $stmt_check->bind_param("si", $email, $user_id);
+        $stmt_check->execute();
+        $result_check = $stmt_check->get_result();
 
-        if ($stmt->execute()) {
-            $message = "User updated successfully.";
-            // Update user array for form repopulation
-            $user['username'] = $username;
-            $user['email']    = $email;
-            $user['password'] = $password;
-            $user['is_admin'] = $is_admin;
+        if ($result_check->num_rows > 0) {
+            $message = "Error: The email address is already in use by another user.";
+            $alert_class = "alert-danger";
         } else {
-            $message = "Error updating user: " . $conn->error;
+            // Prepare the update query
+            $sql = "UPDATE users SET username = ?, email = ?, password = ?, is_admin = ? WHERE id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("sssii", $username, $email, $password, $is_admin, $user_id);
+
+            if ($stmt->execute()) {
+                $message = "User updated successfully.";
+                $alert_class = "alert-success";
+
+                // Update user array for form repopulation
+                $user['username'] = $username;
+                $user['email']    = $email;
+                $user['password'] = $password;
+                $user['is_admin'] = $is_admin;
+            } else {
+                $message = "Error updating user: " . $conn->error;
+                $alert_class = "alert-danger";
+            }
         }
     }
 }
@@ -106,11 +124,8 @@ $conn->close();
       background-color: #1b5e20;
       border-color: #1b5e20;
     }
-    .alert-info {
-      background-color: #e8f5e9;
-      color: #2e7d32;
-      border-color: #a5d6a7;
-      margin-bottom: 30px;
+    .alert {
+      margin-bottom: 20px;
     }
     /* Password eye icon styling */
     .input-group-text {
@@ -127,9 +142,9 @@ $conn->close();
   <div class="container">
     <h2>Edit User</h2>
 
-    <!-- Display any message -->
+    <!-- Display error or success messages -->
     <?php if (!empty($message)) { ?>
-      <div class="alert alert-info text-center"><?php echo $message; ?></div>
+      <div class="alert <?php echo $alert_class; ?> text-center"><?php echo $message; ?></div>
     <?php } ?>
 
     <!-- Edit User Form -->
@@ -141,7 +156,7 @@ $conn->close();
           class="form-control"
           id="username"
           name="username"
-          value="<?php echo htmlspecialchars($user['username']); ?>"
+          value="<?php echo htmlspecialchars($user['username'] ?? ''); ?>"
           required
         >
       </div>
@@ -152,7 +167,7 @@ $conn->close();
           class="form-control"
           id="email"
           name="email"
-          value="<?php echo htmlspecialchars($user['email']); ?>"
+          value="<?php echo htmlspecialchars($user['email'] ?? ''); ?>"
           required
         >
       </div>
@@ -164,7 +179,7 @@ $conn->close();
             class="form-control"
             id="password"
             name="password"
-            value="<?php echo htmlspecialchars($user['password']); ?>"
+            value="<?php echo htmlspecialchars($user['password'] ?? ''); ?>"
             required
           >
           <span class="input-group-text" id="togglePassword">👁️</span>
@@ -182,17 +197,11 @@ $conn->close();
     </form>
   </div>
 
-  <!-- JavaScript to toggle password visibility -->
   <script>
     document.getElementById("togglePassword").addEventListener("click", function() {
       let passwordField = document.getElementById("password");
-      if (passwordField.type === "password") {
-        passwordField.type = "text";
-        this.textContent = "🙈"; // Hide icon
-      } else {
-        passwordField.type = "password";
-        this.textContent = "👁️"; // Show eye icon
-      }
+      passwordField.type = passwordField.type === "password" ? "text" : "password";
+      this.textContent = passwordField.type === "password" ? "👁️" : "🙈";
     });
   </script>
 
