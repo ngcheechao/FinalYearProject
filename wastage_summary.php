@@ -27,7 +27,7 @@ $unit_conversion = [
     1 => 1,      // Kilogram (kg) stays the same
     2 => 0.001,  // Gram (g) -> kg
     3 => 0.2,    // Pieces -> kg (Now updated to 0.2kg per piece)
-    4 => 0.001,  // Millilitre (ml) -> kg (Assumption: for water-based foods)
+    4 => 0.001,  // Millilitre (ml) -> kg 
     5 => 1       // Litre (L) -> kg
 ];
 

@@ -6,7 +6,7 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-$user_id = $_SESSION['user_id']; // Get logged-in user's ID
+$user_id = $_SESSION['user_id']; 
 
 $servername = "localhost";
 $username = "root";
@@ -19,7 +19,7 @@ if ($conn->connect_error) {
     die(json_encode(["error" => "Connection failed: " . $conn->connect_error]));
 }
 
-// ✅ Fetch notifications for the logged-in user only
+
 $sql = "SELECT item_name, quantity, unit, reason, timestamp 
         FROM food_wastage 
         WHERE user_id = ?
