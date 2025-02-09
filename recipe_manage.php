@@ -151,7 +151,7 @@ try {
   <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container-fluid">
       <a class="navbar-brand" href="user_dashboard.html">
-        <img src="logo.png" alt="Logo" width="35"> ⬅ Dashboard
+        <img src="logo.png" alt="Logo" width="35"> ⬅️ Dashboard
       </a>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav mx-auto">

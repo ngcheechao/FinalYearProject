@@ -187,7 +187,7 @@ $avg_price = ($total_items > 0) ? ($total_cost / $total_items) : 0;
       .btn-toggle { margin-right: 10px; }
       .chart-section { height: 400px; }
       #barChart { width: 100% !important; height: 100% !important; }
-      /* Style for error message */
+      /* Style for error messages */
       .error-message {
           color: red;
           font-weight: bold;
@@ -214,13 +214,17 @@ $avg_price = ($total_items > 0) ? ($total_cost / $total_items) : 0;
   </nav>
 
   <div class="container">
+      <!-- This container will be updated if the PDF generation returns an error -->
+      <div id="error-container"></div>
+
       <div class="mb-4 d-flex justify-content-between align-items-center">
           <div>
               <button class="btn btn-primary btn-toggle" onclick="showSection('data-section')">View Data</button>
               <button class="btn btn-secondary btn-toggle" onclick="showSection('graph-section')">View Graph</button>
           </div>
           <div>
-              <a href="download_report.php?<?= $download_query ?>" class="btn btn-success">Download Report</a>
+              <!-- Notice the target="_blank" so the download opens in a new window -->
+              <a href="download_report.php?<?= $download_query ?>" class="btn btn-success" target="_blank">Download Report</a>
           </div>
       </div>
 
@@ -244,14 +248,13 @@ $avg_price = ($total_items > 0) ? ($total_cost / $total_items) : 0;
               <input type="date" id="end_date" name="end_date" class="form-control w-auto">
               <button type="submit" class="btn btn-outline-primary ms-2">Apply</button>
           </form>
-          <!-- Error message container -->
+          <!-- Date error message (if only one date is selected) -->
           <div id="dateError" class="error-message">Please select both start date and end date.</div>
       </div>
       
       <div class="mb-4">
           <div class="alert alert-info">
               <strong>Summary:</strong>
-              Total Food Wasted: <?= number_format($total_food_wasted_kg, 2) ?> kg |
               Total Cost: $<?= number_format($total_cost, 2) ?> |
               Total Items: <?= $total_items ?> |
               Average Price per Item: $<?= number_format($avg_price, 2) ?> |

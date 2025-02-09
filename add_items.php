@@ -10,10 +10,10 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 
 // Database connection settings
-$host = 'localhost'; // Change if necessary
-$username = 'root'; // Change if necessary
-$password = ''; // Change if necessary
-$database = 'fyp'; // Replace with your actual database name
+$host = 'localhost'; 
+$username = 'root'; 
+$password = ''; 
+$database = 'fyp'; 
 
 // Connect to the database
 $conn = new mysqli($host, $username, $password, $database);
@@ -31,9 +31,11 @@ if (isset($_POST['submit'])) {
     $quantity = $_POST['quantity'];
     $unit = $_POST['unit']; 
     $price = $_POST['price'];
-    $today = date('Y-m-d');
     $expiry_date = $_POST['expiry_date']; 
-    if ($expiry_date <= $today) {
+    $today = date('Y-m-d'); 
+
+    // Validate expiry date (it can be today or in the future)
+    if ($expiry_date < $today) {
         echo "
         <div style='
             max-width: 400px; 
@@ -45,7 +47,7 @@ if (isset($_POST['submit'])) {
             font-family: Arial, sans-serif; 
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);'>
             <h3 style='color: red; margin-top: 0;'>❌ Invalid Expiry Date!</h3>
-            <p style='margin: 10px 0;'>The expiry date must be a future date. Please select a valid date.</p>
+            <p style='margin: 10px 0;'>The expiry date cannot be in the past. Please select today or a future date.</p>
             <a href='add_items.html' style='
                 display: inline-block; 
                 padding: 8px 15px; 
@@ -55,7 +57,7 @@ if (isset($_POST['submit'])) {
                 border-radius: 5px; 
                 font-size: 14px;'>Go Back</a>
         </div>";
-        exit(); // Stop script execution
+        exit(); 
     }
 
     // Validate form inputs
@@ -84,8 +86,8 @@ if (isset($_POST['submit'])) {
             background-color: #e6ffe6; 
             font-family: Arial, sans-serif; 
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);'>
-            <h3 style='color: green; margin-top: 0;'>Item Added Successfully!</h3>
-            <p style='margin: 10px 0;'>Your item has been added to the purchased list.</p>
+            <h3 style='color: green; margin-top: 0;'>✅ Item Added Successfully!</h3>
+            <p style='margin: 10px 0;'>Your item has been added to the shopping list.</p>
             <a href='view_shopping_list.php' style='
                 display: inline-block; 
                 padding: 8px 15px; 
@@ -96,9 +98,7 @@ if (isset($_POST['submit'])) {
                 font-size: 14px;'>View Items</a>
         </div>";
     } else {
-        echo "<p style='color: red; font-size: 16px; font-family: Arial, sans-serif;'>
-                Error: " . $stmt->error . "
-              </p>";
+        echo "<p style='color: red; font-size: 16px; font-family: Arial, sans-serif;'>Error: " . $stmt->error . "</p>";
     }
     
     // Close the statement

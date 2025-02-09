@@ -19,18 +19,30 @@ $message = "";
 if (isset($_GET['delete'])) {
     $id = $_GET['delete'];
 
+    // Retrieve the username before deletion
+    $sqlUser = "SELECT username FROM users WHERE id = ?";
+    $stmtUser = $conn->prepare($sqlUser);
+    $stmtUser->bind_param("i", $id);
+    $stmtUser->execute();
+    $resultUser = $stmtUser->get_result();
+    if ($resultUser->num_rows > 0) {
+        $row = $resultUser->fetch_assoc();
+        $usernameDeleted = $row['username'];
+    } else {
+        $usernameDeleted = "Unknown";
+    }
+
     // First, delete related records in the food_wastage table
     $conn->query("DELETE FROM food_wastage WHERE user_id = $id");
 
     // Then, delete the user
-    $sql = "DELETE FROM users WHERE id = $id";
-    if ($conn->query($sql) === TRUE) {
-        $message = "User with ID $id has been deleted successfully.";
+    $sqlDelete = "DELETE FROM users WHERE id = $id";
+    if ($conn->query($sqlDelete) === TRUE) {
+        $message = "User with name <strong>$usernameDeleted</strong> has been deleted successfully.";
     } else {
         $message = "Error deleting user: " . $conn->error;
     }
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -61,18 +73,18 @@ if (isset($_GET['delete'])) {
             color: #2e7d32;
         }
 
-        .btn-primary, .btn-outline-primary {
+        .btn-primary,
+        .btn-outline-primary {
             background-color: #2e7d32;
             border-color: #2e7d32;
             color: white;
-            /* Ensures text is visible */
         }
 
-        .btn-primary:hover, .btn-outline-primary:hover {
+        .btn-primary:hover,
+        .btn-outline-primary:hover {
             background-color: #1b5e20;
             border-color: #1b5e20;
             color: white;
-            /* Ensures text remains visible on hover */
         }
 
         .btn-danger {
@@ -106,7 +118,7 @@ if (isset($_GET['delete'])) {
     <div class="container">
         <h2 class="text-center mb-4">Admin Panel - User List</h2>
 
-        <!-- Display messages -->
+        <!-- Display messages in an alert box -->
         <?php if (!empty($message)) { ?>
             <div class="alert alert-info text-center"><?php echo $message; ?></div>
         <?php } ?>
@@ -116,7 +128,6 @@ if (isset($_GET['delete'])) {
             <table class="table table-bordered table-striped">
                 <thead>
                     <tr>
-                        
                         <th>Username</th>
                         <th>Email</th>
                         <th>Password</th>
@@ -126,7 +137,7 @@ if (isset($_GET['delete'])) {
                 </thead>
                 <tbody>
                     <?php
-                    // Fetch all users (excluding admins)
+                    // Fetch all users
                     $sql = "SELECT * FROM users";
                     $result = $conn->query($sql);
 
@@ -135,13 +146,13 @@ if (isset($_GET['delete'])) {
                             echo "<tr>";
                             echo "<td>" . $row['username'] . "</td>";
                             echo "<td>" . $row['email'] . "</td>";
-                            // Display plain-text password
-                            echo "<td>" . $row['password'] . "</td>";  // Display password in plain text
+                            // Displaying plain-text password (not recommended for production)
+                            echo "<td>" . $row['password'] . "</td>";
                             echo "<td>" . ($row['is_admin'] == 1 ? 'Admin' : 'User') . "</td>";
                             echo "<td>
-                            <a href='edit_user.php?id=" . $row['id'] . "' class='btn btn-primary btn-sm'>Edit</a>
-                                <a href='manage_user.php?delete=" . $row['id'] . "' class='btn btn-danger btn-sm' onclick='return confirm(\"Are you sure you want to delete this user?\")'>Delete</a>
-                                </td>";
+                                    <a href='edit_user.php?id=" . $row['id'] . "' class='btn btn-primary btn-sm'>Edit</a>
+                                    <a href='manage_user.php?delete=" . $row['id'] . "' class='btn btn-danger btn-sm' onclick='return confirm(\"Are you sure you want to delete this user?\")'>Delete</a>
+                                  </td>";
                             echo "</tr>";
                         }
                     } else {

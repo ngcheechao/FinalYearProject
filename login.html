@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -85,55 +84,12 @@
             background-color: #218838;
         }
 
-        .dark-mode .btn-custom {
-            background-color: #000000;
-        }
-
-        .dark-mode .switch-bg {
-            background-color: #000000;
-        }
-
-        /* Dark mode toggle container */
-        .dark-mode-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            width: 100px;
-            height: 40px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-
-        .dark-mode-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 50%;
-            height: 100%;
-            background-color: #333333;
-            border-radius: 20px;
-            transition: left 0.3s ease-in-out;
-        }
-
-        .dark-mode-btn {
-            width: 50%;
-            text-align: center;
-            padding: 5px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: bold;
-            z-index: 1;
-            color: #ffffff;
-        }
-
-        .dark-mode-btn.active {
-            color: #ffffff;
+        .alert {
+            display: none;
+            margin-top: 15px;
         }
     </style>
 </head>
-
 <body>
     <!-- Dark Mode Toggle -->
     <div class="dark-mode-container">
@@ -170,7 +126,7 @@
 
         <!-- Sign Up Form -->
         <div class="form-container" id="signup-form">
-            <form action="user_sign_up.php" method="post">
+            <form id="signUpForm">
                 <div class="mb-3">
                     <label for="username" class="form-label">Username:</label>
                     <input type="text" class="form-control" id="username" name="username" required>
@@ -185,6 +141,7 @@
                 </div>
                 <button type="submit" class="btn btn-custom w-100">Sign Up</button>
             </form>
+            <div id="signupMessageBox" class="alert text-center mt-3"></div>
         </div>
     </div>
 
@@ -196,10 +153,9 @@
         const switchBg = document.getElementById("switch-bg");
         const loginForm = document.getElementById("login-form");
         const signupForm = document.getElementById("signup-form");
-        const lightModeBtn = document.getElementById("light-mode");
-        const darkModeBtn = document.getElementById("dark-mode");
-        const darkModeBg = document.getElementById("dark-mode-bg");
+        const messageBox = document.getElementById("signupMessageBox");
 
+        // Switch Forms
         loginSwitch.addEventListener("click", () => {
             switchBg.style.left = "0";
             loginSwitch.classList.add("active");
@@ -216,20 +172,32 @@
             loginForm.classList.remove("active");
         });
 
-        lightModeBtn.addEventListener("click", () => {
-            document.body.classList.remove("dark-mode");
-            darkModeBg.style.left = "0";
-            lightModeBtn.classList.add("active");
-            darkModeBtn.classList.remove("active");
-        });
+        // Handle Form Submission
+        document.getElementById("signUpForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+            const formData = new FormData(this);
 
-        darkModeBtn.addEventListener("click", () => {
-            document.body.classList.add("dark-mode");
-            darkModeBg.style.left = "50%";
-            darkModeBtn.classList.add("active");
-            lightModeBtn.classList.remove("active");
+            fetch("user_sign_up.php", {
+                method: "POST",
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        messageBox.className = "alert alert-success";
+                        setTimeout(() => loginSwitch.click(), 3000);
+                    } else {
+                        messageBox.className = "alert alert-danger";
+                    }
+                    messageBox.innerHTML = data.message;
+                    messageBox.style.display = "block";
+                })
+                .catch(error => {
+                    messageBox.className = "alert alert-danger";
+                    messageBox.innerHTML = "❌ An error occurred. Please try again.";
+                    messageBox.style.display = "block";
+                });
         });
     </script>
 </body>
-
 </html>
